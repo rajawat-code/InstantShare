@@ -8,7 +8,16 @@ This frontend is fully functional using mock data and browser `localStorage`, wi
 
 ## 🌟 Key Features
 
-### 1. User Roles (Dual Persona)
+### 1. Location-Based Nearby Item Discovery (Walking Distance / 200m Core Feature)
+Hyperlocal equipment sharing built into the main platform flow:
+- **Walking Radius by Default**: Set to **200 meters** (~2-3 min walk), with instant options for **100 m**, **200 m**, **300 m**, and **500 m**.
+- **Real Browser Geolocation**: Prominent **"Find items near me"** buttons request user coordinates via `navigator.geolocation.getCurrentPosition`.
+- **Haversine Distance Math**: Real-time geodesic distance calculations between the user and equipment coordinates.
+- **Distance Labels & Walk Times**: Every nearby item card clearly displays e.g. **`145 m away (~2 min walk)`**, sorted strictly nearest to farthest.
+- **Sample Demo Neighborhood**: Clearly marked demo location (**Green Park Community Hub, New Delhi**) with clustered items (e.g. *Electric Drill — ₹80/hour — 145 m away*) allows testing full 100m–500m discovery even when browser GPS permission is denied or in desktop environments.
+- **Graceful State Handling**: Full support for `locating`, `granted`, `denied`, `unavailable`, `no_items_within_radius`, and `demo_mode`.
+
+### 2. User Roles (Dual Persona)
 A single user can act as both a **Renter** and an **Owner**:
 - **Renter Workflow**:
   - Discover items nearby with real-time keyword search and category filtering.
@@ -140,6 +149,22 @@ instantshare-frontend/
 ---
 
 ## 🧪 Testing User Journeys
+
+### Journey 0: Location-Based Walking Discovery (200m Radius)
+1. Open the **Home** or **Explore** page.
+2. Click **"Find Items Near Me"** or **"Try Demo Neighborhood"** (Green Park Community Hub, New Delhi).
+3. The platform computes distances using the **Haversine formula** and displays items within the default **200m** walking boundary:
+   - *Trek Hybrid Bicycle — ₹70/hr — 65 m away (~1 min walk)*
+   - *Philips Digital Air Fryer — ₹280/day — 85 m away (~1 min walk)*
+   - *Electric Impact Drill — ₹80/hr — 145 m away (~2 min walk)*
+   - *Epson Home Projector — ₹850/day — 175 m away (~2 min walk)*
+   - *Quechua 4-Person Tent — ₹450/day — 190 m away (~2 min walk)*
+4. Switch the radius pills from **200 m** to **100 m**, **300 m**, or **500 m**:
+   - At **100m**: shows only the 2 items on the immediate block (65m & 85m).
+   - At **300m**: expands to include the JBL PartyBox (260m) and 18-ft Folding Ladder (290m).
+   - At **500m**: adds the DSLR camera (360m), pressure washer (440m), and angle grinder (490m).
+5. Open any item card to see distance and estimated walking time directly on the item details page.
+6. If GPS permission is denied in browser settings, observe the clear fallback banner allowing one-click exploration of the sample demo hub or all marketplace items.
 
 ### Journey A: Rent an Item as Priya
 1. Click the top-right profile switcher and ensure **Priya Patel** is selected.

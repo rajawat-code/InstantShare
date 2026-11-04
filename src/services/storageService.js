@@ -5,19 +5,32 @@
  */
 
 import { mockUsers, mockItems, mockBookings } from '../data/mockData';
+import { calculateHaversineDistance, formatDistance, estimateWalkingTime } from '../utils/geo';
 
 const KEYS = {
   USERS: 'instantshare_users',
   ITEMS: 'instantshare_items',
   BOOKINGS: 'instantshare_bookings',
   CURRENT_USER_ID: 'instantshare_current_user_id',
+  DATA_SCHEMA_VERSION: 'instantshare_schema_v2', // bump to ensure geo-tagged mock items load
 };
 
 /**
- * Initialize storage with mock data if not already present.
+ * Initialize storage with mock data if not already present or if upgraded.
  */
 export const initStorage = () => {
   try {
+    const schemaVersion = localStorage.getItem(KEYS.DATA_SCHEMA_VERSION);
+    if (!schemaVersion || schemaVersion !== '2.0') {
+      // Refresh items and users with geocoordinates
+      localStorage.setItem(KEYS.USERS, JSON.stringify(mockUsers));
+      localStorage.setItem(KEYS.ITEMS, JSON.stringify(mockItems));
+      localStorage.setItem(KEYS.BOOKINGS, JSON.stringify(mockBookings));
+      localStorage.setItem(KEYS.CURRENT_USER_ID, JSON.stringify(1));
+      localStorage.setItem(KEYS.DATA_SCHEMA_VERSION, '2.0');
+      return;
+    }
+
     if (!localStorage.getItem(KEYS.USERS)) {
       localStorage.setItem(KEYS.USERS, JSON.stringify(mockUsers));
     }
@@ -28,7 +41,6 @@ export const initStorage = () => {
       localStorage.setItem(KEYS.BOOKINGS, JSON.stringify(mockBookings));
     }
     if (!localStorage.getItem(KEYS.CURRENT_USER_ID)) {
-      // Default to Aarav Sharma (id: 1)
       localStorage.setItem(KEYS.CURRENT_USER_ID, JSON.stringify(1));
     }
   } catch (error) {
@@ -94,6 +106,56 @@ export const storageService = {
   getItemById: (id) => {
     const items = storageService.getItems();
     return items.find((item) => item.id === Number(id)) || null;
+  },
+
+  /**
+   * Location-based nearby items query using the Haversine formula
+   * @param {number} userLat
+   * @param {number} userLng
+   * @param {number} radiusMeters Default 200m
+   * @param {Object} extraFilters
+   * @returns {Array} Items within radius, sorted nearest to farthest
+   */
+  getNearbyItems: (userLat, userLng, radiusMeters = 200, extraFilters = {}) => {
+    if (userLat === undefined || userLng === undefined) {
+      return [];
+    }
+
+    const items = storageService.getItems();
+    const results = [];
+
+    for (const item of items) {
+      if (item.lat === undefined || item.lng === undefined) continue;
+
+      const dist = calculateHaversineDistance(userLat, userLng, item.lat, item.lng);
+
+      if (dist <= radiusMeters) {
+        // Apply extra filters if provided
+        if (extraFilters.category && extraFilters.category !== 'All') {
+          if (item.category.toLowerCase() !== extraFilters.category.toLowerCase()) continue;
+        }
+        if (extraFilters.availableOnly && !item.available) continue;
+        if (extraFilters.search) {
+          const q = extraFilters.search.toLowerCase().trim();
+          const matches =
+            item.name.toLowerCase().includes(q) ||
+            item.description.toLowerCase().includes(q) ||
+            item.category.toLowerCase().includes(q);
+          if (!matches) continue;
+        }
+
+        results.push({
+          ...item,
+          distanceMeters: Math.round(dist),
+          distanceFormatted: formatDistance(dist),
+          walkingTime: estimateWalkingTime(dist),
+        });
+      }
+    }
+
+    // Sort strictly from nearest to farthest
+    results.sort((a, b) => a.distanceMeters - b.distanceMeters);
+    return results;
   },
 
   saveItem: (itemData) => {
@@ -209,6 +271,7 @@ export const storageService = {
     localStorage.setItem(KEYS.ITEMS, JSON.stringify(mockItems));
     localStorage.setItem(KEYS.BOOKINGS, JSON.stringify(mockBookings));
     localStorage.setItem(KEYS.CURRENT_USER_ID, JSON.stringify(1));
+    localStorage.setItem(KEYS.DATA_SCHEMA_VERSION, '2.0');
     window.dispatchEvent(new Event('instantshare_data_changed'));
     window.dispatchEvent(new Event('instantshare_user_changed'));
     return true;
@@ -216,4 +279,3 @@ export const storageService = {
 };
 
 export default storageService;
-

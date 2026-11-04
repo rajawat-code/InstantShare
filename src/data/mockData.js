@@ -1,6 +1,7 @@
 /**
  * InstantShare - Mock Data
- * Realistic seed data for 5 demo users, 17 rental items, and 10 bookings.
+ * Realistic seed data for 5 demo users, 18 rental items (including dense clusters
+ * around the Green Park Demo Hub for 100m, 200m, 300m, and 500m discovery), and 10 bookings.
  */
 
 export const mockUsers = [
@@ -10,9 +11,9 @@ export const mockUsers = [
     email: "aarav.sharma@example.com",
     role: "Owner & Renter",
     avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80",
-    location: "Agra, Uttar Pradesh",
+    location: "Green Park, New Delhi",
     phone: "+91 98765 43210",
-    bio: "Photography hobbyist and drone pilot. Glad to share premium tech gear with fellow creators in Agra.",
+    bio: "Photography hobbyist and drone pilot. Glad to share premium tech gear with fellow creators.",
     rating: 4.9,
     reviewsCount: 38,
     memberSince: "Jan 2024"
@@ -23,9 +24,9 @@ export const mockUsers = [
     email: "priya.patel@example.com",
     role: "Owner & Renter",
     avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=300&q=80",
-    location: "New Delhi, NCR",
+    location: "Green Park Market, New Delhi",
     phone: "+91 98123 45678",
-    bio: "Outdoor explorer, DIY homemaker and weekend camper. Love sharing quality camping & kitchen essentials.",
+    bio: "Outdoor explorer, DIY homemaker and weekend camper. Love sharing quality camping & home tools.",
     rating: 4.8,
     reviewsCount: 29,
     memberSince: "Mar 2024"
@@ -36,7 +37,7 @@ export const mockUsers = [
     email: "rohan.verma@example.com",
     role: "Owner & Renter",
     avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=300&q=80",
-    location: "Bengaluru, Karnataka",
+    location: "Hauz Khas / Green Park, New Delhi",
     phone: "+91 97456 12389",
     bio: "Sound engineer and event host. Putting professional party audio and studio lights into good hands.",
     rating: 5.0,
@@ -49,7 +50,7 @@ export const mockUsers = [
     email: "sneha.kapoor@example.com",
     role: "Owner & Renter",
     avatar: "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=300&q=80",
-    location: "Mumbai, Maharashtra",
+    location: "Green Park Extension, New Delhi",
     phone: "+91 96543 89012",
     bio: "Cyclist, fitness coach and content creator. Believer in community economy and zero waste.",
     rating: 4.7,
@@ -62,9 +63,9 @@ export const mockUsers = [
     email: "vikram.singh@example.com",
     role: "Owner & Renter",
     avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=300&q=80",
-    location: "Jaipur, Rajasthan",
+    location: "Green Park Main, New Delhi",
     phone: "+91 95123 78945",
-    bio: "Structural engineer with a complete home workshop. Renting heavy-duty DIY tools & gear safely.",
+    bio: "Structural engineer with a complete home workshop. Renting heavy-duty DIY tools safely.",
     rating: 4.9,
     reviewsCount: 51,
     memberSince: "Dec 2023"
@@ -81,160 +82,174 @@ export const CATEGORIES = [
   "Travel and Outdoor"
 ];
 
+/**
+ * Mock rental items with realistic geographical coordinates.
+ * Notice: A rich cluster is placed within 50m - 500m of DEMO_LOCATION (lat: 28.5585, lng: 77.2029)
+ * for immediate testing of 100m, 200m, 300m, and 500m discovery.
+ */
 export const mockItems = [
+  // --- CLUSTER: Within 100 meters of Demo Location ---
   {
-    id: 1,
-    name: "Canon EOS 90D DSLR Camera Kit",
-    description: "32.5MP APS-C sensor with 18-135mm IS USM lens, 2 extra batteries, 64GB high-speed SD card, and padded shoulder bag. Perfect for weddings, events, or student film projects.",
-    category: "Electronics",
-    rentalPrice: 200,
+    id: 101,
+    name: "Trek Hybrid Commuter Bicycle with Helmet",
+    description: "Lightweight alloy frame, 21-speed Shimano gears, comfortable gel saddle, front basket, and U-lock. Ideal for quick neighborhood errands.",
+    category: "Sports and Fitness",
+    rentalPrice: 70,
     rentalType: "HOURLY",
-    imageUrl: "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&w=800&q=80",
-    location: "Agra, Uttar Pradesh",
+    imageUrl: "https://images.unsplash.com/photo-1485965120184-e220f721d03e?auto=format&fit=crop&w=800&q=80",
+    location: "Green Park Market, Block S",
+    lat: 28.55815,
+    lng: 77.20340, // ~65m away
     available: true,
-    ownerId: 1,
-    deposit: 1500,
-    condition: "Like New",
-    rating: 4.9,
-    reviewsCount: 16
+    ownerId: 4,
+    deposit: 500,
+    condition: "Excellent",
+    rating: 4.8,
+    reviewsCount: 14
   },
   {
-    id: 2,
+    id: 102,
+    name: "Philips Digital Air Fryer XXL 7.2L",
+    description: "Rapid CombiAir technology, 16 presets, large capacity capable of cooking a whole chicken. Cleaned and sanitized for your dinner party.",
+    category: "Home and Kitchen",
+    rentalPrice: 280,
+    rentalType: "DAILY",
+    imageUrl: "https://images.unsplash.com/photo-1585515320310-259814833e62?auto=format&fit=crop&w=800&q=80",
+    location: "Green Park Main, Block A",
+    lat: 28.55910,
+    lng: 77.20240, // ~85m away
+    available: true,
+    ownerId: 2,
+    deposit: 600,
+    condition: "Like New",
+    rating: 4.9,
+    reviewsCount: 11
+  },
+
+  // --- CLUSTER: Within 200 meters of Demo Location (The core 200m sweet spot!) ---
+  {
+    id: 103,
+    name: "Electric Impact Drill Machine Kit",
+    description: "650W variable-speed reversible impact hammer drill with masonry and wood bit set, depth gauge, wall plugs, and safety goggles. Perfect for hanging art, shelves, and quick fixes.",
+    category: "Tools and Equipment",
+    rentalPrice: 80,
+    rentalType: "HOURLY",
+    imageUrl: "https://images.unsplash.com/photo-1504148455328-c376907d081c?auto=format&fit=crop&w=800&q=80",
+    location: "Green Park Market, Near Metro Gate 2",
+    lat: 28.55758,
+    lng: 77.20395, // ~145m away (matches PRD example!)
+    available: true,
+    ownerId: 5,
+    deposit: 400,
+    condition: "Excellent",
+    rating: 4.9,
+    reviewsCount: 32
+  },
+  {
+    id: 104,
     name: "Epson Full HD Home Cinema Projector",
-    description: "3300 lumens brightness, vivid 1080p projection up to 300 inches, HDMI/USB input, with 100-inch portable tripod screen included. Ideal for movie nights and terrace match screenings.",
+    description: "3300 lumens brightness, vivid 1080p projection, HDMI cable and 100-inch portable stand screen included. Great for terrace screenings and football matches.",
     category: "Electronics",
     rentalPrice: 850,
     rentalType: "DAILY",
     imageUrl: "https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?auto=format&fit=crop&w=800&q=80",
-    location: "New Delhi, NCR",
+    location: "Green Park Market, Block G",
+    lat: 28.55710,
+    lng: 77.20360, // ~175m away
     available: true,
     ownerId: 2,
     deposit: 2000,
     condition: "Excellent",
     rating: 4.8,
-    reviewsCount: 12
-  },
-  {
-    id: 3,
-    name: "Bosch 13mm Professional Impact Drill Kit",
-    description: "650W robust impact drill machine with 100-piece accessory kit including masonry, wood, and metal drill bits, wall plugs, and sturdy carry case. Essential for all home renovation work.",
-    category: "Tools and Equipment",
-    rentalPrice: 350,
-    rentalType: "DAILY",
-    imageUrl: "https://images.unsplash.com/photo-1504148455328-c376907d081c?auto=format&fit=crop&w=800&q=80",
-    location: "Jaipur, Rajasthan",
-    available: true,
-    ownerId: 5,
-    deposit: 500,
-    condition: "Good",
-    rating: 4.9,
-    reviewsCount: 27
-  },
-  {
-    id: 4,
-    name: "Trek Marlin 6 Disc Mountain Bicycle",
-    description: "Lightweight Alpha Silver aluminum frame, front suspension with lockout, Shimano 16-speed gearing, and hydraulic disc brakes. Includes cycling helmet, gel seat cover, and U-lock.",
-    category: "Sports and Fitness",
-    rentalPrice: 150,
-    rentalType: "HOURLY",
-    imageUrl: "https://images.unsplash.com/photo-1485965120184-e220f721d03e?auto=format&fit=crop&w=800&q=80",
-    location: "Mumbai, Maharashtra",
-    available: true,
-    ownerId: 4,
-    deposit: 1000,
-    condition: "Like New",
-    rating: 4.7,
     reviewsCount: 19
   },
   {
-    id: 5,
+    id: 105,
     name: "Quechua 4-Person Waterproof Camping Tent",
-    description: "Spacious Quechua MH100 tent with dual door flysheet, wind resistance up to 50 km/h, waterproof construction, ground sheet, and quick 10-minute setup. Includes 4 foam sleeping pads.",
+    description: "Dual door flysheet, wind resistance up to 50 km/h, waterproof construction, ground sheet, and quick 10-minute setup. Includes 4 sleeping pads.",
     category: "Travel and Outdoor",
     rentalPrice: 450,
     rentalType: "DAILY",
     imageUrl: "https://images.unsplash.com/photo-1510312305653-8ed496efae75?auto=format&fit=crop&w=800&q=80",
-    location: "New Delhi, NCR",
+    location: "Green Park Lane 4",
+    lat: 28.55990,
+    lng: 77.20180, // ~190m away
     available: true,
     ownerId: 2,
     deposit: 1000,
-    condition: "Excellent",
+    condition: "Like New",
     rating: 4.9,
-    reviewsCount: 21
+    reviewsCount: 25
   },
+
+  // --- CLUSTER: Within 300 meters of Demo Location ---
   {
-    id: 6,
+    id: 106,
     name: "JBL PartyBox 310 Bluetooth Speaker",
-    description: "Massive 240W RMS JBL Pro Sound, dynamic synchronized light show, built-in karaoke mic inputs, wheels for portability, and 18-hour battery life. Perfect for parties, terrace gatherings, and dance rehearsals.",
+    description: "240W RMS JBL Pro Sound, dynamic synchronized light show, built-in karaoke mic inputs, wheels for portability, and 18-hour battery life. Perfect for parties and gatherings.",
     category: "Event Equipment",
     rentalPrice: 250,
     rentalType: "HOURLY",
     imageUrl: "https://images.unsplash.com/photo-1545454675-3531b543be5d?auto=format&fit=crop&w=800&q=80",
-    location: "Bengaluru, Karnataka",
+    location: "Green Park Market, Near Gurudwara",
+    lat: 28.56060,
+    lng: 77.20170, // ~260m away
     available: true,
     ownerId: 3,
     deposit: 3000,
     condition: "Excellent",
     rating: 5.0,
-    reviewsCount: 31
+    reviewsCount: 38
   },
   {
-    id: 7,
-    name: "Gorilla 18-ft Multipurpose Aluminum Ladder",
-    description: "Heavy-duty 150 kg load capacity ladder convertible into step ladder, extension ladder, stairway ladder, and 90-degree wall ladder. Slip-resistant rungs and sturdy locks.",
+    id: 107,
+    name: "Gorilla 18-ft Multipurpose Aluminum Folding Ladder",
+    description: "Heavy-duty 150 kg capacity ladder convertible into step ladder, extension ladder, stairway ladder, and 90-degree wall ladder. Slip-resistant rungs.",
     category: "Tools and Equipment",
     rentalPrice: 400,
     rentalType: "DAILY",
     imageUrl: "https://images.unsplash.com/photo-1581783342308-f792dbdd27c5?auto=format&fit=crop&w=800&q=80",
-    location: "Jaipur, Rajasthan",
+    location: "Green Park Extension, Block B",
+    lat: 28.55610,
+    lng: 77.20190, // ~290m away
     available: true,
     ownerId: 5,
     deposit: 800,
     condition: "Good",
     rating: 4.8,
-    reviewsCount: 14
+    reviewsCount: 16
   },
+
+  // --- CLUSTER: Within 500 meters of Demo Location ---
   {
-    id: 8,
-    name: "Sony FE 24-70mm f/2.8 GM Lens",
-    description: "Pro standard zoom lens for Sony E-mount full frame cameras. Incredible sharpness, creamy bokeh, fast direct drive SSM focus. UV filter and lens hood included.",
+    id: 1,
+    name: "Canon EOS 90D DSLR Camera Kit",
+    description: "32.5MP APS-C sensor with 18-135mm IS USM lens, 2 extra batteries, 64GB high-speed SD card, and padded shoulder bag. Perfect for events, graduation ceremonies, or student films.",
     category: "Electronics",
-    rentalPrice: 220,
+    rentalPrice: 200,
     rentalType: "HOURLY",
-    imageUrl: "https://images.unsplash.com/photo-1617005082133-548c4dd27f35?auto=format&fit=crop&w=800&q=80",
-    location: "Agra, Uttar Pradesh",
+    imageUrl: "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&w=800&q=80",
+    location: "Green Park Main, Block C",
+    lat: 28.55550,
+    lng: 77.20450, // ~360m away
     available: true,
     ownerId: 1,
-    deposit: 3500,
+    deposit: 1500,
     condition: "Like New",
-    rating: 5.0,
-    reviewsCount: 15
+    rating: 4.9,
+    reviewsCount: 28
   },
   {
-    id: 9,
-    name: "Philips Digital Air Fryer XXL 7.2L",
-    description: "Rapid CombiAir technology, 16 cooking presets, large capacity capable of cooking a whole chicken or hosting family feasts with 90% less oil. Cleaned and sanitized.",
-    category: "Home and Kitchen",
-    rentalPrice: 300,
-    rentalType: "DAILY",
-    imageUrl: "https://images.unsplash.com/photo-1585515320310-259814833e62?auto=format&fit=crop&w=800&q=80",
-    location: "Mumbai, Maharashtra",
-    available: true,
-    ownerId: 4,
-    deposit: 600,
-    condition: "Excellent",
-    rating: 4.6,
-    reviewsCount: 9
-  },
-  {
-    id: 10,
-    name: "Karcher K2 Compact High Pressure Washer",
-    description: "110 bar pressure washer with dirt blaster lance, spray lance, and 4-meter high pressure hose. Clean cars, bikes, patio floor tiles, and AC units effortlessly.",
+    id: 108,
+    name: "Karcher K2 High Pressure Washer",
+    description: "110 bar pressure washer with dirt blaster lance, spray lance, and 4-meter hose. Clean car, bike, balcony floor tiles, and AC outdoor units effortlessly.",
     category: "Tools and Equipment",
     rentalPrice: 500,
     rentalType: "DAILY",
     imageUrl: "https://images.unsplash.com/photo-1607860108855-64acf2078ed9?auto=format&fit=crop&w=800&q=80",
-    location: "Jaipur, Rajasthan",
+    location: "Green Park Extension, Lane 7",
+    lat: 28.56200,
+    lng: 77.20450, // ~440m away
     available: true,
     ownerId: 5,
     deposit: 1200,
@@ -243,14 +258,54 @@ export const mockItems = [
     reviewsCount: 18
   },
   {
+    id: 109,
+    name: "DeWalt 20V MAX Cordless Angle Grinder",
+    description: "Brushless motor, 9000 RPM with 2 batteries and fast charger. For cutting metal pipes, tile trimming, and masonry grinding safely.",
+    category: "Tools and Equipment",
+    rentalPrice: 450,
+    rentalType: "DAILY",
+    imageUrl: "https://images.unsplash.com/photo-1572981779307-38b8cabb2407?auto=format&fit=crop&w=800&q=80",
+    location: "Hauz Khas Enclave Border",
+    lat: 28.55450,
+    lng: 77.20100, // ~490m away
+    available: true,
+    ownerId: 5,
+    deposit: 1000,
+    condition: "Good",
+    rating: 4.9,
+    reviewsCount: 13
+  },
+
+  // --- ADDITIONAL NEARBY & REGIONAL ITEMS ---
+  {
+    id: 8,
+    name: "Sony FE 24-70mm f/2.8 GM Lens",
+    description: "Pro standard zoom lens for Sony E-mount full frame cameras. Incredible sharpness, creamy bokeh, fast direct drive SSM focus. UV filter included.",
+    category: "Electronics",
+    rentalPrice: 220,
+    rentalType: "HOURLY",
+    imageUrl: "https://images.unsplash.com/photo-1617005082133-548c4dd27f35?auto=format&fit=crop&w=800&q=80",
+    location: "Safdarjung Enclave, New Delhi",
+    lat: 28.56600,
+    lng: 77.19800, // ~950m away
+    available: true,
+    ownerId: 1,
+    deposit: 3500,
+    condition: "Like New",
+    rating: 5.0,
+    reviewsCount: 15
+  },
+  {
     id: 11,
     name: "Decathlon 8-Piece Camping Table & Stool Set",
-    description: "Folding aluminum camping table with 4 built-in folding stools. Folds into a compact carry briefcase with handles. Great for picnics, hill station drives, and garden lunches.",
+    description: "Folding aluminum camping table with 4 built-in folding stools. Folds into a compact carry briefcase with handles. Great for picnics and terrace lunches.",
     category: "Travel and Outdoor",
     rentalPrice: 350,
     rentalType: "DAILY",
     imageUrl: "https://images.unsplash.com/photo-1478131143081-80f7f84ca84d?auto=format&fit=crop&w=800&q=80",
-    location: "New Delhi, NCR",
+    location: "Hauz Khas Village, New Delhi",
+    lat: 28.55200,
+    lng: 77.19500, // ~1.1 km away
     available: true,
     ownerId: 2,
     deposit: 600,
@@ -261,12 +316,14 @@ export const mockItems = [
   {
     id: 12,
     name: "Yonex Badminton Pro Kit (2 Rackets + Shuttles)",
-    description: "Two tournament-strung Yonex carbon graphite rackets (26 lbs tension), tournament grade nylon shuttlecocks, grip wraps, and a 2-compartment padded thermal kit bag.",
+    description: "Two tournament-strung Yonex carbon graphite rackets (26 lbs tension), tournament grade nylon shuttlecocks, and a padded thermal kit bag.",
     category: "Sports and Fitness",
     rentalPrice: 80,
     rentalType: "HOURLY",
     imageUrl: "https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?auto=format&fit=crop&w=800&q=80",
-    location: "Mumbai, Maharashtra",
+    location: "Green Park Stadium Road",
+    lat: 28.55880,
+    lng: 77.20850, // ~550m away
     available: true,
     ownerId: 4,
     deposit: 400,
@@ -276,13 +333,15 @@ export const mockItems = [
   },
   {
     id: 13,
-    name: "DJI Mini 3 Pro Drone with RC Controller",
-    description: "Sub-249g ultralight drone with 4K/60fps HDR video, true vertical shooting, 34-min flight battery, obstacle avoidance, and built-in screen controller. 2 spare batteries included.",
+    name: "DJI Mini 3 Pro Drone with Smart RC Controller",
+    description: "Sub-249g ultralight drone with 4K/60fps HDR video, true vertical shooting, 34-min flight battery, obstacle avoidance, and built-in screen controller.",
     category: "Electronics",
     rentalPrice: 400,
     rentalType: "HOURLY",
     imageUrl: "https://images.unsplash.com/photo-1527977966376-1c8408f9f108?auto=format&fit=crop&w=800&q=80",
-    location: "Agra, Uttar Pradesh",
+    location: "Green Park Main, Block C",
+    lat: 28.55570,
+    lng: 77.20430, // ~380m away
     available: true,
     ownerId: 1,
     deposit: 5000,
@@ -293,12 +352,14 @@ export const mockItems = [
   {
     id: 14,
     name: "Godox SL60W Video Light with Octabox Softbox",
-    description: "Continuous 5600K daylight LED light, 60W output, Bowens mount with 95cm octabox softbox and heavy-duty 9-foot light stand. Essential for YouTube, podcasts, and portrait photography.",
+    description: "Continuous 5600K daylight LED light, 60W output, Bowens mount with 95cm octabox softbox and heavy-duty 9-foot light stand.",
     category: "Event Equipment",
     rentalPrice: 600,
     rentalType: "DAILY",
     imageUrl: "https://images.unsplash.com/photo-1513836279014-a89f7a76ae86?auto=format&fit=crop&w=800&q=80",
-    location: "Bengaluru, Karnataka",
+    location: "Green Park Market, Block D",
+    lat: 28.55830,
+    lng: 77.20390, // ~100m away
     available: false,
     ownerId: 3,
     deposit: 1500,
@@ -308,13 +369,15 @@ export const mockItems = [
   },
   {
     id: 15,
-    name: "Ergonomic Standing Desk Converter",
-    description: "Gas-spring height adjustable desk converter with dual tier surface for dual monitors and keyboard tray. Effortlessly lifts from 12cm to 50cm for healthy workday posture.",
+    name: "Solid Wood Ergonomic Standing Desk Converter",
+    description: "Gas-spring height adjustable desk converter with dual tier surface for dual monitors and keyboard tray. Lifts from 12cm to 50cm.",
     category: "Furniture",
     rentalPrice: 300,
     rentalType: "DAILY",
     imageUrl: "https://images.unsplash.com/photo-1595515106969-1ce29566ff1c?auto=format&fit=crop&w=800&q=80",
-    location: "Bengaluru, Karnataka",
+    location: "Green Park Market, Block B",
+    lat: 28.55890,
+    lng: 77.20210, // ~90m away
     available: true,
     ownerId: 3,
     deposit: 800,
@@ -323,30 +386,16 @@ export const mockItems = [
     reviewsCount: 7
   },
   {
-    id: 16,
-    name: "DeWalt 20V MAX Cordless Angle Grinder",
-    description: "Brushless motor, 9000 RPM, brake stops wheel in 2 seconds or less. Comes with two 4.0Ah batteries, fast charger, metal cutting wheels, and safety face shield.",
-    category: "Tools and Equipment",
-    rentalPrice: 450,
-    rentalType: "DAILY",
-    imageUrl: "https://images.unsplash.com/photo-1572981779307-38b8cabb2407?auto=format&fit=crop&w=800&q=80",
-    location: "Jaipur, Rajasthan",
-    available: true,
-    ownerId: 5,
-    deposit: 1000,
-    condition: "Good",
-    rating: 4.9,
-    reviewsCount: 13
-  },
-  {
     id: 17,
     name: "Coleman 54-Quart Steel-Belted Cooler Box",
-    description: "Classic vintage insulated cooler holding up to 85 cans, keeps ice cold for up to 4 days even in hot Indian weather. Rust-resistant stainless steel latch and handles.",
+    description: "Classic vintage insulated cooler holding up to 85 cans, keeps ice cold for up to 4 days. Stainless steel latch and handles.",
     category: "Travel and Outdoor",
     rentalPrice: 320,
     rentalType: "DAILY",
     imageUrl: "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=800&q=80",
-    location: "New Delhi, NCR",
+    location: "Green Park Lane 4",
+    lat: 28.55980,
+    lng: 77.20190, // ~170m away
     available: true,
     ownerId: 2,
     deposit: 700,
@@ -380,8 +429,8 @@ export const mockBookings = [
   },
   {
     id: 102,
-    itemId: 3,
-    itemName: "Bosch 13mm Professional Impact Drill Kit",
+    itemId: 103,
+    itemName: "Electric Impact Drill Machine Kit",
     itemImage: "https://images.unsplash.com/photo-1504148455328-c376907d081c?auto=format&fit=crop&w=800&q=80",
     ownerId: 5,
     ownerName: "Vikram Singh",
@@ -389,19 +438,19 @@ export const mockBookings = [
     renterName: "Aarav Sharma",
     renterAvatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80",
     startDate: "2026-11-05T09:00",
-    endDate: "2026-11-06T09:00",
-    duration: "1 day",
-    durationHours: 24,
-    rentalRate: 350,
-    rentalType: "DAILY",
-    totalAmount: 350,
+    endDate: "2026-11-05T12:00",
+    duration: "3 hours",
+    durationHours: 3,
+    rentalRate: 80,
+    rentalType: "HOURLY",
+    totalAmount: 240,
     status: "ACCEPTED",
     createdAt: "2026-11-03T18:15:00.000Z",
     notes: "Installing hanging bookshelves and picture frames."
   },
   {
     id: 103,
-    itemId: 6,
+    itemId: 106,
     itemName: "JBL PartyBox 310 Bluetooth Speaker",
     itemImage: "https://images.unsplash.com/photo-1545454675-3531b543be5d?auto=format&fit=crop&w=800&q=80",
     ownerId: 3,
@@ -422,7 +471,7 @@ export const mockBookings = [
   },
   {
     id: 104,
-    itemId: 2,
+    itemId: 104,
     itemName: "Epson Full HD Home Cinema Projector",
     itemImage: "https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?auto=format&fit=crop&w=800&q=80",
     ownerId: 2,
@@ -443,8 +492,8 @@ export const mockBookings = [
   },
   {
     id: 105,
-    itemId: 4,
-    itemName: "Trek Marlin 6 Disc Mountain Bicycle",
+    itemId: 101,
+    itemName: "Trek Hybrid Commuter Bicycle with Helmet",
     itemImage: "https://images.unsplash.com/photo-1485965120184-e220f721d03e?auto=format&fit=crop&w=800&q=80",
     ownerId: 4,
     ownerName: "Sneha Kapoor",
@@ -455,16 +504,16 @@ export const mockBookings = [
     endDate: "2026-11-05T09:00",
     duration: "3 hours",
     durationHours: 3,
-    rentalRate: 150,
+    rentalRate: 70,
     rentalType: "HOURLY",
-    totalAmount: 450,
+    totalAmount: 210,
     status: "PENDING",
     createdAt: "2026-11-04T01:10:00.000Z",
-    notes: "Early morning cycling ride along Marine Drive."
+    notes: "Early morning cycling ride around Hauz Khas Deer Park."
   },
   {
     id: 106,
-    itemId: 5,
+    itemId: 105,
     itemName: "Quechua 4-Person Waterproof Camping Tent",
     itemImage: "https://images.unsplash.com/photo-1510312305653-8ed496efae75?auto=format&fit=crop&w=800&q=80",
     ownerId: 2,
@@ -485,8 +534,8 @@ export const mockBookings = [
   },
   {
     id: 107,
-    itemId: 7,
-    itemName: "Gorilla 18-ft Multipurpose Aluminum Ladder",
+    itemId: 107,
+    itemName: "Gorilla 18-ft Multipurpose Aluminum Folding Ladder",
     itemImage: "https://images.unsplash.com/photo-1581783342308-f792dbdd27c5?auto=format&fit=crop&w=800&q=80",
     ownerId: 5,
     ownerName: "Vikram Singh",
@@ -544,12 +593,12 @@ export const mockBookings = [
     totalAmount: 240,
     status: "PENDING",
     createdAt: "2026-11-04T04:00:00.000Z",
-    notes: "Weekend badminton friendly tournament with cousins."
+    notes: "Weekend badminton friendly match at the local court."
   },
   {
     id: 110,
     itemId: 13,
-    itemName: "DJI Mini 3 Pro Drone with RC Controller",
+    itemName: "DJI Mini 3 Pro Drone with Smart RC Controller",
     itemImage: "https://images.unsplash.com/photo-1527977966376-1c8408f9f108?auto=format&fit=crop&w=800&q=80",
     ownerId: 1,
     ownerName: "Aarav Sharma",
@@ -568,4 +617,3 @@ export const mockBookings = [
     notes: "Site aerial inspection footage for a heritage renovation property."
   }
 ];
-

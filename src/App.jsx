@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { UserProvider } from './context/UserContext';
+import { LocationProvider } from './context/LocationContext';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import ToastNotification from './components/ToastNotification';
@@ -47,28 +48,30 @@ const NotFound = () => (
 export function App() {
   return (
     <UserProvider>
-      <BrowserRouter>
-        <ScrollToTop />
-        <div className="min-h-screen flex flex-col bg-[#F8F8F5] text-[#252B27]">
-          <Navbar />
-          <main className="flex-1">
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/explore" element={<Explore />} />
-              <Route path="/items/:id" element={<ItemDetails />} />
-              <Route path="/add-item" element={<AddItem />} />
-              <Route path="/edit-item/:id" element={<EditItem />} />
-              <Route path="/my-listings" element={<MyListings />} />
-              <Route path="/my-bookings" element={<MyBookings />} />
-              <Route path="/dashboard" element={<OwnerDashboard />} />
-              <Route path="/profile" element={<Profile />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </main>
-          <Footer />
-          <ToastNotification />
-        </div>
-      </BrowserRouter>
+      <LocationProvider>
+        <BrowserRouter>
+          <ScrollToTop />
+          <div className="min-h-screen flex flex-col bg-[#F8F8F5] text-[#252B27]">
+            <Navbar />
+            <main className="flex-1">
+              <Routes>
+                <Route path="/" element={<Home />} />
+                <Route path="/explore" element={<Explore />} />
+                <Route path="/items/:id" element={<ItemDetails />} />
+                <Route path="/add-item" element={<AddItem />} />
+                <Route path="/edit-item/:id" element={<EditItem />} />
+                <Route path="/my-listings" element={<MyListings />} />
+                <Route path="/my-bookings" element={<MyBookings />} />
+                <Route path="/dashboard" element={<OwnerDashboard />} />
+                <Route path="/profile" element={<Profile />} />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </main>
+            <Footer />
+            <ToastNotification />
+          </div>
+        </BrowserRouter>
+      </LocationProvider>
     </UserProvider>
   );
 }

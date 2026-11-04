@@ -5,6 +5,7 @@
  *
  * Future Spring Boot endpoints:
  *   GET    /api/items                - List all items
+ *   GET    /api/items/nearby         - Get items within radius (lat, lng, radius)
  *   GET    /api/items/:id            - Get item by id
  *   POST   /api/items                - Create new item
  *   PUT    /api/items/:id            - Update item
@@ -18,6 +19,7 @@
 
 import axios from 'axios';
 import storageService from './storageService';
+import { calculateHaversineDistance, formatDistance, estimateWalkingTime } from '../utils/geo';
 
 // Configure Axios client for when the Spring Boot backend is brought online
 export const apiClient = axios.create({
@@ -69,8 +71,26 @@ export const apiService = {
       items = items.filter((i) => i.rentalPrice <= Number(filters.maxPrice));
     }
 
+    // Attach distance calculation if user coordinates are passed in filters
+    if (filters.userLat !== undefined && filters.userLng !== undefined) {
+      items = items.map((item) => {
+        if (item.lat !== undefined && item.lng !== undefined) {
+          const dist = calculateHaversineDistance(filters.userLat, filters.userLng, item.lat, item.lng);
+          return {
+            ...item,
+            distanceMeters: Math.round(dist),
+            distanceFormatted: formatDistance(dist),
+            walkingTime: estimateWalkingTime(dist),
+          };
+        }
+        return item;
+      });
+    }
+
     // Sorting
-    if (filters.sortBy === 'price-low') {
+    if (filters.sortBy === 'distance' && filters.userLat !== undefined && filters.userLng !== undefined) {
+      items.sort((a, b) => (a.distanceMeters || Infinity) - (b.distanceMeters || Infinity));
+    } else if (filters.sortBy === 'price-low') {
       items.sort((a, b) => a.rentalPrice - b.rentalPrice);
     } else if (filters.sortBy === 'price-high') {
       items.sort((a, b) => b.rentalPrice - a.rentalPrice);
@@ -80,6 +100,21 @@ export const apiService = {
     }
 
     return items;
+  },
+
+  /**
+   * Location-based query for items within a specific radius in meters
+   * Sorted strictly from nearest to farthest.
+   */
+  getNearbyItems: async (lat, lng, radiusMeters = 200, extraFilters = {}) => {
+    if (USE_REAL_BACKEND) {
+      const response = await apiClient.get('/items/nearby', {
+        params: { lat, lng, radius: radiusMeters, ...extraFilters },
+      });
+      return response.data;
+    }
+    await delay();
+    return storageService.getNearbyItems(lat, lng, radiusMeters, extraFilters);
   },
 
   getItemById: async (id) => {
@@ -183,4 +218,3 @@ export const apiService = {
 };
 
 export default apiService;
-

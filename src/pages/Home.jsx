@@ -11,12 +11,16 @@ import {
   Users,
   Repeat,
   PackagePlus,
+  Navigation2,
+  Compass,
 } from 'lucide-react';
 import ItemCard from '../components/ItemCard';
 import CategoryFilter from '../components/CategoryFilter';
+import NearbyDiscoverySection from '../components/NearbyDiscoverySection';
 import { CATEGORIES } from '../data/mockData';
 import apiService from '../services/apiService';
 import { useUser } from '../context/UserContext';
+import { useLocation } from '../context/LocationContext';
 
 export const Home = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -24,6 +28,7 @@ export const Home = () => {
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
   const { dataVersion } = useUser();
+  const { requestCurrentLocation, useDemoLocation, hasLocation, radius } = useLocation();
 
   useEffect(() => {
     const loadFeatured = async () => {
@@ -58,17 +63,27 @@ export const Home = () => {
     }
   };
 
+  const scrollToNearby = () => {
+    const el = document.getElementById('nearby-section');
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth' });
+    }
+    if (!hasLocation) {
+      requestCurrentLocation();
+    }
+  };
+
   return (
-    <div className="space-y-16 sm:space-y-24 pb-16">
+    <div className="space-y-12 sm:space-y-16 pb-16">
       {/* Hero Section */}
-      <section className="pt-6 sm:pt-12">
+      <section className="pt-6 sm:pt-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
             {/* Left Column: Headline and Functional Search */}
             <div className="lg:col-span-7 space-y-6">
               <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#EEF3EE] text-[#236B45] text-xs font-semibold tracking-wide border border-[#DCFCE7]">
                 <ShieldCheck className="w-3.5 h-3.5" />
-                <span>Verified Peer-to-Peer Community Platform</span>
+                <span>Hyperlocal Peer-to-Peer Rental Network</span>
               </div>
 
               <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-[#252B27] tracking-tight leading-[1.15]">
@@ -77,8 +92,8 @@ export const Home = () => {
               </h1>
 
               <p className="text-base sm:text-lg text-slate-600 max-w-xl leading-relaxed">
-                Access cameras, tools, projectors, camping gear, and party equipment from verified
-                neighbors. Borrow for a few hours or days without spending a fortune buying new.
+                Access cameras, tools, projectors, camping gear, and party equipment from neighbors
+                within walking distance. Borrow for a few hours without buying new.
               </p>
 
               {/* Functional Search Bar in Hero */}
@@ -92,7 +107,7 @@ export const Home = () => {
                     type="text"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Try 'DSLR camera', 'projector', 'drill', 'camping tent'..."
+                    placeholder="Try 'electric drill', 'projector', 'DSLR camera', 'tent'..."
                     className="w-full pl-10 pr-4 py-2.5 text-sm text-[#252B27] placeholder:text-slate-400 focus:outline-none"
                   />
                 </div>
@@ -106,17 +121,27 @@ export const Home = () => {
                 </button>
               </form>
 
-              {/* Action Buttons & Quick Stats */}
-              <div className="flex flex-wrap items-center gap-4 pt-2">
+              {/* Action Buttons & Core Nearby Trigger */}
+              <div className="flex flex-wrap items-center gap-3 pt-1">
+                <button
+                  type="button"
+                  onClick={scrollToNearby}
+                  className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#236B45] hover:bg-[#1b5636] text-white text-sm font-semibold rounded-xl transition-all shadow-xs cursor-pointer"
+                >
+                  <Navigation2 className="w-4 h-4 text-[#FACC15] fill-[#FACC15]" />
+                  <span>Find Items Near Me (200m)</span>
+                </button>
+
                 <Link
                   to="/explore"
                   className="px-5 py-2.5 bg-white border border-[#E1E5E1] hover:border-[#236B45] hover:bg-[#EEF3EE] text-slate-800 text-sm font-medium rounded-xl transition-all shadow-xs"
                 >
                   Explore All Items
                 </Link>
+
                 <Link
                   to="/add-item"
-                  className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#236B45] hover:bg-[#1b5636] text-white text-sm font-medium rounded-xl transition-all shadow-xs"
+                  className="inline-flex items-center gap-1.5 px-4 py-2.5 text-slate-600 hover:text-[#236B45] text-sm font-medium transition-colors"
                 >
                   <PackagePlus className="w-4 h-4" />
                   <span>List Your Item</span>
@@ -127,7 +152,7 @@ export const Home = () => {
               <div className="pt-4 border-t border-slate-200/80 flex flex-wrap gap-6 text-xs text-slate-500">
                 <span className="flex items-center gap-1.5 font-medium text-slate-700">
                   <CheckCircle2 className="w-4 h-4 text-[#236B45]" />
-                  Zero upfront purchase cost
+                  Instant walking distance pickup (200m)
                 </span>
                 <span className="flex items-center gap-1.5 font-medium text-slate-700">
                   <CheckCircle2 className="w-4 h-4 text-[#236B45]" />
@@ -135,7 +160,7 @@ export const Home = () => {
                 </span>
                 <span className="flex items-center gap-1.5 font-medium text-slate-700">
                   <CheckCircle2 className="w-4 h-4 text-[#236B45]" />
-                  Flexible hourly & daily slots
+                  Zero buying cost
                 </span>
               </div>
             </div>
@@ -151,19 +176,27 @@ export const Home = () => {
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent flex items-end p-6">
                   <div className="text-white space-y-1">
                     <div className="text-xs font-semibold uppercase tracking-wider text-emerald-300">
-                      Community Spotlight
+                      Hyperlocal Sharing
                     </div>
                     <p className="text-sm font-medium text-slate-100 leading-snug">
-                      "I needed a high-res camera for our college showcase. Aarav lent me his Canon 90D
-                      for just 4 hours. Smooth, friendly, and saved me ₹40,000!"
+                      "I needed an electric drill for 2 hours to mount bookshelves. Found Vikram 145m
+                      away on our block. Picked it up in 3 minutes!"
                     </p>
-                    <div className="text-xs text-slate-300 pt-1">— Priya P., Student Filmmaker</div>
+                    <div className="text-xs text-slate-300 pt-1">— Aarav S., Green Park Neighbor</div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
+      </section>
+
+      {/* CORE FEATURE: Hyperlocal Nearby Discovery Section */}
+      <section id="nearby-section" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 scroll-mt-20">
+        <NearbyDiscoverySection
+          title="Nearby Items (Walking Distance)"
+          subtitle="Discover tools, camping gear, and appliances within a 200m radius of your coordinates."
+        />
       </section>
 
       {/* Categories Section */}
@@ -199,7 +232,7 @@ export const Home = () => {
         <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-6 gap-2">
           <div>
             <span className="text-xs font-bold text-[#236B45] uppercase tracking-wider">
-              Popular Nearby
+              Popular in Community
             </span>
             <h2 className="text-2xl font-bold text-[#252B27] mt-1">
               Featured Rental Items
@@ -209,7 +242,7 @@ export const Home = () => {
             to="/explore"
             className="text-xs font-semibold text-[#236B45] hover:text-[#1b5636] inline-flex items-center gap-1"
           >
-            <span>Browse all 17 items</span>
+            <span>Browse all marketplace items</span>
             <ArrowRight className="w-3.5 h-3.5" />
           </Link>
         </div>
@@ -232,7 +265,7 @@ export const Home = () => {
         )}
       </section>
 
-      {/* How It Works Section (3 Clean Steps) */}
+      {/* How It Works Section */}
       <section className="bg-white border-y border-[#E1E5E1] py-14">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-2xl mx-auto mb-12">
@@ -248,45 +281,40 @@ export const Home = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
-            {/* Step 1 */}
-            <div className="bg-[#F8F8F5] p-6 rounded-2xl border border-[#E1E5E1] relative">
+            <div className="bg-[#F8F8F5] p-6 rounded-2xl border border-[#E1E5E1]">
               <div className="w-10 h-10 rounded-xl bg-[#236B45] text-white font-bold flex items-center justify-center text-sm mb-4">
                 1
               </div>
               <h3 className="text-lg font-semibold text-slate-900 mb-2">
-                Discover Nearby Items
+                Discover Nearby Items (200m)
               </h3>
               <p className="text-xs text-slate-600 leading-relaxed">
-                Filter by category, hourly or daily rental options, and see exact items currently
-                available in your neighborhood.
+                Use your GPS location to instantly spot items available within a 100m to 500m walking radius.
               </p>
             </div>
 
-            {/* Step 2 */}
-            <div className="bg-[#F8F8F5] p-6 rounded-2xl border border-[#E1E5E1] relative">
+            <div className="bg-[#F8F8F5] p-6 rounded-2xl border border-[#E1E5E1]">
               <div className="w-10 h-10 rounded-xl bg-[#236B45] text-white font-bold flex items-center justify-center text-sm mb-4">
                 2
               </div>
               <h3 className="text-lg font-semibold text-slate-900 mb-2">
-                Request a Rental
+                Request a Rental Slot
               </h3>
               <p className="text-xs text-slate-600 leading-relaxed">
-                Pick your start and end times. Total rental cost is calculated automatically. The owner
-                reviews and approves your request.
+                Pick your start and end hours. Total cost is calculated automatically. The owner
+                reviews and approves quickly.
               </p>
             </div>
 
-            {/* Step 3 */}
-            <div className="bg-[#F8F8F5] p-6 rounded-2xl border border-[#E1E5E1] relative">
+            <div className="bg-[#F8F8F5] p-6 rounded-2xl border border-[#E1E5E1]">
               <div className="w-10 h-10 rounded-xl bg-[#236B45] text-white font-bold flex items-center justify-center text-sm mb-4">
                 3
               </div>
               <h3 className="text-lg font-semibold text-slate-900 mb-2">
-                Pick up, Use & Return
+                Walk Over, Use & Return
               </h3>
               <p className="text-xs text-slate-600 leading-relaxed">
-                Meet up at the agreed spot, receive the item, use it for your project, and return it in
-                good shape. Everybody wins!
+                Walk a couple of minutes to pick up the item, complete your project, and return it safely.
               </p>
             </div>
           </div>
@@ -304,7 +332,7 @@ export const Home = () => {
               Have gear gathering dust in your closet?
             </h3>
             <p className="text-sm text-slate-600 leading-relaxed">
-              Drills, ladders, cameras, and party speakers often sit unused 95% of the year. Put them to
+              Drills, ladders, cameras, and party speakers sit unused 95% of the year. Put them to
               work, meet neighborhood creators, and earn passive rental income securely.
             </p>
           </div>
@@ -330,4 +358,3 @@ export const Home = () => {
 };
 
 export default Home;
-

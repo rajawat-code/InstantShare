@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { NavLink, Link, useNavigate } from 'react-router-dom';
 import { useUser } from '../context/UserContext';
+import { useLocation } from '../context/LocationContext';
 import {
   Sparkles,
   Search,
@@ -13,10 +14,13 @@ import {
   X,
   ChevronDown,
   RotateCcw,
+  Navigation2,
+  MapPin,
 } from 'lucide-react';
 
 export const Navbar = () => {
   const { currentUser, users, switchUser, resetAllData } = useUser();
+  const { hasLocation, isDemoActive, radius, requestCurrentLocation } = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const navigate = useNavigate();
@@ -75,6 +79,24 @@ export const Navbar = () => {
 
           {/* Actions & Demo Switcher */}
           <div className="hidden md:flex items-center gap-3">
+            {/* Quick Nearby Mode Pill */}
+            <Link
+              to={`/explore?nearby=true&radius=${radius}`}
+              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all cursor-pointer ${
+                hasLocation
+                  ? isDemoActive
+                    ? 'bg-amber-50 text-amber-900 border-amber-200 hover:bg-amber-100'
+                    : 'bg-[#EEF3EE] text-[#236B45] border-[#DCFCE7] hover:bg-emerald-100'
+                  : 'bg-white text-slate-700 border-[#E1E5E1] hover:bg-slate-50'
+              }`}
+              title="Hyperlocal equipment within walking distance"
+            >
+              <Navigation2 className="w-3.5 h-3.5 text-[#236B45] fill-[#236B45]" />
+              <span>
+                {hasLocation ? (isDemoActive ? 'Demo Hub (200m)' : `GPS Nearby (${radius}m)`) : 'Near Me (200m)'}
+              </span>
+            </Link>
+
             {/* List an Item Button */}
             <Link
               to="/add-item"

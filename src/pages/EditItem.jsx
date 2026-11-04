@@ -56,6 +56,8 @@ export const EditItem = () => {
           available: item.available !== undefined ? item.available : true,
           condition: item.condition || 'Excellent',
           deposit: item.deposit || '',
+          lat: item.lat || 28.5585,
+          lng: item.lng || 77.2029,
         });
       } catch (err) {
         console.error('Error loading item for edit:', err);
@@ -121,6 +123,8 @@ export const EditItem = () => {
         available: Boolean(formData.available),
         condition: formData.condition,
         deposit: formData.deposit ? Number(formData.deposit) : 0,
+        lat: formData.lat || 28.5585,
+        lng: formData.lng || 77.2029,
       };
 
       await apiService.updateItem(id, updatedFields);

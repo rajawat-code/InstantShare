@@ -13,9 +13,12 @@ import {
   Share2,
   Info,
   Edit,
+  Navigation2,
+  Footprints,
 } from 'lucide-react';
 import apiService from '../services/apiService';
 import { useUser } from '../context/UserContext';
+import { useLocation } from '../context/LocationContext';
 import {
   formatCurrency,
   calculateRentalCost,
@@ -27,6 +30,7 @@ export const ItemDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { currentUser, showToast, dataVersion } = useUser();
+  const { getDistanceToItem, hasLocation, requestCurrentLocation } = useLocation();
 
   const [item, setItem] = useState(null);
   const [owner, setOwner] = useState(null);
@@ -77,6 +81,12 @@ export const ItemDetails = () => {
     : { units: 0, durationText: '', totalAmount: 0, isValid: false, error: null };
 
   const isOwner = item && currentUser && currentUser.id === item.ownerId;
+
+  // Distance from user to this item
+  const distInfo =
+    item?.lat !== undefined && item?.lng !== undefined
+      ? getDistanceToItem(item.lat, item.lng)
+      : null;
 
   const handleBookingSubmit = async (e) => {
     e.preventDefault();
@@ -222,10 +232,29 @@ export const ItemDetails = () => {
           {/* Title, Location & Core Specs */}
           <div className="space-y-4 bg-white p-6 rounded-2xl border border-[#E1E5E1]">
             <div className="flex flex-wrap items-center justify-between gap-2">
-              <span className="inline-flex items-center gap-1.5 text-xs text-slate-500 font-medium">
-                <MapPin className="w-4 h-4 text-slate-400" />
-                {item.location}
-              </span>
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="inline-flex items-center gap-1.5 text-xs text-slate-500 font-medium">
+                  <MapPin className="w-4 h-4 text-slate-400" />
+                  {item.location}
+                </span>
+
+                {distInfo ? (
+                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[#EEF3EE] text-[#236B45] border border-[#DCFCE7]">
+                    <Navigation2 className="w-3 h-3 text-[#236B45] fill-[#236B45]" />
+                    <span>{distInfo.formatted}</span>
+                    <span className="text-slate-400 font-normal">({distInfo.walkingTime})</span>
+                  </span>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={requestCurrentLocation}
+                    className="inline-flex items-center gap-1 text-[11px] text-[#236B45] hover:underline cursor-pointer"
+                  >
+                    <Navigation2 className="w-3 h-3" />
+                    <span>Check distance from me</span>
+                  </button>
+                )}
+              </div>
 
               {item.rating && (
                 <span className="inline-flex items-center gap-1 text-xs font-semibold text-slate-700">

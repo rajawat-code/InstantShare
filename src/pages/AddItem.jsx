@@ -11,6 +11,7 @@ import {
 import { CATEGORIES } from '../data/mockData';
 import apiService from '../services/apiService';
 import { useUser } from '../context/UserContext';
+import { useLocation } from '../context/LocationContext';
 
 // Quick sample image options for convenience
 const PRESET_IMAGES = [
@@ -47,6 +48,7 @@ const PRESET_IMAGES = [
 export const AddItem = () => {
   const navigate = useNavigate();
   const { currentUser, showToast } = useUser();
+  const { location } = useLocation();
 
   const [formData, setFormData] = useState({
     name: '',
@@ -130,6 +132,8 @@ export const AddItem = () => {
         condition: formData.condition,
         deposit: formData.deposit ? Number(formData.deposit) : 0,
         ownerId: currentUser.id,
+        lat: location?.lat || 28.5585,
+        lng: location?.lng || 77.2029,
       };
 
       await apiService.createItem(newItem);
