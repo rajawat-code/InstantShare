@@ -103,24 +103,27 @@ export const OwnerDashboard = () => {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
       {/* Header */}
-      <div className="pb-4 border-b border-[#E1E5E1] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="pb-4 border-b-2 border-[#14281D]/10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-[#252B27] tracking-tight">
-            Owner Dashboard
+          <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-md bg-[#F2B705]/20 border border-[#14281D]/20 text-[11px] font-mono font-bold text-[#14281D] mb-1">
+            <span>● NEIGHBORHOOD SHED MANAGEMENT</span>
+          </div>
+          <h1 className="text-3xl sm:text-4xl font-serif font-black text-[#14281D] tracking-tight">
+            Host & Lending Control
           </h1>
-          <p className="text-xs sm:text-sm text-slate-500 mt-1">
-            Rental management, approval queue, and earnings for{' '}
-            <strong className="text-slate-700">{currentUser.name}</strong>
+          <p className="text-xs sm:text-sm text-[#14281D]/70 font-sans mt-1">
+            Rental requests, handover confirmations, and earnings for{' '}
+            <strong className="text-[#14281D]">{currentUser.name}</strong>
           </p>
         </div>
 
         <div className="flex items-center gap-3">
           <Link
             to="/add-item"
-            className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#236B45] hover:bg-[#1b5636] text-white text-xs font-semibold rounded-xl shadow-xs transition-colors"
+            className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#14281D] hover:bg-[#E8590C] text-[#F6F1E9] text-xs font-bold rounded-xl border-2 border-[#14281D] shadow-hard btn-tactile transition-colors"
           >
-            <Package className="w-4 h-4" />
-            <span>List Another Item</span>
+            <Package className="w-4 h-4 text-[#F2B705]" />
+            <span>List Another Tool</span>
           </Link>
         </div>
       </div>
@@ -128,79 +131,79 @@ export const OwnerDashboard = () => {
       {/* Summary KPI Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
         {/* Total Listings */}
-        <div className="bg-white p-5 rounded-2xl border border-[#E1E5E1] shadow-xs space-y-2">
-          <div className="flex items-center justify-between text-slate-500">
-            <span className="text-xs font-medium">Total Listings</span>
-            <div className="w-8 h-8 rounded-lg bg-slate-100 text-slate-700 flex items-center justify-center">
+        <div className="bg-[#FAF8F5] p-5 rounded-2xl border-2 border-[#14281D] shadow-hard-sm space-y-2">
+          <div className="flex items-center justify-between text-[#14281D]/70">
+            <span className="text-xs font-mono font-bold uppercase">Total Listings</span>
+            <div className="w-8 h-8 rounded-lg bg-white border border-[#14281D] text-[#14281D] flex items-center justify-center">
               <Package className="w-4 h-4" />
             </div>
           </div>
-          <div className="text-2xl font-bold text-slate-900">{totalListings}</div>
-          <div className="text-[11px] text-slate-400">Items under management</div>
+          <div className="text-3xl font-mono font-black text-[#14281D]">{totalListings}</div>
+          <div className="text-[11px] font-mono text-[#14281D]/60">Items on shelf</div>
         </div>
 
         {/* Pending Requests */}
-        <div className="bg-white p-5 rounded-2xl border border-[#E1E5E1] shadow-xs space-y-2">
-          <div className="flex items-center justify-between text-amber-700">
-            <span className="text-xs font-medium">Pending Requests</span>
-            <div className="w-8 h-8 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center">
+        <div className="bg-[#F2B705]/15 p-5 rounded-2xl border-2 border-[#14281D] shadow-hard-sm space-y-2">
+          <div className="flex items-center justify-between text-[#14281D]">
+            <span className="text-xs font-mono font-bold uppercase">Pending Requests</span>
+            <div className="w-8 h-8 rounded-lg bg-[#F2B705] border border-[#14281D] text-[#14281D] flex items-center justify-center">
               <Clock className="w-4 h-4" />
             </div>
           </div>
-          <div className="text-2xl font-bold text-amber-900">{pendingRequests}</div>
-          <div className="text-[11px] text-amber-700/80">Awaiting your approval</div>
+          <div className="text-3xl font-mono font-black text-[#14281D]">{pendingRequests}</div>
+          <div className="text-[11px] font-mono text-[#14281D]/70">Awaiting approval</div>
         </div>
 
         {/* Active Rentals */}
-        <div className="bg-white p-5 rounded-2xl border border-[#E1E5E1] shadow-xs space-y-2">
-          <div className="flex items-center justify-between text-emerald-700">
-            <span className="text-xs font-medium">Active Rentals</span>
-            <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center">
+        <div className="bg-[#FAF8F5] p-5 rounded-2xl border-2 border-[#14281D] shadow-hard-sm space-y-2">
+          <div className="flex items-center justify-between text-[#14281D]">
+            <span className="text-xs font-mono font-bold uppercase">Active Borrows</span>
+            <div className="w-8 h-8 rounded-lg bg-[#FAF8F5] border border-[#14281D] text-[#14281D] flex items-center justify-center">
               <PlayCircle className="w-4 h-4" />
             </div>
           </div>
-          <div className="text-2xl font-bold text-emerald-900">{activeRentals}</div>
-          <div className="text-[11px] text-emerald-700/80">Handed over to renters</div>
+          <div className="text-3xl font-mono font-black text-[#14281D]">{activeRentals}</div>
+          <div className="text-[11px] font-mono text-[#14281D]/60">Currently with neighbors</div>
         </div>
 
         {/* Completed Rentals */}
-        <div className="bg-white p-5 rounded-2xl border border-[#E1E5E1] shadow-xs space-y-2">
-          <div className="flex items-center justify-between text-blue-700">
-            <span className="text-xs font-medium">Completed Rentals</span>
-            <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
+        <div className="bg-[#FAF8F5] p-5 rounded-2xl border-2 border-[#14281D] shadow-hard-sm space-y-2">
+          <div className="flex items-center justify-between text-[#14281D]">
+            <span className="text-xs font-mono font-bold uppercase">Completed</span>
+            <div className="w-8 h-8 rounded-lg bg-white border border-[#14281D] text-[#14281D] flex items-center justify-center">
               <Archive className="w-4 h-4" />
             </div>
           </div>
-          <div className="text-2xl font-bold text-blue-900">{completedRentals}</div>
-          <div className="text-[11px] text-blue-700/80">Returned in good order</div>
+          <div className="text-3xl font-mono font-black text-[#14281D]">{completedRentals}</div>
+          <div className="text-[11px] font-mono text-[#14281D]/60">Safely returned</div>
         </div>
 
         {/* Total Revenue */}
-        <div className="col-span-2 lg:col-span-1 bg-[#EEF3EE] p-5 rounded-2xl border border-[#DCFCE7] shadow-xs space-y-2">
-          <div className="flex items-center justify-between text-[#236B45]">
-            <span className="text-xs font-medium">Rental Revenue</span>
-            <div className="w-8 h-8 rounded-lg bg-white text-[#236B45] flex items-center justify-center shadow-xs">
+        <div className="col-span-2 lg:col-span-1 bg-[#14281D] text-[#F6F1E9] p-5 rounded-2xl border-2 border-[#14281D] shadow-hard space-y-2">
+          <div className="flex items-center justify-between text-[#F6F1E9]/80">
+            <span className="text-xs font-mono font-bold uppercase text-[#F2B705]">Total Revenue</span>
+            <div className="w-8 h-8 rounded-lg bg-white/10 text-[#F2B705] flex items-center justify-center">
               <TrendingUp className="w-4 h-4" />
             </div>
           </div>
-          <div className="text-2xl font-bold text-[#236B45]">
+          <div className="text-3xl font-mono font-black text-[#F6F1E9]">
             {formatCurrency(totalEarnings)}
           </div>
-          <div className="text-[11px] text-[#236B45]/80">Active & completed total</div>
+          <div className="text-[11px] font-mono text-[#F6F1E9]/60">Neighborhood earnings</div>
         </div>
       </div>
 
       {/* Booking Requests Table & Workflow Actions */}
-      <div className="bg-white rounded-3xl border border-[#E1E5E1] overflow-hidden shadow-xs">
-        <div className="p-6 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+      <div className="bg-[#FAF8F5] rounded-3xl border-2 border-[#14281D] overflow-hidden shadow-hard">
+        <div className="p-6 border-b-2 border-[#14281D]/10 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <div>
-            <h2 className="text-lg font-bold text-[#252B27]">Rental Requests & Actions</h2>
-            <p className="text-xs text-slate-500 mt-0.5">
-              Review rental requests from neighbors, confirm handovers, and close completed returns.
+            <h2 className="text-xl font-serif font-black text-[#14281D]">Rental Requests & Actions</h2>
+            <p className="text-xs text-[#14281D]/70 font-sans mt-0.5">
+              Review rental requests from neighbors, confirm porch handovers, and mark returned gear.
             </p>
           </div>
-          <span className="text-xs text-slate-400">
-            Showing {requests.length} incoming request records
+          <span className="text-xs font-mono text-[#14281D]/60">
+            {requests.length} incoming records
           </span>
         </div>
 
@@ -315,7 +318,7 @@ export const OwnerDashboard = () => {
                                     'primary'
                                   )
                                 }
-                                className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-[#236B45] text-white hover:bg-[#1b5636] transition-colors cursor-pointer"
+                                className="px-3 py-1.5 rounded-lg text-xs font-bold font-mono bg-[#14281D] text-[#F6F1E9] border-2 border-[#14281D] shadow-hard-sm btn-tactile hover:bg-[#E8590C] transition-colors cursor-pointer"
                               >
                                 Accept
                               </button>
@@ -330,7 +333,7 @@ export const OwnerDashboard = () => {
                                     'danger'
                                   )
                                 }
-                                className="px-3 py-1.5 rounded-lg text-xs font-medium text-rose-600 bg-rose-50 hover:bg-rose-100 transition-colors cursor-pointer"
+                                className="px-3 py-1.5 rounded-lg text-xs font-bold font-mono text-rose-700 bg-white border-2 border-rose-600 shadow-hard-sm btn-tactile hover:bg-rose-50 transition-colors cursor-pointer"
                               >
                                 Decline
                               </button>
@@ -349,7 +352,7 @@ export const OwnerDashboard = () => {
                                   'primary'
                                 )
                               }
-                              className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-600 text-white hover:bg-emerald-700 transition-colors cursor-pointer"
+                              className="px-3 py-1.5 rounded-lg text-xs font-bold font-mono bg-[#E8590C] text-white border-2 border-[#14281D] shadow-hard-sm btn-tactile hover:bg-[#14281D] transition-colors cursor-pointer"
                             >
                               Mark Handed Over
                             </button>
@@ -367,7 +370,7 @@ export const OwnerDashboard = () => {
                                   'primary'
                                 )
                               }
-                              className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 text-white hover:bg-slate-900 transition-colors cursor-pointer"
+                              className="px-3 py-1.5 rounded-lg text-xs font-bold font-mono bg-[#14281D] text-[#F2B705] border-2 border-[#14281D] shadow-hard-sm btn-tactile hover:bg-[#E8590C] hover:text-white transition-colors cursor-pointer"
                             >
                               Mark Returned
                             </button>

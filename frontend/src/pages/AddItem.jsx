@@ -152,55 +152,57 @@ export const AddItem = () => {
       <div className="flex items-center justify-between">
         <Link
           to="/my-listings"
-          className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-600 hover:text-[#236B45]"
+          className="inline-flex items-center gap-1.5 text-xs font-mono font-bold text-[#14281D]/70 hover:text-[#14281D]"
         >
           <ArrowLeft className="w-4 h-4" />
-          <span>Back to My Listings</span>
+          <span>← Back to My Listings</span>
         </Link>
-        <span className="text-xs text-slate-400">
-          Listing as <strong className="text-slate-700">{currentUser.name}</strong>
+        <span className="text-xs font-mono text-[#14281D]/60">
+          Listing as <strong className="text-[#14281D]">{currentUser.name}</strong>
         </span>
       </div>
 
-      <div className="bg-white rounded-3xl border border-[#E1E5E1] p-6 sm:p-8 shadow-xs">
-        <div className="pb-6 border-b border-slate-100">
-          <h1 className="text-2xl font-bold text-[#252B27]">List an Item for Rent</h1>
-          <p className="text-xs text-slate-500 mt-1">
-            Share your equipment with neighbors safely. Fill in the details below to publish your
-            listing.
+      <div className="bg-[#FAF8F5] rounded-3xl border-2 border-[#14281D] p-6 sm:p-8 shadow-hard">
+        <div className="pb-6 border-b-2 border-[#14281D]/10">
+          <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-md bg-[#F2B705]/20 border border-[#14281D]/20 text-[11px] font-mono font-bold text-[#14281D] mb-2">
+            <span>● NEIGHBORHOOD SHED REGISTRATION</span>
+          </div>
+          <h1 className="text-3xl sm:text-4xl font-serif font-black text-[#14281D]">List Gear on Your Shelf</h1>
+          <p className="text-xs sm:text-sm text-[#14281D]/70 mt-1 font-sans">
+            Got a drill, DSLR camera, camping tent, or projector sitting idle? Put it to work for your neighbors.
           </p>
         </div>
 
         <form onSubmit={handleSubmit} className="mt-6 space-y-6">
           {/* Item Name */}
           <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-slate-800 block">
-              Item Name <span className="text-rose-500">*</span>
+            <label className="text-xs font-mono font-bold text-[#14281D] block uppercase">
+              Item Name <span className="text-[#E8590C]">*</span>
             </label>
             <input
               type="text"
               name="name"
               value={formData.name}
               onChange={handleChange}
-              placeholder="e.g. Sony Alpha A7 III with 28-70mm Lens"
-              className={`w-full px-3.5 py-2.5 text-sm bg-[#F8F8F5] border rounded-xl focus:outline-none focus:border-[#236B45] ${
-                errors.name ? 'border-rose-400' : 'border-[#E1E5E1]'
+              placeholder="e.g. Sony Alpha A7 III or Bosch Cordless Drill"
+              className={`w-full px-3.5 py-2.5 text-sm font-medium bg-white border-2 border-[#14281D] shadow-hard-sm rounded-xl focus:outline-none focus:shadow-hard ${
+                errors.name ? 'border-rose-600' : 'border-[#14281D]'
               }`}
             />
-            {errors.name && <p className="text-xs text-rose-600 mt-1">{errors.name}</p>}
+            {errors.name && <p className="text-xs font-mono text-rose-600 mt-1">{errors.name}</p>}
           </div>
 
           {/* Category & Condition */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-slate-800 block">
-                Category <span className="text-rose-500">*</span>
+              <label className="text-xs font-mono font-bold text-[#14281D] block uppercase">
+                Category <span className="text-[#E8590C]">*</span>
               </label>
               <select
                 name="category"
                 value={formData.category}
                 onChange={handleChange}
-                className="w-full px-3.5 py-2.5 text-sm bg-[#F8F8F5] border border-[#E1E5E1] rounded-xl focus:outline-none focus:border-[#236B45] cursor-pointer"
+                className="w-full px-3.5 py-2.5 text-sm font-bold bg-white border-2 border-[#14281D] shadow-hard-sm rounded-xl focus:outline-none cursor-pointer"
               >
                 {CATEGORIES.map((cat) => (
                   <option key={cat} value={cat}>
@@ -211,12 +213,12 @@ export const AddItem = () => {
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-slate-800 block">Item Condition</label>
+              <label className="text-xs font-mono font-bold text-[#14281D] block uppercase">Item Condition</label>
               <select
                 name="condition"
                 value={formData.condition}
                 onChange={handleChange}
-                className="w-full px-3.5 py-2.5 text-sm bg-[#F8F8F5] border border-[#E1E5E1] rounded-xl focus:outline-none focus:border-[#236B45] cursor-pointer"
+                className="w-full px-3.5 py-2.5 text-sm font-bold bg-white border-2 border-[#14281D] shadow-hard-sm rounded-xl focus:outline-none cursor-pointer"
               >
                 <option value="Like New">Like New</option>
                 <option value="Excellent">Excellent</option>
@@ -229,8 +231,8 @@ export const AddItem = () => {
           {/* Pricing & Duration Type */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-slate-800 block">
-                Rental Price (₹) <span className="text-rose-500">*</span>
+              <label className="text-xs font-mono font-bold text-[#14281D] block uppercase">
+                Rental Price (₹) <span className="text-[#E8590C]">*</span>
               </label>
               <input
                 type="number"
@@ -239,32 +241,32 @@ export const AddItem = () => {
                 value={formData.rentalPrice}
                 onChange={handleChange}
                 placeholder="e.g. 250"
-                className={`w-full px-3.5 py-2.5 text-sm bg-[#F8F8F5] border rounded-xl focus:outline-none focus:border-[#236B45] ${
-                  errors.rentalPrice ? 'border-rose-400' : 'border-[#E1E5E1]'
+                className={`w-full px-3.5 py-2.5 text-sm font-mono font-medium bg-white border-2 border-[#14281D] shadow-hard-sm rounded-xl focus:outline-none focus:shadow-hard ${
+                  errors.rentalPrice ? 'border-rose-600' : 'border-[#14281D]'
                 }`}
               />
               {errors.rentalPrice && (
-                <p className="text-xs text-rose-600 mt-1">{errors.rentalPrice}</p>
+                <p className="text-xs font-mono text-rose-600 mt-1">{errors.rentalPrice}</p>
               )}
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-slate-800 block">
-                Rental Rate Type
+              <label className="text-xs font-mono font-bold text-[#14281D] block uppercase">
+                Rate Type
               </label>
               <select
                 name="rentalType"
                 value={formData.rentalType}
                 onChange={handleChange}
-                className="w-full px-3.5 py-2.5 text-sm bg-[#F8F8F5] border border-[#E1E5E1] rounded-xl focus:outline-none focus:border-[#236B45] cursor-pointer"
+                className="w-full px-3.5 py-2.5 text-sm font-bold bg-white border-2 border-[#14281D] shadow-hard-sm rounded-xl focus:outline-none cursor-pointer"
               >
-                <option value="HOURLY">Hourly Rate</option>
-                <option value="DAILY">Daily Rate</option>
+                <option value="HOURLY">Per Hour</option>
+                <option value="DAILY">Per Day</option>
               </select>
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-slate-800 block">
+              <label className="text-xs font-mono font-bold text-[#14281D] block uppercase">
                 Refundable Deposit (₹)
               </label>
               <input
@@ -274,69 +276,69 @@ export const AddItem = () => {
                 value={formData.deposit}
                 onChange={handleChange}
                 placeholder="e.g. 1000 (optional)"
-                className="w-full px-3.5 py-2.5 text-sm bg-[#F8F8F5] border border-[#E1E5E1] rounded-xl focus:outline-none focus:border-[#236B45]"
+                className="w-full px-3.5 py-2.5 text-sm font-mono font-medium bg-white border-2 border-[#14281D] shadow-hard-sm rounded-xl focus:outline-none"
               />
             </div>
           </div>
 
           {/* Description */}
           <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-slate-800 block">
-              Item Description & Inclusions <span className="text-rose-500">*</span>
+            <label className="text-xs font-mono font-bold text-[#14281D] block uppercase">
+              Description & What's In The Box <span className="text-[#E8590C]">*</span>
             </label>
             <textarea
               name="description"
               rows={4}
               value={formData.description}
               onChange={handleChange}
-              placeholder="Detail specifications, accessories included (batteries, cables, cases), usage tips, and any safety instructions..."
-              className={`w-full px-3.5 py-2.5 text-sm bg-[#F8F8F5] border rounded-xl focus:outline-none focus:border-[#236B45] ${
-                errors.description ? 'border-rose-400' : 'border-[#E1E5E1]'
+              placeholder="Detail specifications, accessories included (batteries, cables, cases), usage tips, and any neighborhood pickup instructions..."
+              className={`w-full px-3.5 py-2.5 text-sm font-sans bg-white border-2 border-[#14281D] shadow-hard-sm rounded-xl focus:outline-none focus:shadow-hard ${
+                errors.description ? 'border-rose-600' : 'border-[#14281D]'
               }`}
             />
             {errors.description && (
-              <p className="text-xs text-rose-600 mt-1">{errors.description}</p>
+              <p className="text-xs font-mono text-rose-600 mt-1">{errors.description}</p>
             )}
           </div>
 
           {/* Location */}
           <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-slate-800 block">
-              Approximate Location / City <span className="text-rose-500">*</span>
+            <label className="text-xs font-mono font-bold text-[#14281D] block uppercase">
+              Approximate Location / Street <span className="text-[#E8590C]">*</span>
             </label>
             <input
               type="text"
               name="location"
               value={formData.location}
               onChange={handleChange}
-              placeholder="e.g. Agra, Uttar Pradesh"
-              className={`w-full px-3.5 py-2.5 text-sm bg-[#F8F8F5] border rounded-xl focus:outline-none focus:border-[#236B45] ${
-                errors.location ? 'border-rose-400' : 'border-[#E1E5E1]'
+              placeholder="e.g. Green Park Main or Malviya Nagar"
+              className={`w-full px-3.5 py-2.5 text-sm font-medium bg-white border-2 border-[#14281D] shadow-hard-sm rounded-xl focus:outline-none focus:shadow-hard ${
+                errors.location ? 'border-rose-600' : 'border-[#14281D]'
               }`}
             />
-            {errors.location && <p className="text-xs text-rose-600 mt-1">{errors.location}</p>}
+            {errors.location && <p className="text-xs font-mono text-rose-600 mt-1">{errors.location}</p>}
           </div>
 
           {/* Image URL & Preset Selection */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <label className="text-xs font-semibold text-slate-800 block">
-                Item Image URL <span className="text-rose-500">*</span>
+              <label className="text-xs font-mono font-bold text-[#14281D] block uppercase">
+                Item Photo <span className="text-[#E8590C]">*</span>
               </label>
-              <span className="text-xs text-slate-400">Click a sample photo or paste your URL</span>
+              <span className="text-xs font-mono text-[#14281D]/60">Select preset or paste clean URL</span>
             </div>
 
             {/* Quick Presets */}
-            <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
+            <div className="flex items-center gap-2 overflow-x-auto pb-1">
               {PRESET_IMAGES.map((preset) => (
                 <button
                   key={preset.name}
                   type="button"
                   onClick={() => handleSelectPresetImage(preset.url)}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-medium border flex-shrink-0 transition-colors cursor-pointer ${
+                  className={`px-3 py-1.5 rounded-lg text-xs font-mono font-bold border-2 border-[#14281D] flex-shrink-0 transition-all cursor-pointer ${
                     formData.imageUrl === preset.url
-                      ? 'border-[#236B45] bg-[#EEF3EE] text-[#236B45] font-semibold'
-                      : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
+                      ? 'bg-[#14281D] text-[#F6F1E9] shadow-hard-sm'
+                      : 'bg-white text-[#14281D] hover:bg-[#FAF8F5]'
                   }`}
                 >
                   {preset.name}
@@ -351,12 +353,12 @@ export const AddItem = () => {
                 value={formData.imageUrl}
                 onChange={handleChange}
                 placeholder="https://images.unsplash.com/..."
-                className={`flex-1 px-3.5 py-2.5 text-sm bg-[#F8F8F5] border rounded-xl focus:outline-none focus:border-[#236B45] ${
-                  errors.imageUrl ? 'border-rose-400' : 'border-[#E1E5E1]'
+                className={`flex-1 px-3.5 py-2.5 text-sm font-mono bg-white border-2 border-[#14281D] shadow-hard-sm rounded-xl focus:outline-none focus:shadow-hard ${
+                  errors.imageUrl ? 'border-rose-600' : 'border-[#14281D]'
                 }`}
               />
               {formData.imageUrl && (
-                <div className="w-14 h-14 rounded-xl overflow-hidden border border-slate-200 bg-slate-100 flex-shrink-0">
+                <div className="w-14 h-14 rounded-xl overflow-hidden border-2 border-[#14281D] shadow-hard-sm bg-white flex-shrink-0">
                   <img
                     src={formData.imageUrl}
                     alt="Preview"
@@ -368,39 +370,39 @@ export const AddItem = () => {
                 </div>
               )}
             </div>
-            {errors.imageUrl && <p className="text-xs text-rose-600 mt-1">{errors.imageUrl}</p>}
+            {errors.imageUrl && <p className="text-xs font-mono text-rose-600 mt-1">{errors.imageUrl}</p>}
           </div>
 
           {/* Availability Checkbox */}
           <div className="pt-2">
-            <label className="flex items-center gap-2.5 cursor-pointer text-xs font-medium text-slate-700 select-none">
+            <label className="flex items-center gap-2.5 cursor-pointer text-xs font-bold text-[#14281D] select-none">
               <input
                 type="checkbox"
                 name="available"
                 checked={formData.available}
                 onChange={handleChange}
-                className="w-4 h-4 text-[#236B45] rounded border-slate-300 focus:ring-[#236B45]"
+                className="w-4 h-4 accent-[#14281D] text-[#14281D] rounded border-[#14281D] focus:ring-0"
               />
-              <span>Mark this item as available for immediate rental requests</span>
+              <span>Mark this item as available for immediate neighbor bookings</span>
             </label>
           </div>
 
           {/* Submit Actions */}
-          <div className="pt-6 border-t border-slate-100 flex items-center justify-end gap-3">
+          <div className="pt-6 border-t-2 border-[#14281D]/10 flex items-center justify-end gap-3">
             <button
               type="button"
               onClick={() => navigate('/my-listings')}
-              className="px-5 py-2.5 text-xs font-medium text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors cursor-pointer"
+              className="px-5 py-2.5 text-xs font-bold font-mono text-[#14281D] hover:bg-[#FAF8F5] border-2 border-[#14281D] shadow-hard-sm btn-tactile rounded-xl transition-colors cursor-pointer"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
-              className="px-6 py-2.5 bg-[#236B45] hover:bg-[#1b5636] text-white text-xs font-semibold rounded-xl shadow-xs transition-colors cursor-pointer flex items-center gap-1.5"
+              className="px-6 py-2.5 bg-[#14281D] hover:bg-[#E8590C] disabled:opacity-50 text-[#F6F1E9] text-xs font-bold rounded-xl border-2 border-[#14281D] shadow-hard btn-tactile transition-colors cursor-pointer flex items-center gap-2"
             >
-              <PackagePlus className="w-4 h-4" />
-              <span>{isSubmitting ? 'Listing Item...' : 'Publish Listing'}</span>
+              <PackagePlus className="w-4 h-4 text-[#F2B705]" />
+              <span>{isSubmitting ? 'Adding to Neighborhood...' : 'Publish to Neighborhood'}</span>
             </button>
           </div>
         </form>

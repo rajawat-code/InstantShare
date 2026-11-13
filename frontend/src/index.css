@@ -1,37 +1,116 @@
 @import "tailwindcss";
 
-:root {
-  --brand-primary: #236B45;
-  --brand-primary-hover: #1b5636;
-  --brand-light: #EEF3EE;
-  --brand-border: #E1E5E1;
-  --brand-dark: #252B27;
-  --brand-muted: #64748B;
-  --brand-bg: #F8F8F5;
-  --brand-accent: #FACC15;
+@layer base {
+  :root {
+    --font-display: 'Fraunces', Georgia, serif;
+    --font-sans: 'DM Sans', system-ui, -apple-system, sans-serif;
+    --font-mono: 'Space Grotesk', monospace;
+
+    --color-paper: #F6F1E9;
+    --color-paper-light: #FAF7F2;
+    --color-paper-dark: #ECE5DA;
+    --color-ink: #14281D;
+    --color-ink-muted: #4A5B52;
+    --color-forest: #1E3A2F;
+    --color-forest-dark: #12241C;
+    --color-burnt-orange: #E8590C;
+    --color-mustard: #F2B705;
+    --color-sage: #DCE5DD;
+    --color-cream: #FFFDF9;
+  }
+
+  body {
+    margin: 0;
+    background-color: var(--color-paper);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    background-image: radial-gradient(rgba(20, 40, 29, 0.04) 1px, transparent 1px);
+    background-size: 24px 24px;
+  }
+
+  h1, h2, h3, .font-display {
+    font-family: var(--font-display);
+    font-optical-sizing: auto;
+  }
+
+  .font-mono, .badge-mono {
+    font-family: var(--font-mono);
+  }
 }
 
-body {
-  margin: 0;
-  background-color: var(--brand-bg);
-  color: var(--brand-dark);
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Inter', 'Manrope', sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+/* Custom Neo-Brutalist & Editorial Hard Offset Shadows */
+.shadow-hard-sm {
+  box-shadow: 2px 2px 0px #14281D;
 }
 
-/* Custom scrollbar for modern feel */
+.shadow-hard {
+  box-shadow: 3px 3px 0px #14281D;
+}
+
+.shadow-hard-lg {
+  box-shadow: 5px 5px 0px #14281D;
+}
+
+.shadow-hard-xl {
+  box-shadow: 8px 8px 0px #14281D;
+}
+
+.shadow-hard-orange {
+  box-shadow: 4px 4px 0px #E8590C;
+}
+
+.shadow-hard-mustard {
+  box-shadow: 4px 4px 0px #F2B705;
+}
+
+/* Tactile Physical Press State for Buttons */
+.btn-tactile {
+  transition: transform 0.12s ease-out, box-shadow 0.12s ease-out;
+}
+.btn-tactile:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0px #14281D;
+}
+.btn-tactile:active {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0px #14281D;
+}
+
+/* Tape Strip Effect */
+.tape-strip {
+  background: rgba(254, 240, 138, 0.75);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  backdrop-filter: blur(1px);
+}
+
+/* Washi Tape Strip Alternative */
+.washi-tape {
+  background: repeating-linear-gradient(
+    45deg,
+    rgba(232, 89, 12, 0.35),
+    rgba(232, 89, 12, 0.35) 6px,
+    rgba(242, 183, 5, 0.45) 6px,
+    rgba(242, 183, 5, 0.45) 12px
+  );
+  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+/* Custom Scrollbar */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 9px;
+  height: 9px;
 }
 ::-webkit-scrollbar-track {
-  background: #f1f1f1;
+  background: #F6F1E9;
+  border-left: 1px solid #14281D;
 }
 ::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 4px;
+  background: #14281D;
+  border: 2px solid #F6F1E9;
+  border-radius: 6px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+  background: #E8590C;
 }

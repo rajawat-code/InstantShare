@@ -220,25 +220,28 @@ export const Explore = () => {
       {/* Header & Mode Switcher */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-[#252B27] tracking-tight">
-            Explore Rental Items
+          <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-md bg-[#F2B705]/20 border border-[#14281D]/20 text-[11px] font-mono font-bold text-[#14281D] mb-1">
+            <span>● LOCAL DIRECTORY</span>
+          </div>
+          <h1 className="text-3xl sm:text-4xl font-serif font-black text-[#14281D] tracking-tight">
+            Neighborhood Gear Shelf
           </h1>
-          <p className="text-xs sm:text-sm text-slate-500 mt-1">
+          <p className="text-xs sm:text-sm text-[#14281D]/70 font-sans mt-1">
             {exploreMode === 'nearby' && hasLocation
-              ? `Showing items within ${radius}m walking distance (${items.length} items found)`
-              : `Browse ${items.length} community items available for rent`}
+              ? `Showing gear within ${radius}m walking distance (${items.length} items found)`
+              : `Browse ${items.length} tools, cameras and gear ready to borrow today`}
           </p>
         </div>
 
         {/* View Switcher: All Items vs Nearby Walking Distance */}
-        <div className="flex items-center gap-2 self-start md:self-auto bg-white p-1 rounded-2xl border border-[#E1E5E1] shadow-xs">
+        <div className="flex items-center gap-2 self-start md:self-auto bg-[#FAF8F5] p-1.5 rounded-xl border-2 border-[#14281D] shadow-hard-sm">
           <button
             type="button"
             onClick={() => setExploreMode('all')}
-            className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
+            className={`px-3.5 py-1.5 rounded-lg text-xs font-bold font-mono transition-all cursor-pointer ${
               exploreMode === 'all'
-                ? 'bg-[#236B45] text-white shadow-xs'
-                : 'text-slate-600 hover:text-slate-900'
+                ? 'bg-[#14281D] text-[#F6F1E9] shadow-xs'
+                : 'text-[#14281D]/70 hover:text-[#14281D]'
             }`}
           >
             All Items
@@ -246,59 +249,59 @@ export const Explore = () => {
           <button
             type="button"
             onClick={handleToggleNearbyMode}
-            className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
+            className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-bold font-mono transition-all cursor-pointer ${
               exploreMode === 'nearby'
-                ? 'bg-[#236B45] text-white shadow-xs'
-                : 'text-slate-600 hover:text-slate-900'
+                ? 'bg-[#E8590C] text-white shadow-xs'
+                : 'text-[#14281D]/70 hover:text-[#14281D]'
             }`}
           >
-            <Navigation2 className="w-3.5 h-3.5 text-[#FACC15] fill-[#FACC15]" />
-            <span>Nearby ({radius}m)</span>
+            <Navigation2 className="w-3.5 h-3.5 text-[#F2B705] fill-[#F2B705]" />
+            <span>Walking Distance ({radius}m)</span>
           </button>
         </div>
       </div>
 
       {/* PROMINENT LOCATION DISCOVERY BAR */}
-      <div className="bg-white rounded-2xl border border-[#E1E5E1] p-4 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="bg-[#FAF8F5] rounded-2xl border-2 border-[#14281D] p-4 shadow-hard flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <div
-            className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 ${
+            className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 border-2 border-[#14281D] shadow-hard-sm ${
               hasLocation
                 ? isDemoActive
-                  ? 'bg-amber-100 text-amber-700'
-                  : 'bg-emerald-100 text-[#236B45]'
-                : 'bg-slate-100 text-slate-500'
+                  ? 'bg-[#F2B705] text-[#14281D]'
+                  : 'bg-[#E8590C] text-white'
+                : 'bg-white text-[#14281D]'
             }`}
           >
             <MapPin className="w-5 h-5" />
           </div>
 
           <div>
-            <div className="text-xs font-semibold text-slate-800 flex items-center gap-2 flex-wrap">
+            <div className="text-xs font-bold text-[#14281D] flex items-center gap-2 flex-wrap">
               <span>
                 {locationStatus === 'locating'
                   ? 'Acquiring GPS location...'
                   : isDemoActive
-                  ? 'Sample Demo Hub Active: Green Park, New Delhi'
+                  ? 'Active Demo Hub: Green Park Main, South Delhi'
                   : hasLocation
-                  ? 'Current Location Enabled'
+                  ? 'GPS Location Active'
                   : 'Location not enabled'}
               </span>
 
               {isDemoActive && (
-                <span className="text-[10px] bg-amber-50 text-amber-800 border border-amber-200 px-2 py-0.2 rounded-full font-medium">
-                  Sample Data Hub
+                <span className="text-[10px] bg-[#F2B705]/30 text-[#14281D] border border-[#14281D] px-2 py-0.2 rounded-full font-mono font-bold">
+                  Demo Lane Active
                 </span>
               )}
             </div>
 
-            <div className="text-[11px] text-slate-500">
+            <div className="text-[11px] text-[#14281D]/70">
               {hasLocation ? (
                 <span>
-                  Filtering items within <strong>{radius}m</strong> • Sorted nearest to farthest
+                  Filtering items within <strong className="font-mono text-[#14281D]">{radius}m</strong> • Sorted nearest to farthest
                 </span>
               ) : (
-                <span>Click "Use My Location" to uncover gear you can walk over and borrow</span>
+                <span>Click "Use My Location" or "Try Demo Hub" to uncover gear you can walk over and borrow</span>
               )}
             </div>
           </div>
@@ -308,8 +311,8 @@ export const Explore = () => {
         <div className="flex flex-wrap items-center gap-3">
           {/* Radius Selector Pills */}
           <div className="flex items-center gap-1.5">
-            <span className="text-[11px] text-slate-400 font-medium">Radius:</span>
-            <div className="inline-flex p-0.5 bg-[#F8F8F5] rounded-xl border border-[#E1E5E1]">
+            <span className="text-[11px] text-[#14281D]/60 font-mono font-bold uppercase">Radius:</span>
+            <div className="inline-flex p-1 bg-white rounded-xl border-2 border-[#14281D]">
               {radiusOptions.map((opt) => (
                 <button
                   key={opt.value}
@@ -319,10 +322,10 @@ export const Explore = () => {
                     setExploreMode('nearby');
                     if (!hasLocation) requestCurrentLocation();
                   }}
-                  className={`px-2.5 py-1 text-xs font-semibold rounded-lg transition-colors cursor-pointer ${
+                  className={`px-2.5 py-1 text-xs font-mono font-bold rounded-lg transition-colors cursor-pointer ${
                     radius === opt.value
-                      ? 'bg-[#236B45] text-white shadow-xs'
-                      : 'text-slate-600 hover:text-slate-900'
+                      ? 'bg-[#14281D] text-[#F6F1E9]'
+                      : 'text-[#14281D]/70 hover:text-[#14281D]'
                   }`}
                   title={opt.desc}
                 >
@@ -337,7 +340,7 @@ export const Explore = () => {
             type="button"
             onClick={requestCurrentLocation}
             disabled={locationStatus === 'locating'}
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-[#236B45] hover:bg-[#1b5636] disabled:bg-slate-300 text-white rounded-xl text-xs font-semibold shadow-xs transition-colors cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#14281D] hover:bg-[#E8590C] disabled:opacity-50 text-[#F6F1E9] rounded-xl text-xs font-bold border-2 border-[#14281D] shadow-hard-sm btn-tactile transition-colors cursor-pointer"
           >
             <Navigation2
               className={`w-3.5 h-3.5 ${locationStatus === 'locating' ? 'animate-spin' : ''}`}
@@ -355,7 +358,7 @@ export const Explore = () => {
             <button
               type="button"
               onClick={useDemoLocation}
-              className="px-3 py-2 text-xs font-medium bg-[#F8F8F5] hover:bg-slate-100 border border-[#E1E5E1] text-slate-700 rounded-xl transition-colors cursor-pointer"
+              className="px-3.5 py-2 text-xs font-bold bg-[#F2B705] hover:bg-[#e0a804] border-2 border-[#14281D] shadow-hard-sm btn-tactile text-[#14281D] rounded-xl transition-colors cursor-pointer"
             >
               Try Demo Hub
             </button>
@@ -365,7 +368,7 @@ export const Explore = () => {
             <button
               type="button"
               onClick={clearLocation}
-              className="text-xs text-slate-400 hover:text-slate-600 px-2 py-1"
+              className="text-xs font-bold text-[#14281D]/60 hover:text-[#E8590C] px-2 py-1 underline cursor-pointer"
             >
               Clear
             </button>
@@ -375,21 +378,20 @@ export const Explore = () => {
 
       {/* Location Warning / Fallback message if denied */}
       {locationStatus === 'denied' && (
-        <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-amber-900">
+        <div className="p-4 rounded-2xl bg-[#F2B705]/15 border-2 border-[#14281D] shadow-hard-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-[#14281D]">
           <div className="flex items-start gap-2.5">
-            <AlertCircle className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" />
+            <AlertCircle className="w-5 h-5 text-[#E8590C] flex-shrink-0 mt-0.5" />
             <div>
-              <strong className="font-semibold block">Browser Location Permission Denied</strong>
-              <span>
-                To discover equipment within 200m walking distance, permit location access or use the
-                sample demo neighborhood.
+              <strong className="font-bold block text-sm">Browser Location Denied</strong>
+              <span className="text-[#14281D]/80">
+                To discover equipment within 200m walking distance, allow location access in your browser or explore our sample demo hub in Green Park.
               </span>
             </div>
           </div>
           <button
             type="button"
             onClick={useDemoLocation}
-            className="px-3.5 py-1.5 bg-amber-800 hover:bg-amber-900 text-white rounded-xl font-semibold transition-colors cursor-pointer self-start sm:self-auto flex-shrink-0"
+            className="px-4 py-2 bg-[#14281D] hover:bg-[#E8590C] text-[#F6F1E9] border-2 border-[#14281D] shadow-hard-sm btn-tactile rounded-xl font-bold transition-colors cursor-pointer self-start sm:self-auto flex-shrink-0"
           >
             Explore Sample Demo Hub
           </button>
@@ -401,7 +403,7 @@ export const Explore = () => {
         <SearchBar
           value={searchTerm}
           onChange={handleSearchChange}
-          placeholder="Search electric drill, camera, camping tent, projector..."
+          placeholder="Search electric drill, mirrorless camera, camping tent, 4k projector..."
         />
 
         <CategoryFilter
@@ -416,13 +418,13 @@ export const Explore = () => {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-8 items-start">
         {/* Desktop Filter Sidebar */}
         <aside
-          className={`md:block md:col-span-1 bg-white p-5 rounded-2xl border border-[#E1E5E1] space-y-6 ${
+          className={`md:block md:col-span-1 bg-[#FAF8F5] p-5 rounded-2xl border-2 border-[#14281D] shadow-hard space-y-6 ${
             showMobileFilters ? 'block' : 'hidden'
           }`}
         >
-          <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-            <h3 className="font-semibold text-sm text-[#252B27] flex items-center gap-2">
-              <SlidersHorizontal className="w-4 h-4 text-[#236B45]" />
+          <div className="flex items-center justify-between pb-3 border-b-2 border-[#14281D]/10">
+            <h3 className="font-serif font-black text-base text-[#14281D] flex items-center gap-2">
+              <SlidersHorizontal className="w-4 h-4 text-[#E8590C]" />
               <span>Filters</span>
             </h3>
 
@@ -430,7 +432,7 @@ export const Explore = () => {
               <button
                 type="button"
                 onClick={handleResetFilters}
-                className="text-xs font-medium text-rose-600 hover:text-rose-700 flex items-center gap-1 cursor-pointer"
+                className="text-xs font-mono font-bold text-[#E8590C] hover:text-[#14281D] flex items-center gap-1 cursor-pointer"
               >
                 <RotateCcw className="w-3 h-3" />
                 <span>Reset</span>
@@ -440,13 +442,13 @@ export const Explore = () => {
 
           {/* Sort Control */}
           <div className="space-y-2">
-            <label className="text-xs font-semibold text-slate-700 uppercase tracking-wider block">
+            <label className="text-[11px] font-mono font-bold text-[#14281D] uppercase tracking-wider block">
               Sort Results By
             </label>
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
-              className="w-full bg-[#F8F8F5] border border-[#E1E5E1] rounded-xl px-3 py-2 text-xs font-medium text-slate-700 focus:outline-none focus:border-[#236B45] cursor-pointer"
+              className="w-full bg-white border-2 border-[#14281D] shadow-hard-sm rounded-xl px-3 py-2 text-xs font-bold text-[#14281D] focus:outline-none cursor-pointer"
             >
               {hasLocation && <option value="distance">Distance: Nearest First</option>}
               <option value="newest">Recently Added</option>
@@ -457,19 +459,19 @@ export const Explore = () => {
 
           {/* Rental Type Filter */}
           <div className="space-y-2">
-            <label className="text-xs font-semibold text-slate-700 uppercase tracking-wider block">
+            <label className="text-[11px] font-mono font-bold text-[#14281D] uppercase tracking-wider block">
               Rental Duration
             </label>
-            <div className="grid grid-cols-3 gap-1 bg-[#F8F8F5] p-1 rounded-xl border border-[#E1E5E1]">
+            <div className="grid grid-cols-3 gap-1 bg-white p-1 rounded-xl border-2 border-[#14281D]">
               {['ALL', 'HOURLY', 'DAILY'].map((type) => (
                 <button
                   key={type}
                   type="button"
                   onClick={() => setRentalType(type)}
-                  className={`py-1.5 text-xs font-medium rounded-lg transition-colors cursor-pointer ${
+                  className={`py-1.5 text-xs font-bold font-mono rounded-lg transition-colors cursor-pointer ${
                     rentalType === type
-                      ? 'bg-[#236B45] text-white shadow-xs'
-                      : 'text-slate-600 hover:text-slate-900'
+                      ? 'bg-[#14281D] text-[#F6F1E9]'
+                      : 'text-[#14281D]/70 hover:text-[#14281D]'
                   }`}
                 >
                   {type === 'ALL' ? 'All' : type === 'HOURLY' ? 'Hourly' : 'Daily'}
@@ -480,7 +482,7 @@ export const Explore = () => {
 
           {/* Price Range Filter */}
           <div className="space-y-2">
-            <label className="text-xs font-semibold text-slate-700 uppercase tracking-wider block">
+            <label className="text-[11px] font-mono font-bold text-[#14281D] uppercase tracking-wider block">
               Price Range (₹)
             </label>
             <div className="flex items-center gap-2">
@@ -490,30 +492,30 @@ export const Explore = () => {
                 value={minPrice}
                 onChange={(e) => setMinPrice(e.target.value)}
                 placeholder="Min ₹"
-                className="w-full px-3 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-[#236B45]"
+                className="w-full px-3 py-2 text-xs font-mono font-medium bg-white border-2 border-[#14281D] shadow-hard-sm rounded-xl focus:outline-none"
               />
-              <span className="text-slate-400 text-xs">—</span>
+              <span className="text-[#14281D] font-bold text-xs">—</span>
               <input
                 type="number"
                 min="0"
                 value={maxPrice}
                 onChange={(e) => setMaxPrice(e.target.value)}
                 placeholder="Max ₹"
-                className="w-full px-3 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-[#236B45]"
+                className="w-full px-3 py-2 text-xs font-mono font-medium bg-white border-2 border-[#14281D] shadow-hard-sm rounded-xl focus:outline-none"
               />
             </div>
           </div>
 
           {/* Availability Filter Toggle */}
           <div className="pt-2">
-            <label className="flex items-center gap-2.5 cursor-pointer text-xs font-medium text-slate-700 select-none">
+            <label className="flex items-center gap-2.5 cursor-pointer text-xs font-bold text-[#14281D] select-none">
               <input
                 type="checkbox"
                 checked={availableOnly}
                 onChange={(e) => setAvailableOnly(e.target.checked)}
-                className="w-4 h-4 text-[#236B45] rounded border-slate-300 focus:ring-[#236B45]"
+                className="w-4 h-4 text-[#14281D] accent-[#14281D] rounded border-[#14281D] focus:ring-0"
               />
-              <span>Available now only</span>
+              <span>Available right now</span>
             </label>
           </div>
         </aside>
@@ -524,34 +526,34 @@ export const Explore = () => {
             <LoadingSpinner
               label={
                 exploreMode === 'nearby' && hasLocation
-                  ? `Scanning items within ${radius}m...`
-                  : 'Loading marketplace items...'
+                  ? `Scanning gear within ${radius}m...`
+                  : 'Opening the neighborhood shelf...'
               }
             />
           ) : items.length === 0 ? (
-            <div className="bg-white rounded-2xl border border-[#E1E5E1] p-12 text-center space-y-4">
-              <div className="w-16 h-16 rounded-full bg-[#EEF3EE] text-[#236B45] flex items-center justify-center mx-auto">
+            <div className="bg-[#FAF8F5] rounded-2xl border-2 border-[#14281D] shadow-hard p-12 text-center space-y-4">
+              <div className="w-16 h-16 rounded-2xl bg-[#F2B705] border-2 border-[#14281D] shadow-hard-sm text-[#14281D] flex items-center justify-center mx-auto transform -rotate-3">
                 <PackageSearch className="w-8 h-8" />
               </div>
               <div className="space-y-1">
-                <h3 className="text-base font-semibold text-slate-900">
+                <h3 className="font-serif text-xl font-black text-[#14281D]">
                   {exploreMode === 'nearby'
-                    ? `No items found within ${radius} meters`
-                    : 'No rental items found'}
+                    ? `Nothing on this lane within ${radius} meters`
+                    : 'No matching gear found'}
                 </h3>
-                <p className="text-xs text-slate-500 max-w-sm mx-auto leading-relaxed">
+                <p className="text-xs text-[#14281D]/70 max-w-sm mx-auto leading-relaxed font-sans">
                   {exploreMode === 'nearby'
-                    ? `Try expanding your walking radius to 500m or browse all marketplace items.`
-                    : `We couldn't find any items matching your active search and filters. Try adjusting your keywords.`}
+                    ? `Try expanding your walking radius to 500m or browse the full neighborhood inventory.`
+                    : `We couldn't find any items matching your filters. Try clearing your search or asking a neighbor.`}
                 </p>
               </div>
 
-              <div className="flex flex-wrap items-center justify-center gap-2 pt-2">
+              <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
                 {exploreMode === 'nearby' && radius < 500 && (
                   <button
                     type="button"
                     onClick={() => setRadius(500)}
-                    className="px-4 py-2 bg-[#236B45] text-white text-xs font-semibold rounded-xl hover:bg-[#1b5636] transition-colors cursor-pointer"
+                    className="px-5 py-2.5 bg-[#14281D] text-[#F6F1E9] text-xs font-bold rounded-xl border-2 border-[#14281D] shadow-hard-sm btn-tactile hover:bg-[#E8590C] transition-colors cursor-pointer"
                   >
                     Expand to 500m Radius
                   </button>
@@ -561,16 +563,16 @@ export const Explore = () => {
                   <button
                     type="button"
                     onClick={() => setExploreMode('all')}
-                    className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-medium rounded-xl transition-colors cursor-pointer"
+                    className="px-4 py-2.5 bg-white text-[#14281D] text-xs font-bold rounded-xl border-2 border-[#14281D] shadow-hard-sm btn-tactile hover:bg-[#FAF8F5] transition-colors cursor-pointer"
                   >
-                    View All Marketplace Items
+                    View All Items
                   </button>
                 )}
 
                 <button
                   type="button"
                   onClick={handleResetFilters}
-                  className="px-4 py-2 text-xs font-medium text-slate-500 hover:text-slate-800 transition-colors cursor-pointer"
+                  className="px-4 py-2.5 text-xs font-bold text-[#14281D]/70 hover:text-[#E8590C] underline cursor-pointer"
                 >
                   Reset All Filters
                 </button>

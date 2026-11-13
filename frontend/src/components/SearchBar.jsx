@@ -30,7 +30,7 @@ export const SearchBar = ({
         onChange={(e) => onChange(e.target.value)}
         onKeyDown={handleKeyDown}
         placeholder={placeholder}
-        className="w-full pl-10 pr-10 py-2.5 bg-white border border-[#E1E5E1] rounded-xl text-sm text-[#252B27] placeholder:text-slate-400 focus:outline-none focus:border-[#236B45] focus:ring-1 focus:ring-[#236B45] transition-all"
+        className="w-full pl-10 pr-10 py-3 bg-[#FAF8F5] border-2 border-[#14281D] rounded-xl text-sm font-medium text-[#14281D] placeholder:text-[#14281D]/40 shadow-hard-sm focus:shadow-hard focus:outline-none transition-all"
       />
 
       {value && (
