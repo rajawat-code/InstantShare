@@ -4,15 +4,9 @@ import {
   Search,
   ArrowRight,
   ShieldCheck,
-  Clock,
-  Sparkles,
-  MapPin,
   CheckCircle2,
-  Users,
-  Repeat,
   PackagePlus,
   Navigation2,
-  Compass,
 } from 'lucide-react';
 import ItemCard from '../components/ItemCard';
 import CategoryFilter from '../components/CategoryFilter';
