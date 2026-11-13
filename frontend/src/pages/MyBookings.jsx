@@ -12,16 +12,18 @@ import BookingCard from '../components/BookingCard';
 import ConfirmDialog from '../components/ConfirmDialog';
 import LoadingSpinner from '../components/LoadingSpinner';
 import DemoPaymentModal from '../components/DemoPaymentModal';
+import ReviewModal from '../components/ReviewModal';
 import apiService from '../services/apiService';
 import { useUser } from '../context/UserContext';
 
 const STATUS_TABS = [
   { id: 'ALL', label: 'All Bookings' },
   { id: 'PENDING', label: 'Pending' },
-  { id: 'ACCEPTED', label: 'Accepted' },
-  { id: 'ACTIVE', label: 'Active' },
+  { id: 'ACCEPTED', label: 'Ready to Pay' },
+  { id: 'CONFIRMED', label: 'Confirmed' },
+  { id: 'ACTIVE', label: 'Active (Handed Over)' },
   { id: 'COMPLETED', label: 'Completed' },
-  { id: 'CANCELLED', label: 'Cancelled' },
+  { id: 'REJECTED', label: 'Rejected' },
 ];
 
 export const MyBookings = () => {
@@ -32,9 +34,18 @@ export const MyBookings = () => {
   const [cancelTarget, setCancelTarget] = useState(null);
   const [isCancelling, setIsCancelling] = useState(false);
   const [paymentTarget, setPaymentTarget] = useState(null);
+  const [reviewTarget, setReviewTarget] = useState(null);
 
   const handlePayNow = (booking) => {
     setPaymentTarget(booking);
+  };
+
+  const handleReviewBooking = (booking) => {
+    setReviewTarget(booking);
+  };
+
+  const handleReviewSuccess = (review) => {
+    showToast('Review submitted successfully! Thank you for rating.', 'success');
   };
 
   const handlePaymentSuccess = (bookingId) => {
@@ -179,10 +190,19 @@ export const MyBookings = () => {
               booking={booking}
               onCancelRequest={handleCancelBooking}
               onPayNow={handlePayNow}
+              onReview={handleReviewBooking}
             />
           ))}
         </div>
       )}
+
+      {/* Review Experience Modal (POST /api/reviews) */}
+      <ReviewModal
+        isOpen={Boolean(reviewTarget)}
+        booking={reviewTarget}
+        onClose={() => setReviewTarget(null)}
+        onReviewSubmitted={handleReviewSuccess}
+      />
 
       {/* Demo Mode Payment Gateway Checkout Modal */}
       <DemoPaymentModal

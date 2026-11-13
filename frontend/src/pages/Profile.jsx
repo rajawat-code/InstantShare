@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   User,
   Mail,
@@ -14,7 +14,12 @@ import {
   Server,
   RefreshCw,
   AlertCircle,
+  Edit,
+  X,
+  MessageSquare,
+  Building,
 } from 'lucide-react';
+import apiService from '../services/apiService';
 import { useUser } from '../context/UserContext';
 import ConfirmDialog from '../components/ConfirmDialog';
 
@@ -24,6 +29,7 @@ export const Profile = () => {
     users,
     switchUser,
     resetAllData,
+    showToast,
     isBackendOnline,
     isCheckingBackend,
     recheckBackend,
@@ -32,10 +38,65 @@ export const Profile = () => {
   } = useUser();
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [customUrl, setCustomUrl] = useState(apiBaseUrl || 'http://localhost:8080/api');
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isSavingProfile, setIsSavingProfile] = useState(false);
+  const [userReviews, setUserReviews] = useState([]);
+  const [isLoadingReviews, setIsLoadingReviews] = useState(false);
+  const [editForm, setEditForm] = useState({
+    name: currentUser.name || '',
+    phone: currentUser.phone || '',
+    businessName: currentUser.businessName || '',
+    businessDescription: currentUser.businessDescription || '',
+  });
 
   useEffect(() => {
     if (apiBaseUrl) setCustomUrl(apiBaseUrl);
   }, [apiBaseUrl]);
+
+  useEffect(() => {
+    setEditForm({
+      name: currentUser.name || '',
+      phone: currentUser.phone || '',
+      businessName: currentUser.businessName || '',
+      businessDescription: currentUser.businessDescription || '',
+    });
+
+    const loadReviews = async () => {
+      try {
+        setIsLoadingReviews(true);
+        const reviews = await apiService.getUserReviews(currentUser.id);
+        setUserReviews(Array.isArray(reviews) ? reviews : []);
+      } catch (err) {
+        console.warn('Could not load user reviews:', err);
+      } finally {
+        setIsLoadingReviews(false);
+      }
+    };
+    loadReviews();
+  }, [currentUser]);
+
+  const handleSaveProfile = async (e) => {
+    e.preventDefault();
+    if (!editForm.name.trim() || editForm.name.trim().length < 2) {
+      showToast('Name must be between 2 and 100 characters.', 'error');
+      return;
+    }
+    try {
+      setIsSavingProfile(true);
+      await apiService.updateCurrentUserProfile({
+        name: editForm.name.trim(),
+        phone: editForm.phone.trim() || undefined,
+        businessName: editForm.businessName.trim() || undefined,
+        businessDescription: editForm.businessDescription.trim() || undefined,
+      });
+      showToast('Profile updated successfully (PUT /api/users/me)!', 'success');
+      setIsEditModalOpen(false);
+    } catch (err) {
+      showToast('Failed to update profile: ' + (err.message || 'Error'), 'error');
+    } finally {
+      setIsSavingProfile(false);
+    }
+  };
 
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
@@ -83,6 +144,14 @@ export const Profile = () => {
           </div>
 
           <div className="w-full sm:w-auto pt-4 sm:pt-0 border-t sm:border-t-0 border-slate-100 flex sm:flex-col items-center sm:items-end justify-between gap-2">
+            <button
+              type="button"
+              onClick={() => setIsEditModalOpen(true)}
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold text-white bg-[#236B45] hover:bg-[#1b5636] rounded-xl shadow-xs transition-colors cursor-pointer"
+            >
+              <Edit className="w-3.5 h-3.5" />
+              <span>Edit Profile (PUT /users/me)</span>
+            </button>
             <button
               type="button"
               onClick={() => setShowResetConfirm(true)}
@@ -186,6 +255,49 @@ export const Profile = () => {
             );
           })}
         </div>
+      </div>
+
+      {/* Community Reviews Received (GET /api/reviews/user/{userId}) */}
+      <div className="bg-white rounded-3xl border border-[#E1E5E1] p-6 sm:p-8 shadow-xs space-y-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <MessageSquare className="w-5 h-5 text-[#236B45]" />
+            <h2 className="text-lg font-bold text-[#252B27]">Reviews Received</h2>
+          </div>
+          <span className="text-xs bg-[#EEF3EE] text-[#236B45] font-semibold px-2.5 py-1 rounded-full border border-[#DCFCE7]">
+            GET /api/reviews/user/{currentUser.id}
+          </span>
+        </div>
+
+        {isLoadingReviews ? (
+          <div className="py-6 text-center text-xs text-slate-400">Loading verified reviews...</div>
+        ) : userReviews.length === 0 ? (
+          <div className="py-6 text-center text-xs text-slate-400 bg-[#F8F8F5] rounded-2xl border border-dashed border-[#E1E5E1]">
+            No reviews received yet. Complete rentals to earn ratings from neighbors!
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+            {userReviews.map((rev) => (
+              <div
+                key={rev.id}
+                className="bg-[#F8F8F5] p-4 rounded-2xl border border-[#E1E5E1] space-y-2 text-xs"
+              >
+                <div className="flex items-center justify-between">
+                  <span className="font-semibold text-slate-800">{rev.reviewerName || 'Neighbor'}</span>
+                  <div className="flex items-center text-amber-500">
+                    {Array.from({ length: rev.rating || 5 }).map((_, i) => (
+                      <Star key={i} className="w-3.5 h-3.5 fill-amber-500" />
+                    ))}
+                  </div>
+                </div>
+                <p className="text-slate-600 italic">"{rev.comment}"</p>
+                <div className="text-[10px] text-slate-400">
+                  Rental #{rev.rentalId} • {new Date(rev.createdAt || Date.now()).toLocaleDateString()}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Developer & Backend Connectivity Card */}
@@ -296,6 +408,102 @@ export const Profile = () => {
           </div>
         </div>
       </div>
+
+      {/* Edit Profile Modal (PUT /api/users/me) */}
+      {isEditModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs animate-in fade-in duration-150">
+          <div className="w-full max-w-md bg-white rounded-3xl shadow-xl border border-slate-100 p-6 space-y-5">
+            <div className="flex items-start justify-between pb-3 border-b border-slate-100">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-emerald-50 text-[#236B45] flex items-center justify-center">
+                  <Edit className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-slate-900">Update Profile</h3>
+                  <p className="text-xs text-slate-500 mt-0.5">Connected to PUT /api/users/me</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsEditModalOpen(false)}
+                className="text-slate-400 hover:text-slate-600 p-1 rounded-lg"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveProfile} className="space-y-4">
+              <div className="space-y-1">
+                <label className="text-xs font-semibold text-slate-700 block">Full Name (2–100 chars)</label>
+                <input
+                  type="text"
+                  required
+                  value={editForm.name}
+                  onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+                  className="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 focus:ring-2 focus:ring-[#236B45] focus:outline-hidden"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-xs font-semibold text-slate-700 block">Phone Number</label>
+                <input
+                  type="text"
+                  value={editForm.phone}
+                  onChange={(e) => setEditForm({ ...editForm, phone: e.target.value })}
+                  placeholder="+91 98765 43210"
+                  className="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 focus:ring-2 focus:ring-[#236B45] focus:outline-hidden"
+                />
+              </div>
+
+              {currentUser.role === 'BUSINESS' && (
+                <>
+                  <div className="space-y-1">
+                    <label className="text-xs font-semibold text-slate-700 block">Business Name</label>
+                    <input
+                      type="text"
+                      value={editForm.businessName}
+                      onChange={(e) => setEditForm({ ...editForm, businessName: e.target.value })}
+                      placeholder="e.g. Sharma Hardware & Rentals"
+                      className="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 focus:ring-2 focus:ring-[#236B45] focus:outline-hidden"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-xs font-semibold text-slate-700 block">Business Description</label>
+                    <textarea
+                      value={editForm.businessDescription}
+                      onChange={(e) => setEditForm({ ...editForm, businessDescription: e.target.value })}
+                      rows={2}
+                      placeholder="About your tool rental shop or business..."
+                      className="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 focus:ring-2 focus:ring-[#236B45] focus:outline-hidden"
+                    />
+                  </div>
+                </>
+              )}
+
+              <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 text-[11px] text-slate-500">
+                Email (<code>{currentUser.email}</code>) and Role (<code>{currentUser.role}</code>) are fixed for security.
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setIsEditModalOpen(false)}
+                  className="px-4 py-2 text-xs font-medium text-slate-600 hover:bg-slate-100 rounded-xl transition cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSavingProfile}
+                  className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-white bg-[#236B45] hover:bg-[#1b5636] rounded-xl shadow-xs transition cursor-pointer disabled:opacity-50"
+                >
+                  {isSavingProfile ? 'Saving...' : 'Save Profile'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* Confirm Reset Dialog */}
       <ConfirmDialog

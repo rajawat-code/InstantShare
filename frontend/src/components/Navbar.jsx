@@ -16,7 +16,9 @@ import {
   RotateCcw,
   Navigation2,
   MapPin,
+  LogIn,
 } from 'lucide-react';
+import AuthModal from './AuthModal';
 
 export const Navbar = () => {
   const {
@@ -31,6 +33,7 @@ export const Navbar = () => {
   const { hasLocation, isDemoActive, radius, requestCurrentLocation } = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const navigate = useNavigate();
 
   const navLinks = [
@@ -216,6 +219,18 @@ export const Navbar = () => {
                     </div>
 
                     <div className="pt-2 border-t border-slate-100 px-3 space-y-1">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setIsUserMenuOpen(false);
+                          setIsAuthModalOpen(true);
+                        }}
+                        className="w-full flex items-center gap-2 px-3 py-2 text-xs font-semibold text-[#236B45] hover:bg-[#EEF3EE] rounded-lg transition-colors cursor-pointer text-left"
+                      >
+                        <LogIn className="w-3.5 h-3.5" />
+                        <span>Sign In / Register (JWT API)</span>
+                      </button>
+
                       <Link
                         to="/profile"
                         onClick={() => setIsUserMenuOpen(false)}
@@ -313,8 +328,20 @@ export const Navbar = () => {
 
           {/* Quick Demo Switcher on Mobile */}
           <div>
-            <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
-              Switch Demo User
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+                Switch Demo User
+              </span>
+              <button
+                type="button"
+                onClick={() => {
+                  setIsMobileMenuOpen(false);
+                  setIsAuthModalOpen(true);
+                }}
+                className="text-xs text-[#236B45] font-semibold hover:underline"
+              >
+                Sign In / Register
+              </button>
             </div>
             <div className="grid grid-cols-2 gap-2">
               {users.map((u) => (
@@ -335,6 +362,12 @@ export const Navbar = () => {
           </div>
         </div>
       )}
+
+      {/* Auth Modal (POST /api/auth/login and register) */}
+      <AuthModal
+        isOpen={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
+      />
     </header>
   );
 };

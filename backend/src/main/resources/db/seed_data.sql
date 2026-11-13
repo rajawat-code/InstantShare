@@ -57,3 +57,34 @@ INSERT IGNORE INTO equipment (id, owner_user_id, business_id, category_id, title
 
 INSERT IGNORE INTO locations (id, equipment_id, latitude, longitude, display_area) VALUES
 (4, 4, 12.917342, 77.639528, 'Sector 2 Commercial Main Rd');
+
+-- Listing 5: Camping Tent (~110m away)
+INSERT IGNORE INTO equipment (id, owner_user_id, category_id, title, description, price, price_unit, security_deposit, status) VALUES
+(5, 2, 6, 'Coleman 4-Person Waterproof Camping Tent with Rainfly', 'Spacious dome tent sets up in 10 minutes. WeatherTec system with patented welded floors and inverted seams.', 250.00, 'DAY', 600.00, 'ACTIVE');
+
+INSERT IGNORE INTO locations (id, equipment_id, latitude, longitude, display_area) VALUES
+(5, 5, 12.914800, 77.636200, 'Sector 1, 19th Main Road');
+
+-- Listing 6: Home Cinema Projector (~85m away)
+INSERT IGNORE INTO equipment (id, owner_user_id, category_id, title, description, price, price_unit, security_deposit, status) VALUES
+(6, 1, 5, 'Epson Full HD 1080p Home Theater Projector + 100-inch Screen', '3300 lumens brightness, HDMI inputs, built-in speaker. Includes 100-inch portable tripod screen.', 500.00, 'DAY', 1500.00, 'ACTIVE');
+
+INSERT IGNORE INTO locations (id, equipment_id, latitude, longitude, display_area) VALUES
+(6, 6, 12.913700, 77.637300, 'Sector 1, 14th Cross');
+
+-- Listing 7: Stanley Mechanics Hand Tool Set (~140m away)
+INSERT IGNORE INTO equipment (id, owner_user_id, business_id, category_id, title, description, price, price_unit, security_deposit, status) VALUES
+(7, 4, 1, 2, 'Stanley 65-Piece Home Repair & Mechanics Tool Kit', 'Comprehensive chrome-vanadium tool set with ratchets, sockets, pliers, hex keys, and durable carry case.', 120.00, 'DAY', 300.00, 'ACTIVE');
+
+INSERT IGNORE INTO locations (id, equipment_id, latitude, longitude, display_area) VALUES
+(7, 7, 12.913200, 77.636200, 'Sector 1 Commercial Complex');
+
+-- 5. Insert Equipment Images
+INSERT IGNORE INTO equipment_images (id, equipment_id, image_url, sort_order) VALUES
+(1, 1, 'https://images.unsplash.com/photo-1504148455328-c376907d081c?auto=format&fit=crop&w=800&q=80', 0),
+(2, 2, 'https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=800&q=80', 0),
+(3, 3, 'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&w=800&q=80', 0),
+(4, 4, 'https://images.unsplash.com/photo-1581244277943-fe4a9c777189?auto=format&fit=crop&w=800&q=80', 0),
+(5, 5, 'https://images.unsplash.com/photo-1510312305653-8ed496efae75?auto=format&fit=crop&w=800&q=80', 0),
+(6, 6, 'https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?auto=format&fit=crop&w=800&q=80', 0),
+(7, 7, 'https://images.unsplash.com/photo-1581783342308-f792dbdd27c5?auto=format&fit=crop&w=800&q=80', 0);

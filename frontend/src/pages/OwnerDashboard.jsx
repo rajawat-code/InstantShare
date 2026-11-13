@@ -18,6 +18,7 @@ import {
 import BookingStatusBadge from '../components/BookingStatusBadge';
 import LoadingSpinner from '../components/LoadingSpinner';
 import ConfirmDialog from '../components/ConfirmDialog';
+import ReviewModal from '../components/ReviewModal';
 import apiService from '../services/apiService';
 import { useUser } from '../context/UserContext';
 import { formatCurrency, formatDateTime } from '../utils/pricing';
@@ -28,6 +29,7 @@ export const OwnerDashboard = () => {
   const [listings, setListings] = useState([]);
   const [requests, setRequests] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [reviewTarget, setReviewTarget] = useState(null);
 
   // Status Action Modal State
   const [actionConfirm, setActionConfirm] = useState(null); // { booking, newStatus, label, message }
@@ -373,9 +375,17 @@ export const OwnerDashboard = () => {
                             </button>
                           )}
 
-                          {(b.status === 'COMPLETED' ||
-                            b.status === 'CANCELLED' ||
-                            b.status === 'REJECTED') && (
+                          {b.status === 'COMPLETED' && (
+                            <button
+                              type="button"
+                              onClick={() => setReviewTarget(b)}
+                              className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-amber-50 text-amber-900 border border-amber-200 hover:bg-amber-100 transition-colors cursor-pointer"
+                            >
+                              Review Renter
+                            </button>
+                          )}
+
+                          {(b.status === 'CANCELLED' || b.status === 'REJECTED') && (
                             <span className="text-xs text-slate-400 italic">No action needed</span>
                           )}
                         </div>
@@ -498,6 +508,16 @@ export const OwnerDashboard = () => {
                         Mark Returned
                       </button>
                     )}
+
+                    {b.status === 'COMPLETED' && (
+                      <button
+                        type="button"
+                        onClick={() => setReviewTarget(b)}
+                        className="w-full py-2 rounded-xl text-xs font-semibold bg-amber-50 text-amber-900 border border-amber-200 hover:bg-amber-100 transition-colors cursor-pointer"
+                      >
+                        Review Renter
+                      </button>
+                    )}
                   </div>
                 </div>
               ))}
@@ -505,6 +525,16 @@ export const OwnerDashboard = () => {
           </>
         )}
       </div>
+
+      {/* Review Renter Modal (POST /api/reviews) */}
+      <ReviewModal
+        isOpen={Boolean(reviewTarget)}
+        booking={reviewTarget}
+        onClose={() => setReviewTarget(null)}
+        onReviewSubmitted={() => {
+          showToast('Review submitted successfully!', 'success');
+        }}
+      />
 
       {/* Confirmation Dialog for Status Transitions */}
       <ConfirmDialog

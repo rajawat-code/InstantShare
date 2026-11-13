@@ -22,12 +22,11 @@ export const DEMO_LOCATION = {
   description: 'Sample neighborhood hub with high density of rentable tools & equipment within 500m.'
 };
 
-// Supported search radius options in meters (200m is the default)
+// Supported search radius options in meters (100, 200, 300 as supported by Spring Boot backend)
 export const RADIUS_OPTIONS = [
   { value: 100, label: '100 m', desc: 'Immediate block (~1 min walk)' },
   { value: 200, label: '200 m', desc: 'Walking radius (~2-3 min walk)' },
   { value: 300, label: '300 m', desc: 'Neighborhood (~4 min walk)' },
-  { value: 500, label: '500 m', desc: 'Local vicinity (~6 min walk)' },
 ];
 
 export const DEFAULT_RADIUS = 200; // 200 meters default

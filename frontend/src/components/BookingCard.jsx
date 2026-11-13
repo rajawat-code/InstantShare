@@ -1,12 +1,13 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Calendar, Clock, User, ArrowRight, XCircle, CreditCard } from 'lucide-react';
+import { Calendar, Clock, User, ArrowRight, XCircle, CreditCard, Star } from 'lucide-react';
 import BookingStatusBadge from './BookingStatusBadge';
 import { formatCurrency, formatDateTime } from '../utils/pricing';
 
-export const BookingCard = ({ booking, onCancelRequest, onPayNow }) => {
+export const BookingCard = ({ booking, onCancelRequest, onPayNow, onReview }) => {
   const isPending = booking.status === 'PENDING';
-  const isAccepted = booking.status === 'ACCEPTED';
+  const isAccepted = booking.status === 'ACCEPTED' || booking.isAcceptedByOwner;
+  const isCompleted = booking.status === 'COMPLETED';
 
   return (
     <div className="bg-white rounded-2xl border border-[#E1E5E1] p-5 hover:border-slate-300 hover:shadow-xs transition-all flex flex-col md:flex-row gap-5 items-start md:items-center justify-between">
@@ -67,10 +68,23 @@ export const BookingCard = ({ booking, onCancelRequest, onPayNow }) => {
             <button
               type="button"
               onClick={() => onPayNow(booking)}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-white bg-[#236B45] hover:bg-[#1b5636] rounded-lg shadow-xs transition-colors cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-white bg-[#236B45] hover:bg-[#1b5636] rounded-lg shadow-xs transition-colors cursor-pointer animate-pulse"
+              title="Owner accepted your request. Complete demo checkout."
             >
               <CreditCard className="w-3.5 h-3.5" />
               <span>Demo Pay</span>
+            </button>
+          )}
+
+          {isCompleted && onReview && (
+            <button
+              type="button"
+              onClick={() => onReview(booking)}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-amber-900 bg-amber-50 hover:bg-amber-100 border border-amber-200 rounded-lg shadow-xs transition-colors cursor-pointer"
+              title="Post a review for this completed rental"
+            >
+              <Star className="w-3.5 h-3.5 text-amber-600 fill-amber-500" />
+              <span>Review</span>
             </button>
           )}
 

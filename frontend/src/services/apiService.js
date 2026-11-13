@@ -73,6 +73,31 @@ apiClient.interceptors.response.use(
     if (error.code === 'ERR_NETWORK' || error.message?.includes('Network Error')) {
       console.warn('[InstantShare API] Backend unreachable at', getApiBaseUrl(), '- using fallback.');
     }
+
+    const res = error.response;
+    if (res) {
+      const errData = res.data;
+      const status = res.status;
+      const errorCode = errData?.errorCode;
+      const message = errData?.message || (typeof errData === 'string' ? errData : res.statusText);
+      const validationErrors = errorCode === 'VALIDATION_FAILED' ? errData?.data : null;
+
+      // Per backend API doc:
+      // "401 is not always 'logged out'. Ownership failures also return 401 with UNAUTHORIZED.
+      // Clear the token only on a missing, expired or invalid token (INVALID_CREDENTIALS), not on every 401."
+      if (status === 401 && errorCode === 'INVALID_CREDENTIALS') {
+        localStorage.removeItem('instantshare_token');
+        localStorage.removeItem('instantshare_auth_user');
+      }
+
+      const enhancedError = new Error(message || 'Request failed');
+      enhancedError.status = status;
+      enhancedError.errorCode = errorCode;
+      enhancedError.validationErrors = validationErrors;
+      enhancedError.rawResponse = errData;
+      return Promise.reject(enhancedError);
+    }
+
     return Promise.reject(error);
   }
 );
@@ -144,21 +169,54 @@ export const mapBackendEquipmentToItem = (eq) => {
 };
 
 /**
+ * Rental acceptance tracking helpers
+ * As per Spring Boot doc: "ACCEPT leaves the status as PENDING: the API has no 'accepted' state,
+ * so the renter's UI cannot tell an accepted request from an unanswered one by status alone.
+ * The server does not check that the owner accepted before checkout; the frontend must gate the Pay button itself."
+ */
+export const getAcceptedRentalIds = () => {
+  try {
+    const raw = localStorage.getItem('instantshare_accepted_rentals');
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+};
+
+export const markRentalAccepted = (rentalId) => {
+  try {
+    const ids = getAcceptedRentalIds();
+    const numId = Number(rentalId);
+    if (!ids.includes(numId)) {
+      ids.push(numId);
+      localStorage.setItem('instantshare_accepted_rentals', JSON.stringify(ids));
+    }
+  } catch {
+    // ignore
+  }
+};
+
+/**
  * Adapter: Transforms frontend Item model to backend EquipmentRequest payload
  */
 export const mapItemToBackendEquipmentRequest = (item) => {
   const catId = item.categoryId || CATEGORY_MAP[item.category] || 1;
+  let priceUnit = 'DAY';
+  if (item.rentalType === 'HOURLY' || item.priceUnit === 'HOUR') priceUnit = 'HOUR';
+  else if (item.rentalType === 'WEEKLY' || item.priceUnit === 'WEEK') priceUnit = 'WEEK';
+  else priceUnit = 'DAY';
+
   return {
-    title: item.name,
-    description: item.description,
+    title: item.name || item.title,
+    description: item.description || '',
     categoryId: catId,
-    price: Number(item.rentalPrice),
-    priceUnit: item.rentalType === 'HOURLY' ? 'HOUR' : 'DAY',
-    securityDeposit: Number(item.deposit || 0),
-    latitude: Number(item.lat || 12.914142),
-    longitude: Number(item.lng || 77.636928),
-    displayArea: item.location || 'Sector 1, Neighborhood',
-    imageUrls: item.imageUrls || (item.imageUrl ? [item.imageUrl] : []),
+    price: Number(item.rentalPrice ?? item.price ?? 0),
+    priceUnit,
+    securityDeposit: Number(item.deposit ?? item.securityDeposit ?? 0),
+    latitude: Number(item.lat ?? item.latitude ?? 12.914142),
+    longitude: Number(item.lng ?? item.longitude ?? 77.636928),
+    displayArea: item.location || item.displayArea || 'Local Neighborhood',
+    imageUrls: item.imageUrls && item.imageUrls.length > 0 ? item.imageUrls : item.imageUrl ? [item.imageUrl] : [],
   };
 };
 
@@ -167,6 +225,11 @@ export const mapItemToBackendEquipmentRequest = (item) => {
  */
 export const mapBackendRentalToBooking = (rental) => {
   if (!rental) return null;
+  const acceptedIds = getAcceptedRentalIds();
+  const isAcceptedByOwner =
+    rental.status === 'ACCEPTED' ||
+    (rental.status === 'PENDING' && acceptedIds.includes(Number(rental.id)));
+
   return {
     id: rental.id,
     itemId: rental.equipmentId || rental.itemId,
@@ -182,7 +245,9 @@ export const mapBackendRentalToBooking = (rental) => {
     ownerName: rental.ownerName || 'Owner',
     startDate: rental.startAt || rental.startDate,
     endDate: rental.endAt || rental.endDate,
-    status: rental.status,
+    status: isAcceptedByOwner && rental.status === 'PENDING' ? 'ACCEPTED' : rental.status,
+    rawBackendStatus: rental.status,
+    isAcceptedByOwner,
     totalAmount: Number(rental.totalPayable ?? rental.quotedAmount ?? rental.totalAmount ?? 0),
     quotedAmount: Number(rental.quotedAmount ?? 0),
     platformFee: Number(rental.platformFee ?? 0),
@@ -598,6 +663,9 @@ export const apiService = {
 
   decideBooking: async (rentalId, decision, note = '') => {
     try {
+      if (decision === 'ACCEPT') {
+        markRentalAccepted(rentalId);
+      }
       const res = await apiClient.patch(`/rentals/${rentalId}/decision`, { decision, note });
       if (res) return mapBackendRentalToBooking(res);
     } catch {
@@ -668,11 +736,27 @@ export const apiService = {
 
   confirmDemoPayment: async (paymentData) => {
     try {
-      return await apiClient.post('/payments/demo-confirm', paymentData);
+      const res = await apiClient.post('/payments/demo-confirm', paymentData);
+      // Per Spring Boot doc: declined payment returns HTTP 200 with paymentStatus: "FAILED"
+      if (res && res.paymentStatus === 'FAILED') {
+        const failureErr = new Error(res.message || 'Payment was declined (Demo simulation)');
+        failureErr.paymentStatus = 'FAILED';
+        failureErr.data = res;
+        throw failureErr;
+      }
+      return res;
     } catch (err) {
+      if (err.paymentStatus === 'FAILED') throw err;
       // Simulated confirm fallback
       if (paymentData.simulateFailure || paymentData.cardNumber?.endsWith('0002')) {
-        throw new Error('Card was declined (Demo simulation)');
+        const failureErr = new Error('Card was declined (Demo simulation)');
+        failureErr.paymentStatus = 'FAILED';
+        throw failureErr;
+      }
+      if (paymentData.cardNumber?.endsWith('0003')) {
+        const failureErr = new Error('Insufficient funds on card (Demo simulation)');
+        failureErr.paymentStatus = 'FAILED';
+        throw failureErr;
       }
       return {
         paymentStatus: 'SUCCESS',

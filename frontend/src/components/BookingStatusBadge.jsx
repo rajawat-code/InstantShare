@@ -10,10 +10,17 @@ const statusConfig = {
     icon: Clock,
   },
   ACCEPTED: {
-    label: 'Accepted / Ready',
+    label: 'Accepted / Ready to Pay',
     bgColor: 'bg-blue-50',
     textColor: 'text-blue-800',
     borderColor: 'border-blue-200',
+    icon: CheckCircle2,
+  },
+  CONFIRMED: {
+    label: 'Confirmed & Paid',
+    bgColor: 'bg-emerald-50',
+    textColor: 'text-[#236B45]',
+    borderColor: 'border-emerald-200',
     icon: CheckCircle2,
   },
   ACTIVE: {
