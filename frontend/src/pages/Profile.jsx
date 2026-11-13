@@ -11,13 +11,31 @@ import {
   CheckCircle2,
   Users,
   Sparkles,
+  Server,
+  RefreshCw,
+  AlertCircle,
 } from 'lucide-react';
 import { useUser } from '../context/UserContext';
 import ConfirmDialog from '../components/ConfirmDialog';
 
 export const Profile = () => {
-  const { currentUser, users, switchUser, resetAllData } = useUser();
+  const {
+    currentUser,
+    users,
+    switchUser,
+    resetAllData,
+    isBackendOnline,
+    isCheckingBackend,
+    recheckBackend,
+    apiBaseUrl,
+    updateApiBaseUrl,
+  } = useUser();
   const [showResetConfirm, setShowResetConfirm] = useState(false);
+  const [customUrl, setCustomUrl] = useState(apiBaseUrl || 'http://localhost:8080/api');
+
+  useEffect(() => {
+    if (apiBaseUrl) setCustomUrl(apiBaseUrl);
+  }, [apiBaseUrl]);
 
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
@@ -170,25 +188,113 @@ export const Profile = () => {
         </div>
       </div>
 
-      {/* Developer & Backend Readiness Info Card */}
-      <div className="bg-[#F8F8F5] rounded-3xl border border-[#E1E5E1] p-6 text-xs text-slate-600 space-y-3">
-        <h4 className="font-bold text-slate-800 text-sm flex items-center gap-2">
-          <ShieldCheck className="w-4 h-4 text-[#236B45]" />
-          <span>Spring Boot Backend Readiness Notes</span>
-        </h4>
+      {/* Developer & Backend Connectivity Card */}
+      <div className="bg-[#F8F8F5] rounded-3xl border border-[#E1E5E1] p-6 text-xs text-slate-600 space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <h4 className="font-bold text-slate-800 text-sm flex items-center gap-2">
+            <Server className="w-4 h-4 text-[#236B45]" />
+            <span>Spring Boot REST Backend Integration</span>
+          </h4>
+          <div className="flex items-center gap-2">
+            <span
+              className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border ${
+                isBackendOnline
+                  ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                  : 'bg-amber-50 text-amber-800 border-amber-200'
+              }`}
+            >
+              <span
+                className={`w-2 h-2 rounded-full ${
+                  isBackendOnline ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500'
+                }`}
+              />
+              {isCheckingBackend
+                ? 'Testing connection...'
+                : isBackendOnline
+                ? 'Spring Boot 8080 Connected'
+                : 'Offline Fallback (Active)'}
+            </span>
+            <button
+              onClick={recheckBackend}
+              disabled={isCheckingBackend}
+              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 font-medium transition cursor-pointer disabled:opacity-50"
+              title="Test connection to http://localhost:8080/api"
+            >
+              <RefreshCw className={`w-3 h-3 ${isCheckingBackend ? 'animate-spin' : ''}`} />
+              <span>{isCheckingBackend ? 'Checking...' : 'Test API'}</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Backend URL Configurator */}
+        <div className="bg-white p-3.5 rounded-2xl border border-[#E1E5E1] space-y-2">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+            <span className="font-semibold text-slate-800 text-xs">Active Backend Service Base URL:</span>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setCustomUrl('http://localhost:8080/api');
+                  updateApiBaseUrl('http://localhost:8080/api');
+                }}
+                className="text-[11px] text-[#236B45] hover:underline font-medium"
+              >
+                Local 8080
+              </button>
+              <span className="text-slate-300">|</span>
+              <button
+                type="button"
+                onClick={() => {
+                  setCustomUrl('/api');
+                  updateApiBaseUrl('/api');
+                }}
+                className="text-[11px] text-[#236B45] hover:underline font-medium"
+              >
+                Vite Proxy (/api)
+              </button>
+            </div>
+          </div>
+          <div className="flex gap-2">
+            <input
+              type="text"
+              value={customUrl}
+              onChange={(e) => setCustomUrl(e.target.value)}
+              placeholder="e.g. http://localhost:8080/api or https://your-backend.railway.app/api"
+              className="flex-1 px-3 py-1.5 rounded-xl border border-slate-300 text-xs text-slate-700 font-mono focus:ring-2 focus:ring-[#236B45] focus:outline-hidden"
+            />
+            <button
+              type="button"
+              onClick={() => updateApiBaseUrl(customUrl)}
+              disabled={isCheckingBackend}
+              className="px-3 py-1.5 rounded-xl bg-[#236B45] text-white font-medium hover:bg-[#1b5335] text-xs transition disabled:opacity-50 cursor-pointer"
+            >
+              Connect
+            </button>
+          </div>
+        </div>
+
         <p className="leading-relaxed">
-          The application is fully architected with isolated data service layers (
-          <code className="text-[#236B45] font-mono bg-white px-1.5 py-0.5 rounded border border-[#E1E5E1]">
-            storageService.js
-          </code>{' '}
-          and{' '}
+          All endpoints (Auth JWT, Categories, Equipment CRUD, Rentals lifecycle, Demo Payment Gateway checkout/confirm, and Reviews) are wired via{' '}
           <code className="text-[#236B45] font-mono bg-white px-1.5 py-0.5 rounded border border-[#E1E5E1]">
             apiService.js
           </code>
-          ). In the subsequent development phase, the Axios endpoints can be connected directly to a
-          Spring Boot REST backend with MySQL, Spring Data JPA, and Spring Security JWT tokens without
-          altering UI components.
+          . When the backend server is running, the frontend automatically synchronizes with MySQL. When offline, it gracefully falls back to persistent local storage without breaking user flows.
         </p>
+
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-1 text-[11px]">
+          <div className="bg-white p-2.5 rounded-xl border border-[#E1E5E1]">
+            <span className="font-semibold text-slate-700 block">Auth & Users</span>
+            <span className="text-slate-500">POST /api/auth/login, GET/PUT /api/users/me</span>
+          </div>
+          <div className="bg-white p-2.5 rounded-xl border border-[#E1E5E1]">
+            <span className="font-semibold text-slate-700 block">Equipment & Rentals</span>
+            <span className="text-slate-500">GET/POST /api/equipment, PATCH /api/rentals/*</span>
+          </div>
+          <div className="bg-white p-2.5 rounded-xl border border-[#E1E5E1]">
+            <span className="font-semibold text-slate-700 block">Demo Payments</span>
+            <span className="text-slate-500">POST /api/payments/checkout, demo-confirm</span>
+          </div>
+        </div>
       </div>
 
       {/* Confirm Reset Dialog */}

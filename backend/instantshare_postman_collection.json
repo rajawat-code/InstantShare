@@ -1,0 +1,312 @@
+{
+  "info": {
+    "name": "InstantShare API Collection",
+    "description": "Postman Collection for testing InstantShare Hyperlocal Equipment-Rental Backend with MySQL Database and Demo Mode Payment Gateway.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080/api", "type": "string" },
+    { "key": "renterToken", "value": "", "type": "string" },
+    { "key": "ownerToken", "value": "", "type": "string" },
+    { "key": "rentalId", "value": "1", "type": "string" },
+    { "key": "orderId", "value": "", "type": "string" }
+  ],
+  "item": [
+    {
+      "name": "1. Authentication",
+      "item": [
+        {
+          "name": "Login as Renter",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.success && jsonData.data) {",
+                  "    pm.collectionVariables.set('renterToken', jsonData.data.token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"renter@instantshare.test\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/auth/login", "host": ["{{baseUrl}}"], "path": ["auth", "login"] }
+          }
+        },
+        {
+          "name": "Login as Owner",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.success && jsonData.data) {",
+                  "    pm.collectionVariables.set('ownerToken', jsonData.data.token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"owner1@instantshare.test\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/auth/login", "host": ["{{baseUrl}}"], "path": ["auth", "login"] }
+          }
+        },
+        {
+          "name": "Register User",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Sameer Verma\",\n  \"email\": \"sameer@instantshare.test\",\n  \"password\": \"password123\",\n  \"phone\": \"+919876543299\",\n  \"role\": \"RENTER\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/auth/register", "host": ["{{baseUrl}}"], "path": ["auth", "register"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Categories & Nearby Search",
+      "item": [
+        {
+          "name": "Get Categories",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/categories", "host": ["{{baseUrl}}"], "path": ["categories"] }
+          }
+        },
+        {
+          "name": "Nearby Search (100m Radius - Drill Only)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/equipment/nearby?lat=12.914142&lon=77.636928&radius=100",
+              "host": ["{{baseUrl}}"],
+              "path": ["equipment", "nearby"],
+              "query": [
+                { "key": "lat", "value": "12.914142" },
+                { "key": "lon", "value": "77.636928" },
+                { "key": "radius", "value": "100" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Nearby Search (200m Radius - Drill & Ladder)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/equipment/nearby?lat=12.914142&lon=77.636928&radius=200",
+              "host": ["{{baseUrl}}"],
+              "path": ["equipment", "nearby"],
+              "query": [
+                { "key": "lat", "value": "12.914142" },
+                { "key": "lon", "value": "77.636928" },
+                { "key": "radius", "value": "200" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Nearby Search (300m Radius - Drill, Ladder, Camera)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/equipment/nearby?lat=12.914142&lon=77.636928&radius=300",
+              "host": ["{{baseUrl}}"],
+              "path": ["equipment", "nearby"],
+              "query": [
+                { "key": "lat", "value": "12.914142" },
+                { "key": "lon", "value": "77.636928" },
+                { "key": "radius", "value": "300" }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Equipment Management",
+      "item": [
+        {
+          "name": "Get Equipment Details by ID",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/equipment/1", "host": ["{{baseUrl}}"], "path": ["equipment", "1"] }
+          }
+        },
+        {
+          "name": "Create Equipment (Owner)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{ownerToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Stanley 65-Piece Home Tool Kit\",\n  \"description\": \"Complete hand tool set with ratchets, sockets, hammer, tape measure, and screwdrivers.\",\n  \"categoryId\": 2,\n  \"price\": 100.00,\n  \"priceUnit\": \"DAY\",\n  \"securityDeposit\": 300.00,\n  \"latitude\": 12.914300,\n  \"longitude\": 77.637100,\n  \"displayArea\": \"Sector 1, HSR Layout\",\n  \"imageUrls\": [\"https://images.unsplash.com/photo-1581783342308-f792dbdd27c5\"]\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/equipment", "host": ["{{baseUrl}}"], "path": ["equipment"] }
+          }
+        },
+        {
+          "name": "Get My Equipment Listings",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{ownerToken}}" }],
+            "url": { "raw": "{{baseUrl}}/equipment/my", "host": ["{{baseUrl}}"], "path": ["equipment", "my"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Rental Workflow & Demo Payment",
+      "item": [
+        {
+          "name": "1. Renter Request Rental",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.success && jsonData.data) {",
+                  "    pm.collectionVariables.set('rentalId', jsonData.data.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{renterToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"equipmentId\": 1,\n  \"startAt\": \"2026-11-20T10:00:00Z\",\n  \"endAt\": \"2026-11-21T10:00:00Z\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/rentals", "host": ["{{baseUrl}}"], "path": ["rentals"] }
+          }
+        },
+        {
+          "name": "2. Owner Accept Request",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{ownerToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"decision\": \"ACCEPT\",\n  \"note\": \"Ready for collection at 10 AM.\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/rentals/{{rentalId}}/decision", "host": ["{{baseUrl}}"], "path": ["rentals", "{{rentalId}}", "decision"] }
+          }
+        },
+        {
+          "name": "3. Renter Start Demo Checkout",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.success && jsonData.data) {",
+                  "    pm.collectionVariables.set('orderId', jsonData.data.orderId);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{renterToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rentalId\": {{rentalId}}\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/payments/checkout", "host": ["{{baseUrl}}"], "path": ["payments", "checkout"] }
+          }
+        },
+        {
+          "name": "4. Renter Confirm Demo Payment (SUCCESS -> CONFIRMED)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{renterToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rentalId\": {{rentalId}},\n  \"orderId\": \"{{orderId}}\",\n  \"cardNumber\": \"4242 4242 4242 4242\",\n  \"expiry\": \"12/28\",\n  \"cvv\": \"123\",\n  \"simulateFailure\": false\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/payments/demo-confirm", "host": ["{{baseUrl}}"], "path": ["payments", "demo-confirm"] }
+          }
+        },
+        {
+          "name": "5. Check Payment Status",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{renterToken}}" }],
+            "url": { "raw": "{{baseUrl}}/payments/status/{{rentalId}}", "host": ["{{baseUrl}}"], "path": ["payments", "status", "{{rentalId}}"] }
+          }
+        },
+        {
+          "name": "6. Owner Handover Equipment (ACTIVE)",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Authorization", "value": "Bearer {{ownerToken}}" }],
+            "url": { "raw": "{{baseUrl}}/rentals/{{rentalId}}/handover", "host": ["{{baseUrl}}"], "path": ["rentals", "{{rentalId}}", "handover"] }
+          }
+        },
+        {
+          "name": "7. Owner Return Equipment (COMPLETED)",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Authorization", "value": "Bearer {{ownerToken}}" }],
+            "url": { "raw": "{{baseUrl}}/rentals/{{rentalId}}/return", "host": ["{{baseUrl}}"], "path": ["rentals", "{{rentalId}}", "return"] }
+          }
+        },
+        {
+          "name": "8. Submit Review",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{renterToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rentalId\": {{rentalId}},\n  \"rating\": 5,\n  \"comment\": \"Amazing experience, tool was in top condition!\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/reviews", "host": ["{{baseUrl}}"], "path": ["reviews"] }
+          }
+        }
+      ]
+    }
+  ]
+}

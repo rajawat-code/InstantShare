@@ -11,6 +11,7 @@ import {
 import BookingCard from '../components/BookingCard';
 import ConfirmDialog from '../components/ConfirmDialog';
 import LoadingSpinner from '../components/LoadingSpinner';
+import DemoPaymentModal from '../components/DemoPaymentModal';
 import apiService from '../services/apiService';
 import { useUser } from '../context/UserContext';
 
@@ -30,6 +31,18 @@ export const MyBookings = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [cancelTarget, setCancelTarget] = useState(null);
   const [isCancelling, setIsCancelling] = useState(false);
+  const [paymentTarget, setPaymentTarget] = useState(null);
+
+  const handlePayNow = (booking) => {
+    setPaymentTarget(booking);
+  };
+
+  const handlePaymentSuccess = (bookingId) => {
+    setBookings((prev) =>
+      prev.map((b) => (b.id === bookingId ? { ...b, status: 'CONFIRMED' } : b))
+    );
+    showToast('Payment confirmed! Rental status updated to CONFIRMED.', 'success');
+  };
 
   useEffect(() => {
     const fetchBookings = async () => {
@@ -165,10 +178,19 @@ export const MyBookings = () => {
               key={booking.id}
               booking={booking}
               onCancelRequest={handleCancelBooking}
+              onPayNow={handlePayNow}
             />
           ))}
         </div>
       )}
+
+      {/* Demo Mode Payment Gateway Checkout Modal */}
+      <DemoPaymentModal
+        isOpen={Boolean(paymentTarget)}
+        booking={paymentTarget}
+        onClose={() => setPaymentTarget(null)}
+        onPaymentSuccess={handlePaymentSuccess}
+      />
 
       {/* Cancel Confirmation Dialog */}
       <ConfirmDialog

@@ -19,7 +19,15 @@ import {
 } from 'lucide-react';
 
 export const Navbar = () => {
-  const { currentUser, users, switchUser, resetAllData } = useUser();
+  const {
+    currentUser,
+    users,
+    switchUser,
+    resetAllData,
+    isBackendOnline,
+    isCheckingBackend,
+    recheckBackend,
+  } = useUser();
   const { hasLocation, isDemoActive, radius, requestCurrentLocation } = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
@@ -78,7 +86,32 @@ export const Navbar = () => {
           </nav>
 
           {/* Actions & Demo Switcher */}
-          <div className="hidden md:flex items-center gap-3">
+          <div className="hidden md:flex items-center gap-2.5">
+            {/* Backend API Connectivity Indicator */}
+            <button
+              type="button"
+              onClick={recheckBackend}
+              className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-semibold border transition-all cursor-pointer ${
+                isBackendOnline
+                  ? 'bg-emerald-50 text-emerald-800 border-emerald-300 hover:bg-emerald-100'
+                  : 'bg-amber-50 text-amber-800 border-amber-200 hover:bg-amber-100'
+              }`}
+              title={
+                isBackendOnline
+                  ? 'Spring Boot Backend Connected (http://localhost:8080/api). Click to recheck.'
+                  : 'Backend offline or pending. Using Local Storage Fallback. Click to test port 8080.'
+              }
+            >
+              <span
+                className={`w-2 h-2 rounded-full ${
+                  isBackendOnline ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500'
+                }`}
+              />
+              <span className="hidden lg:inline text-[11px]">
+                {isCheckingBackend ? 'Probing...' : isBackendOnline ? 'Spring Boot 8080' : 'Backend Ready'}
+              </span>
+            </button>
+
             {/* Quick Nearby Mode Pill */}
             <Link
               to={`/explore?nearby=true&radius=${radius}`}

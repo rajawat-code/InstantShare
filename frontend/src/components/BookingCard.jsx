@@ -1,11 +1,12 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Calendar, Clock, User, ArrowRight, XCircle } from 'lucide-react';
+import { Calendar, Clock, User, ArrowRight, XCircle, CreditCard } from 'lucide-react';
 import BookingStatusBadge from './BookingStatusBadge';
 import { formatCurrency, formatDateTime } from '../utils/pricing';
 
-export const BookingCard = ({ booking, onCancelRequest }) => {
+export const BookingCard = ({ booking, onCancelRequest, onPayNow }) => {
   const isPending = booking.status === 'PENDING';
+  const isAccepted = booking.status === 'ACCEPTED';
 
   return (
     <div className="bg-white rounded-2xl border border-[#E1E5E1] p-5 hover:border-slate-300 hover:shadow-xs transition-all flex flex-col md:flex-row gap-5 items-start md:items-center justify-between">
@@ -62,6 +63,17 @@ export const BookingCard = ({ booking, onCancelRequest }) => {
         </div>
 
         <div className="flex items-center gap-2">
+          {isAccepted && onPayNow && (
+            <button
+              type="button"
+              onClick={() => onPayNow(booking)}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-white bg-[#236B45] hover:bg-[#1b5636] rounded-lg shadow-xs transition-colors cursor-pointer"
+            >
+              <CreditCard className="w-3.5 h-3.5" />
+              <span>Demo Pay</span>
+            </button>
+          )}
+
           {isPending && onCancelRequest && (
             <button
               type="button"
