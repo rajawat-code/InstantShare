@@ -22,77 +22,77 @@ export const Profile = () => {
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
       {/* Header banner */}
-      <div className="bg-[#FAF8F5] rounded-3xl border-2 border-[#14281D] p-6 sm:p-8 shadow-hard">
+      <div className="bg-white rounded-3xl border border-[#E1E5E1] p-6 sm:p-8 shadow-xs">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-5">
             <div className="relative">
               <img
                 src={currentUser.avatar}
                 alt={currentUser.name}
-                className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl object-cover border-2 border-[#14281D] shadow-hard-sm"
+                className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl object-cover ring-4 ring-[#EEF3EE]"
               />
-              <span className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-[#14281D] text-[#F2B705] border border-[#FAF8F5] flex items-center justify-center text-xs font-bold shadow-xs">
+              <span className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-[#236B45] text-white flex items-center justify-center text-[10px] shadow-xs">
                 ✓
               </span>
             </div>
 
             <div className="space-y-1.5">
               <div className="flex items-center gap-2 flex-wrap">
-                <h1 className="text-3xl font-serif font-black text-[#14281D]">{currentUser.name}</h1>
-                <span className="text-xs px-2.5 py-0.5 rounded-full bg-[#F2B705] text-[#14281D] border border-[#14281D] font-mono font-bold">
+                <h1 className="text-2xl font-bold text-[#252B27]">{currentUser.name}</h1>
+                <span className="text-xs px-2.5 py-0.5 rounded-full bg-[#EEF3EE] text-[#236B45] font-semibold border border-[#DCFCE7]">
                   {currentUser.role}
                 </span>
               </div>
 
-              <p className="text-xs text-[#14281D]/70 font-sans flex items-center gap-1.5">
-                <MapPin className="w-3.5 h-3.5 text-[#E8590C]" />
+              <p className="text-xs text-slate-500 flex items-center gap-1.5">
+                <MapPin className="w-3.5 h-3.5 text-slate-400" />
                 <span>{currentUser.location}</span>
-                <span className="text-[#14281D]/30">•</span>
-                <span className="font-mono">Neighbor since {currentUser.memberSince}</span>
+                <span className="text-slate-300">•</span>
+                <span>Member since {currentUser.memberSince}</span>
               </p>
 
-              <div className="flex items-center gap-4 text-xs pt-1 text-[#14281D]/80 font-mono">
+              <div className="flex items-center gap-4 text-xs pt-1 text-slate-600">
                 <span className="flex items-center gap-1">
-                  <Star className="w-3.5 h-3.5 text-[#F2B705] fill-[#F2B705]" />
+                  <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
                   <strong>{currentUser.rating}</strong> ({currentUser.reviewsCount || 0} reviews)
                 </span>
-                <span className="flex items-center gap-1 text-[#14281D] font-bold">
-                  <ShieldCheck className="w-3.5 h-3.5 text-[#E8590C]" />
+                <span className="flex items-center gap-1 text-emerald-700 font-medium">
+                  <ShieldCheck className="w-3.5 h-3.5" />
                   ID Verified
                 </span>
               </div>
             </div>
           </div>
 
-          <div className="w-full sm:w-auto pt-4 sm:pt-0 border-t-2 sm:border-t-0 border-[#14281D]/10 flex sm:flex-col items-center sm:items-end justify-between gap-2">
+          <div className="w-full sm:w-auto pt-4 sm:pt-0 border-t sm:border-t-0 border-slate-100 flex sm:flex-col items-center sm:items-end justify-between gap-2">
             <button
               type="button"
               onClick={() => setShowResetConfirm(true)}
-              className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-mono font-bold text-[#14281D] bg-[#F2B705]/20 hover:bg-[#F2B705]/40 border-2 border-[#14281D] shadow-hard-sm btn-tactile rounded-xl transition-colors cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-medium text-amber-800 bg-amber-50 hover:bg-amber-100 border border-amber-200 rounded-xl transition-colors cursor-pointer"
             >
-              <RotateCcw className="w-3.5 h-3.5 text-[#E8590C]" />
-              <span>Reset Demo State</span>
+              <RotateCcw className="w-3.5 h-3.5" />
+              <span>Reset Demo Data</span>
             </button>
           </div>
         </div>
 
         {/* User Bio and details */}
-        <div className="mt-6 pt-6 border-t-2 border-[#14281D]/10 grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="mt-6 pt-6 border-t border-slate-100 grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="md:col-span-2 space-y-2">
-            <h3 className="text-xs font-mono font-bold text-[#14281D]/60 uppercase tracking-wider">
-              About Neighbor
+            <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+              About Member
             </h3>
-            <p className="text-sm text-[#14281D]/80 leading-relaxed font-sans">{currentUser.bio}</p>
+            <p className="text-sm text-slate-700 leading-relaxed">{currentUser.bio}</p>
           </div>
 
-          <div className="space-y-2 bg-white p-4 rounded-2xl border-2 border-[#14281D] shadow-hard-sm text-xs font-mono">
-            <h4 className="font-bold text-[#14281D] uppercase text-[11px]">Direct Contact</h4>
-            <div className="flex items-center gap-2 text-[#14281D]/80">
-              <Mail className="w-3.5 h-3.5 text-[#E8590C]" />
+          <div className="space-y-2 bg-[#F8F8F5] p-4 rounded-2xl border border-[#E1E5E1] text-xs">
+            <h4 className="font-semibold text-slate-800">Direct Contact (Demo)</h4>
+            <div className="flex items-center gap-2 text-slate-600">
+              <Mail className="w-3.5 h-3.5 text-slate-400" />
               <span className="truncate">{currentUser.email}</span>
             </div>
-            <div className="flex items-center gap-2 text-[#14281D]/80">
-              <Phone className="w-3.5 h-3.5 text-[#E8590C]" />
+            <div className="flex items-center gap-2 text-slate-600">
+              <Phone className="w-3.5 h-3.5 text-slate-400" />
               <span>{currentUser.phone}</span>
             </div>
           </div>
@@ -100,14 +100,14 @@ export const Profile = () => {
       </div>
 
       {/* Demo User Switcher Card Section */}
-      <div className="bg-[#FAF8F5] rounded-3xl border-2 border-[#14281D] p-6 sm:p-8 shadow-hard space-y-6">
+      <div className="bg-white rounded-3xl border border-[#E1E5E1] p-6 sm:p-8 shadow-xs space-y-6">
         <div>
           <div className="flex items-center gap-2">
-            <Users className="w-5 h-5 text-[#E8590C]" />
-            <h2 className="text-2xl font-serif font-black text-[#14281D]">Neighborhood Persona Switcher</h2>
+            <Users className="w-5 h-5 text-[#236B45]" />
+            <h2 className="text-lg font-bold text-[#252B27]">Demo User Switcher</h2>
           </div>
-          <p className="text-xs sm:text-sm text-[#14281D]/70 font-sans mt-1">
-            Test InstantShare from different perspectives. Switch between 5 realistic demo neighbors to
+          <p className="text-xs text-slate-500 mt-1">
+            Test InstantShare from different perspectives. Switch between 5 realistic demo users to
             simulate renters booking gear or owners managing and approving requests.
           </p>
         </div>
@@ -118,50 +118,50 @@ export const Profile = () => {
             return (
               <div
                 key={user.id}
-                className={`p-4 rounded-2xl border-2 transition-all flex flex-col justify-between gap-4 ${
+                className={`p-4 rounded-2xl border transition-all flex flex-col justify-between gap-4 ${
                   isSelected
-                    ? 'border-[#14281D] bg-[#F2B705]/20 shadow-hard'
-                    : 'border-[#14281D] bg-white shadow-hard-sm hover:shadow-hard'
+                    ? 'border-[#236B45] bg-[#EEF3EE]/60 shadow-xs ring-1 ring-[#236B45]/20'
+                    : 'border-[#E1E5E1] bg-white hover:border-slate-300'
                 }`}
               >
                 <div className="flex items-start gap-3">
                   <img
                     src={user.avatar}
                     alt={user.name}
-                    className="w-12 h-12 rounded-xl object-cover border-2 border-[#14281D] flex-shrink-0"
+                    className="w-12 h-12 rounded-xl object-cover ring-1 ring-slate-200 flex-shrink-0"
                   />
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center justify-between">
-                      <h4 className="font-serif font-bold text-[#14281D] text-base truncate">{user.name}</h4>
+                      <h4 className="font-semibold text-slate-900 text-sm truncate">{user.name}</h4>
                       {isSelected && (
-                        <span className="text-[10px] font-mono font-bold bg-[#14281D] text-[#F6F1E9] px-2 py-0.5 rounded-full flex-shrink-0">
+                        <span className="text-[10px] font-semibold bg-[#236B45] text-white px-2 py-0.5 rounded-full flex-shrink-0">
                           Active
                         </span>
                       )}
                     </div>
-                    <p className="text-xs text-[#14281D]/60 truncate font-sans mt-0.5">{user.location}</p>
-                    <p className="text-xs text-[#14281D]/80 line-clamp-2 mt-2 leading-relaxed italic font-serif">
+                    <p className="text-xs text-slate-500 truncate mt-0.5">{user.location}</p>
+                    <p className="text-xs text-slate-600 line-clamp-2 mt-2 leading-relaxed">
                       "{user.bio}"
                     </p>
                   </div>
                 </div>
 
-                <div className="pt-2 border-t border-[#14281D]/15 flex items-center justify-between font-mono">
-                  <div className="text-[11px] text-[#14281D]/70">
-                    Rating: <strong className="text-[#14281D]">{user.rating} ★</strong>
+                <div className="pt-2 border-t border-slate-200/60 flex items-center justify-between">
+                  <div className="text-[11px] text-slate-500">
+                    Rating: <strong className="text-slate-800">{user.rating} ★</strong>
                   </div>
 
                   <button
                     type="button"
                     disabled={isSelected}
                     onClick={() => switchUser(user.id)}
-                    className={`px-3 py-1.5 rounded-xl text-xs font-bold font-mono border-2 border-[#14281D] transition-colors cursor-pointer ${
+                    className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-colors cursor-pointer ${
                       isSelected
-                        ? 'bg-slate-200 text-slate-500 border-slate-300 cursor-default'
-                        : 'bg-[#14281D] text-[#F6F1E9] hover:bg-[#E8590C] shadow-hard-sm btn-tactile'
+                        ? 'bg-slate-200 text-slate-500 cursor-default'
+                        : 'bg-[#236B45] text-white hover:bg-[#1b5636]'
                     }`}
                   >
-                    {isSelected ? 'Current User' : 'Switch Persona'}
+                    {isSelected ? 'Current User' : 'Switch to this User'}
                   </button>
                 </div>
               </div>

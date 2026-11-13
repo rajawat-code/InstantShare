@@ -5,7 +5,6 @@ import { LocationProvider } from './context/LocationContext';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import ToastNotification from './components/ToastNotification';
-import CustomCursor from './components/ui/CustomCursor';
 
 // Pages
 import Home from './pages/Home';
@@ -29,24 +28,20 @@ const ScrollToTop = () => {
   return null;
 };
 
-// 404 Not Found Page (handcrafted studio style)
+// 404 Not Found Page
 const NotFound = () => (
-  <div className="max-w-xl mx-auto px-4 py-24 text-center space-y-5">
-    <div className="inline-block p-4 bg-[#F2B705] border-2 border-[#14281D] shadow-hard rounded-2xl transform -rotate-2">
-      <span className="font-serif text-5xl font-black text-[#14281D]">404</span>
-    </div>
-    <h1 className="font-serif text-3xl font-black text-[#14281D]">
-      Lost in the Neighborhood?
-    </h1>
-    <p className="text-sm text-[#14281D]/70 font-sans max-w-md mx-auto">
-      Looks like this tool was already returned to the shed, or the porch you are looking for doesn't exist.
+  <div className="max-w-xl mx-auto px-4 py-24 text-center space-y-4">
+    <div className="text-5xl font-extrabold text-[#236B45]">404</div>
+    <h1 className="text-2xl font-bold text-slate-900">Page Not Found</h1>
+    <p className="text-sm text-slate-500">
+      The page you requested does not exist or has been moved.
     </p>
     <div className="pt-2">
       <a
         href="/"
-        className="inline-flex items-center px-6 py-3 bg-[#14281D] text-[#F6F1E9] text-sm font-bold rounded-xl border-2 border-[#14281D] shadow-hard btn-tactile hover:bg-[#E8590C]"
+        className="inline-flex items-center px-4 py-2 bg-[#236B45] text-white text-xs font-semibold rounded-xl hover:bg-[#1b5636] transition-colors"
       >
-        ← Back to Neighborhood Hub
+        Return to Home
       </a>
     </div>
   </div>
@@ -77,8 +72,7 @@ const AppLayout = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#F6F1E9] text-[#14281D] font-sans selection:bg-[#F2B705] selection:text-[#14281D]">
-      <CustomCursor />
+    <div className="min-h-screen flex flex-col bg-[#F8F8F5] text-[#252B27]">
       <Navbar />
       <main className="flex-1">
         <Routes>

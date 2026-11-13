@@ -59,49 +59,46 @@ export const MyListings = () => {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b-2 border-[#14281D]/10">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#E1E5E1]">
         <div>
-          <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-md bg-[#F2B705]/20 border border-[#14281D]/20 text-[11px] font-mono font-bold text-[#14281D] mb-1">
-            <span>● NEIGHBORHOOD INVENTORY</span>
-          </div>
-          <h1 className="text-3xl sm:text-4xl font-serif font-black text-[#14281D] tracking-tight">
-            My Gear Shelf
+          <h1 className="text-2xl sm:text-3xl font-bold text-[#252B27] tracking-tight">
+            My Item Listings
           </h1>
-          <p className="text-xs sm:text-sm text-[#14281D]/70 font-sans mt-1">
-            Manage equipment you've listed on InstantShare as{' '}
-            <strong className="text-[#14281D]">{currentUser.name}</strong>
+          <p className="text-xs sm:text-sm text-slate-500 mt-1">
+            Manage equipment you've shared on InstantShare as{' '}
+            <strong className="text-slate-700">{currentUser.name}</strong>
           </p>
         </div>
 
         <Link
           to="/add-item"
-          className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#14281D] hover:bg-[#E8590C] text-[#F6F1E9] text-xs font-bold rounded-xl border-2 border-[#14281D] shadow-hard btn-tactile transition-colors cursor-pointer self-start sm:self-auto"
+          className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#236B45] hover:bg-[#1b5636] text-white text-xs font-semibold rounded-xl shadow-xs transition-colors cursor-pointer self-start sm:self-auto"
         >
-          <PlusCircle className="w-4 h-4 text-[#F2B705]" />
-          <span>Add New Gear</span>
+          <PlusCircle className="w-4 h-4" />
+          <span>Add New Item</span>
         </Link>
       </div>
 
       {isLoading ? (
         <LoadingSpinner label="Loading your listings..." />
       ) : listings.length === 0 ? (
-        <div className="bg-[#FAF8F5] rounded-3xl border-2 border-[#14281D] p-12 text-center max-w-lg mx-auto space-y-4 shadow-hard">
-          <div className="w-16 h-16 rounded-2xl bg-[#F2B705] border-2 border-[#14281D] shadow-hard-sm text-[#14281D] flex items-center justify-center mx-auto transform -rotate-3">
+        <div className="bg-white rounded-3xl border border-[#E1E5E1] p-12 text-center max-w-lg mx-auto space-y-4">
+          <div className="w-16 h-16 rounded-full bg-[#EEF3EE] text-[#236B45] flex items-center justify-center mx-auto">
             <PackageOpen className="w-8 h-8" />
           </div>
           <div className="space-y-1">
-            <h3 className="text-xl font-serif font-black text-[#14281D]">No gear on your shelf yet</h3>
-            <p className="text-xs text-[#14281D]/70 leading-relaxed font-sans">
+            <h3 className="text-lg font-semibold text-slate-900">No items listed yet</h3>
+            <p className="text-xs text-slate-500 leading-relaxed">
               You haven't listed any gear under {currentUser.name}'s profile. Start sharing your
-              tools, camera, or outdoor gear with nearby neighbors!
+              tools, camera, or outdoor equipment with nearby neighbors!
             </p>
           </div>
           <div className="pt-2">
             <Link
               to="/add-item"
-              className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#14281D] hover:bg-[#E8590C] text-[#F6F1E9] text-xs font-bold rounded-xl border-2 border-[#14281D] shadow-hard btn-tactile transition-colors"
+              className="inline-flex items-center gap-1.5 px-5 py-2.5 bg-[#236B45] hover:bg-[#1b5636] text-white text-xs font-semibold rounded-xl transition-colors"
             >
-              <PlusCircle className="w-4 h-4 text-[#F2B705]" />
+              <PlusCircle className="w-4 h-4" />
               <span>List Your First Item</span>
             </Link>
           </div>
@@ -111,10 +108,10 @@ export const MyListings = () => {
           {listings.map((item) => (
             <div
               key={item.id}
-              className="bg-[#FAF8F5] rounded-2xl border-2 border-[#14281D] overflow-hidden flex flex-col justify-between shadow-hard hover:shadow-hard-lg transition-all"
+              className="bg-white rounded-2xl border border-[#E1E5E1] overflow-hidden flex flex-col justify-between hover:border-slate-300 transition-all shadow-xs"
             >
               {/* Media with status badge */}
-              <div className="relative aspect-[16/10] bg-white overflow-hidden border-b-2 border-[#14281D]">
+              <div className="relative aspect-[16/10] bg-slate-100 overflow-hidden">
                 <img
                   src={item.imageUrl}
                   alt={item.name}
@@ -122,17 +119,17 @@ export const MyListings = () => {
                 />
                 <div className="absolute top-3 left-3">
                   {item.available ? (
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-md text-[11px] font-mono font-bold bg-[#FAF8F5] text-[#14281D] border border-[#14281D]">
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200">
                       Available
                     </span>
                   ) : (
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-md text-[11px] font-mono font-bold bg-[#F2B705] text-[#14281D] border border-[#14281D]">
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-slate-100 text-slate-700 border border-slate-300">
                       Rented Out
                     </span>
                   )}
                 </div>
                 <div className="absolute top-3 right-3">
-                  <span className="px-2.5 py-0.5 rounded-md text-[11px] font-mono font-bold bg-[#FAF8F5] text-[#14281D] border border-[#14281D]">
+                  <span className="px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-white/95 text-slate-700 border border-slate-200">
                     {item.category}
                   </span>
                 </div>
@@ -141,25 +138,25 @@ export const MyListings = () => {
               {/* Body */}
               <div className="p-5 flex-1 flex flex-col justify-between space-y-3">
                 <div>
-                  <div className="flex items-center gap-1 text-xs text-[#14281D]/60 mb-1">
-                    <MapPin className="w-3.5 h-3.5 text-[#E8590C]" />
+                  <div className="flex items-center gap-1 text-xs text-slate-400 mb-1">
+                    <MapPin className="w-3.5 h-3.5" />
                     <span>{item.location}</span>
                   </div>
-                  <h3 className="font-serif font-black text-lg text-[#14281D] line-clamp-1">
+                  <h3 className="font-semibold text-slate-900 text-base line-clamp-1">
                     {item.name}
                   </h3>
-                  <p className="text-xs text-[#14281D]/70 font-sans line-clamp-2 mt-1 leading-relaxed">
+                  <p className="text-xs text-slate-600 line-clamp-2 mt-1 leading-relaxed">
                     {item.description}
                   </p>
                 </div>
 
                 {/* Price */}
-                <div className="pt-2 border-t-2 border-[#14281D]/10 flex items-center justify-between">
+                <div className="pt-2 border-t border-slate-100 flex items-center justify-between">
                   <div>
-                    <span className="text-[11px] font-mono font-bold text-[#14281D]/60 block uppercase">Rental Rate</span>
-                    <div className="text-lg font-serif font-black text-[#14281D]">
+                    <span className="text-xs text-slate-400">Rental Rate</span>
+                    <div className="text-base font-bold text-[#236B45]">
                       {formatCurrency(item.rentalPrice)}
-                      <span className="text-xs font-mono font-normal text-[#14281D]/60 ml-1">
+                      <span className="text-xs font-normal text-slate-500">
                         /{item.rentalType === 'HOURLY' ? 'hour' : 'day'}
                       </span>
                     </div>
@@ -167,7 +164,7 @@ export const MyListings = () => {
 
                   <Link
                     to={`/items/${item.id}`}
-                    className="text-xs font-mono font-bold text-[#14281D] hover:text-[#E8590C] inline-flex items-center gap-1 underline"
+                    className="text-xs text-slate-500 hover:text-[#236B45] inline-flex items-center gap-1"
                     title="View item public page"
                   >
                     <span>Public View</span>
@@ -177,19 +174,19 @@ export const MyListings = () => {
               </div>
 
               {/* Actions Footer */}
-              <div className="p-3 bg-white border-t-2 border-[#14281D] flex items-center justify-end gap-2">
+              <div className="p-3 bg-[#F8F8F5] border-t border-[#E1E5E1] flex items-center justify-end gap-2">
                 <Link
                   to={`/edit-item/${item.id}`}
-                  className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-mono font-bold text-[#14281D] bg-[#FAF8F5] hover:bg-white border-2 border-[#14281D] shadow-hard-sm btn-tactile rounded-lg transition-colors cursor-pointer"
+                  className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-slate-700 bg-white hover:bg-slate-50 border border-slate-200 rounded-lg transition-colors cursor-pointer"
                 >
-                  <Edit className="w-3.5 h-3.5 text-[#14281D]" />
+                  <Edit className="w-3.5 h-3.5 text-slate-500" />
                   <span>Edit</span>
                 </Link>
 
                 <button
                   type="button"
                   onClick={() => setDeleteTarget(item)}
-                  className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-mono font-bold text-rose-700 bg-white hover:bg-rose-50 border-2 border-rose-600 shadow-hard-sm btn-tactile rounded-lg transition-colors cursor-pointer"
+                  className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-rose-600 bg-white hover:bg-rose-50 border border-rose-200 rounded-lg transition-colors cursor-pointer"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
                   <span>Delete</span>

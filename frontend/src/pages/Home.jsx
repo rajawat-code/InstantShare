@@ -1,44 +1,38 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
 import {
+  Search,
   ArrowRight,
   ShieldCheck,
   CheckCircle2,
   PackagePlus,
   Navigation2,
-  Footprints,
-  Sparkles,
-  MapPin,
 } from 'lucide-react';
-import ItemCard, { ItemCardSkeleton } from '../components/ItemCard';
+import ItemCard from '../components/ItemCard';
 import CategoryFilter from '../components/CategoryFilter';
 import NearbyDiscoverySection from '../components/NearbyDiscoverySection';
-import StudioHeroCollage from '../components/ui/StudioHeroCollage';
-import RotatingSearchBar from '../components/ui/RotatingSearchBar';
-import { MarkerUnderline } from '../components/ui/HandDrawnSVGs';
-import HowItWorksSteps from '../components/ui/HowItWorksSteps';
-import NeighborhoodMapSection from '../components/ui/NeighborhoodMapSection';
-import TrustSection from '../components/ui/TrustSection';
+import Tilt3DImageCard from '../components/3d/Tilt3DImageCard';
+import AnimatedHomeBackground from '../components/ui/AnimatedHomeBackground';
 import { CATEGORIES } from '../data/mockData';
 import apiService from '../services/apiService';
 import { useUser } from '../context/UserContext';
 import { useLocation } from '../context/LocationContext';
-import { fadeUp, staggerContainer } from '../utils/animations';
 
 export const Home = () => {
+  const [searchQuery, setSearchQuery] = useState('');
   const [featuredItems, setFeaturedItems] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
   const { dataVersion } = useUser();
-  const { requestCurrentLocation, hasLocation, radius } = useLocation();
+  const { requestCurrentLocation, useDemoLocation, hasLocation, radius } = useLocation();
 
   useEffect(() => {
     const loadFeatured = async () => {
       try {
         setIsLoading(true);
         const items = await apiService.getItems();
-        setFeaturedItems(items.slice(0, 7)); // 7 items for bento layout
+        // Take 6 prominent items for featured showcase
+        setFeaturedItems(items.slice(0, 6));
       } catch (err) {
         console.error('Failed to load items:', err);
       } finally {
@@ -47,6 +41,15 @@ export const Home = () => {
     };
     loadFeatured();
   }, [dataVersion]);
+
+  const handleHeroSearch = (e) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      navigate(`/explore?search=${encodeURIComponent(searchQuery.trim())}`);
+    } else {
+      navigate('/explore');
+    }
+  };
 
   const handleSelectCategory = (cat) => {
     if (cat === 'All') {
@@ -67,248 +70,264 @@ export const Home = () => {
   };
 
   return (
-    <div className="space-y-16 sm:space-y-24 pb-20 overflow-hidden">
-      {/* 1. HERO SECTION (Asymmetric Left-Aligned Editorial + Collage) */}
-      <section className="pt-8 sm:pt-14 relative">
+    <div className="relative space-y-12 sm:space-y-16 pb-16 overflow-hidden">
+      {/* Dynamic Animated Hyperlocal Background */}
+      <AnimatedHomeBackground />
+
+      {/* Hero Section */}
+      <section className="relative z-10 pt-6 sm:pt-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
-            {/* Left Column: Big Editorial Headline & Rotating Search */}
-            <motion.div
-              initial="hidden"
-              animate="visible"
-              variants={staggerContainer(0.08)}
-              className="lg:col-span-7 space-y-6"
-            >
-              {/* Neighborhood Badge */}
-              <motion.div variants={fadeUp} className="inline-flex items-center gap-2">
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#14281D] text-[#F6F1E9] text-xs font-mono font-bold tracking-wider border border-[#14281D] shadow-hard-sm">
-                  <span className="w-2 h-2 rounded-full bg-[#F2B705] animate-pulse" />
-                  <span>500M WALKING PROXIMITY</span>
-                </span>
-                <span className="text-xs font-mono font-semibold text-[#4A5B52]">
-                  New Delhi • Green Park
-                </span>
-              </motion.div>
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+            {/* Left Column: Headline and Functional Search */}
+            <div className="lg:col-span-7 space-y-6">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#EEF3EE] text-[#236B45] text-xs font-semibold tracking-wide border border-[#DCFCE7]">
+                <ShieldCheck className="w-3.5 h-3.5" />
+                <span>Hyperlocal Peer-to-Peer Rental Network</span>
+              </div>
 
-              {/* Main Headline with Hand-Drawn Marker Highlight */}
-              <motion.h1
-                variants={fadeUp}
-                className="font-display font-black text-4xl sm:text-5xl md:text-6xl text-[#14281D] tracking-tight leading-[1.08]"
+              <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-[#252B27] tracking-tight leading-[1.15]">
+                Rent What You Need, <br className="hidden sm:inline" />
+                <span className="text-[#236B45]">Share What You Own.</span>
+              </h1>
+
+              <p className="text-base sm:text-lg text-slate-600 max-w-xl leading-relaxed">
+                Access cameras, tools, projectors, camping gear, and party equipment from neighbors
+                within walking distance. Borrow for a few hours without buying new.
+              </p>
+
+              {/* Functional Search Bar in Hero */}
+              <form
+                onSubmit={handleHeroSearch}
+                className="p-2 sm:p-2.5 bg-white rounded-2xl border border-[#E1E5E1] shadow-sm flex flex-col sm:flex-row gap-2 max-w-2xl"
               >
-                Need a drill for one afternoon? <br className="hidden sm:inline" />
-                Your{' '}
-                <span className="relative inline-block text-[#14281D]">
-                  neighbor
-                  <MarkerUnderline className="absolute -bottom-2 left-0 w-full" color="#F2B705" />
-                </span>{' '}
-                already has one.
-              </motion.h1>
+                <div className="relative flex-1 flex items-center">
+                  <Search className="w-4 h-4 text-slate-400 absolute left-3.5" />
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Try 'electric drill', 'projector', 'DSLR camera', 'tent'..."
+                    className="w-full pl-10 pr-4 py-2.5 text-sm text-[#252B27] placeholder:text-slate-400 focus:outline-none"
+                  />
+                </div>
 
-              {/* Human, Friendly Description */}
-              <motion.p
-                variants={fadeUp}
-                className="text-base sm:text-lg text-[#4A5B52] max-w-xl leading-relaxed font-normal"
-              >
-                Access pressure washers, cameras, ladders, projectors, and camping gear living on your block. Borrow for a few hours, walk across the street, return it safe.
-              </motion.p>
+                <button
+                  type="submit"
+                  className="px-6 py-3 bg-[#236B45] hover:bg-[#1b5636] text-white text-sm font-semibold rounded-xl shadow-xs transition-colors flex items-center justify-center gap-2 cursor-pointer flex-shrink-0"
+                >
+                  <span>Search Gear</span>
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              </form>
 
-              {/* Rotating Typewriter Search Bar + Hand-Drawn Arrow */}
-              <motion.div variants={fadeUp} className="pt-2">
-                <RotatingSearchBar />
-              </motion.div>
-
-              {/* Action Buttons */}
-              <motion.div variants={fadeUp} className="flex flex-wrap items-center gap-3 pt-2">
+              {/* Action Buttons & Core Nearby Trigger */}
+              <div className="flex flex-wrap items-center gap-3 pt-1">
                 <button
                   type="button"
                   onClick={scrollToNearby}
-                  className="btn-tactile inline-flex items-center gap-2 px-5 py-3 bg-[#14281D] hover:bg-[#1E3A2F] text-[#F6F1E9] text-xs sm:text-sm font-mono font-bold uppercase tracking-wider rounded-xl border-2 border-[#14281D] shadow-hard-sm cursor-pointer"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#236B45] hover:bg-[#1b5636] text-white text-sm font-semibold rounded-xl transition-all shadow-xs cursor-pointer"
                 >
-                  <Navigation2 className="w-4 h-4 text-[#F2B705] fill-[#F2B705]" />
-                  <span>Items within 200m</span>
+                  <Navigation2 className="w-4 h-4 text-[#FACC15] fill-[#FACC15]" />
+                  <span>Find Items Near Me (200m)</span>
                 </button>
 
                 <Link
                   to="/explore"
-                  className="btn-tactile px-5 py-3 bg-white hover:bg-[#FAF7F2] text-[#14281D] text-xs sm:text-sm font-mono font-bold uppercase tracking-wider rounded-xl border-2 border-[#14281D] shadow-hard-sm"
+                  className="px-5 py-2.5 bg-white border border-[#E1E5E1] hover:border-[#236B45] hover:bg-[#EEF3EE] text-slate-800 text-sm font-medium rounded-xl transition-all shadow-xs"
                 >
-                  Browse Full Aisle
+                  Explore All Items
                 </Link>
 
                 <Link
                   to="/add-item"
-                  className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-mono font-bold text-[#E8590C] hover:underline"
+                  className="inline-flex items-center gap-1.5 px-4 py-2.5 text-slate-600 hover:text-[#236B45] text-sm font-medium transition-colors"
                 >
                   <PackagePlus className="w-4 h-4" />
-                  <span>Lend what you own →</span>
+                  <span>List Your Item</span>
                 </Link>
-              </motion.div>
+              </div>
 
-              {/* Micro Trust Points */}
-              <motion.div
-                variants={fadeUp}
-                className="pt-4 border-t-2 border-[#14281D]/15 flex flex-wrap gap-5 text-xs text-[#4A5B52] font-semibold"
-              >
-                <span className="flex items-center gap-1.5">
-                  <CheckCircle2 className="w-4 h-4 text-[#1E3A2F]" />
+              {/* Trust Badges */}
+              <div className="pt-4 border-t border-slate-200/80 flex flex-wrap gap-6 text-xs text-slate-500">
+                <span className="flex items-center gap-1.5 font-medium text-slate-700">
+                  <CheckCircle2 className="w-4 h-4 text-[#236B45]" />
+                  Instant walking distance pickup (200m)
+                </span>
+                <span className="flex items-center gap-1.5 font-medium text-slate-700">
+                  <CheckCircle2 className="w-4 h-4 text-[#236B45]" />
+                  Verified local owners
+                </span>
+                <span className="flex items-center gap-1.5 font-medium text-slate-700">
+                  <CheckCircle2 className="w-4 h-4 text-[#236B45]" />
                   Zero buying cost
                 </span>
-                <span className="flex items-center gap-1.5">
-                  <CheckCircle2 className="w-4 h-4 text-[#1E3A2F]" />
-                  Walking distance pickup
-                </span>
-                <span className="flex items-center gap-1.5">
-                  <CheckCircle2 className="w-4 h-4 text-[#1E3A2F]" />
-                  Verified local neighbors
-                </span>
-              </motion.div>
-            </motion.div>
+              </div>
+            </div>
 
-            {/* Right Column: Asymmetric Human Photo Collage */}
+            {/* Right Column: Image in Continuous Random 3D Tilt Motion */}
             <div className="lg:col-span-5">
-              <StudioHeroCollage />
+              <Tilt3DImageCard />
             </div>
           </div>
         </div>
       </section>
 
-      {/* 2. CATEGORIES SECTION (Horizontal Scrolling Strip with Tactile Tiles) */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-6 gap-2">
-          <div>
-            <span className="font-mono text-xs font-bold uppercase tracking-wider text-[#E8590C]">
-              Browse Neighborhood Aisles
-            </span>
-            <h2 className="font-display text-2xl sm:text-3xl font-extrabold text-[#14281D] mt-1">
-              What do you need for this weekend?
-            </h2>
-          </div>
-          <Link
-            to="/explore"
-            className="text-xs font-mono font-bold text-[#14281D] hover:text-[#E8590C] inline-flex items-center gap-1 uppercase tracking-wider"
-          >
-            <span>View All Aisles</span>
-            <ArrowRight className="w-3.5 h-3.5" />
-          </Link>
-        </div>
-
-        {/* Tactile Tiles Strip */}
-        <CategoryFilter
-          categories={CATEGORIES}
-          selectedCategory="All"
-          onSelectCategory={handleSelectCategory}
-          variant="tiles"
+      {/* CORE FEATURE: Hyperlocal Nearby Discovery Section */}
+      <section id="nearby-section" className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 scroll-mt-20">
+        <NearbyDiscoverySection
+          title="Nearby Items (Walking Distance)"
+          subtitle="Discover tools, camping gear, and appliances within a 200m radius of your coordinates."
         />
       </section>
 
-      {/* 3. MASONRY / BENTO LISTINGS SECTION */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-8 gap-2">
+      {/* Categories Section */}
+      <section className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-6 gap-2">
           <div>
-            <div className="inline-flex items-center gap-2 text-xs font-mono font-bold text-[#E8590C] uppercase tracking-wider">
-              <span>● Available Right Now</span>
-            </div>
-            <h2 className="font-display text-2xl sm:text-4xl font-extrabold text-[#14281D] mt-1">
-              Freshly Listed on Your Block
+            <span className="text-xs font-bold text-[#236B45] uppercase tracking-wider">
+              Browse Categories
+            </span>
+            <h2 className="text-2xl font-bold text-[#252B27] mt-1">
+              Find exactly what you need
             </h2>
-            <p className="text-xs sm:text-sm text-[#4A5B52] mt-1">
-              No delivery waiting. Walk over, borrow for a few hours, return when you're done.
-            </p>
           </div>
           <Link
             to="/explore"
-            className="btn-tactile inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-white border-2 border-[#14281D] text-xs font-mono font-bold uppercase tracking-wider text-[#14281D] shadow-hard-sm"
+            className="text-xs font-semibold text-[#236B45] hover:text-[#1b5636] inline-flex items-center gap-1"
           >
-            <span>Explore All 38 Items</span>
+            <span>View all categories</span>
             <ArrowRight className="w-3.5 h-3.5" />
           </Link>
         </div>
 
-        {/* Bento Grid Layout (Featured item wide, others standard) */}
+        <CategoryFilter
+          categories={CATEGORIES}
+          selectedCategory=""
+          onSelectCategory={handleSelectCategory}
+          variant="cards"
+        />
+      </section>
+
+      {/* Featured Items Section */}
+      <section className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-6 gap-2">
+          <div>
+            <span className="text-xs font-bold text-[#236B45] uppercase tracking-wider">
+              Popular in Community
+            </span>
+            <h2 className="text-2xl font-bold text-[#252B27] mt-1">
+              Featured Rental Items
+            </h2>
+          </div>
+          <Link
+            to="/explore"
+            className="text-xs font-semibold text-[#236B45] hover:text-[#1b5636] inline-flex items-center gap-1"
+          >
+            <span>Browse all marketplace items</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </Link>
+        </div>
+
         {isLoading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {[1, 2, 3, 4, 5, 6].map((n) => (
-              <ItemCardSkeleton key={n} />
+              <div
+                key={n}
+                className="h-80 bg-white rounded-2xl border border-slate-200 animate-pulse"
+              ></div>
             ))}
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {featuredItems.map((item, index) => (
-              <ItemCard
-                key={item.id}
-                item={item}
-                featured={index === 0} // First card is featured bento width on tablets
-              />
+            {featuredItems.map((item) => (
+              <ItemCard key={item.id} item={item} />
             ))}
           </div>
         )}
       </section>
 
-      {/* 4. CORE FEATURE: Hyperlocal Nearby Discovery Section (200m Radius Focus) */}
-      <section id="nearby-section" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 scroll-mt-20">
-        <NearbyDiscoverySection
-          title="Items Within Walking Distance"
-          subtitle="InstantShare prioritizes items located under 500m away so you never need a delivery truck."
-        />
-      </section>
-
-      {/* 5. INTERACTIVE NEIGHBORHOOD MAP (Custom Detail 2) */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <NeighborhoodMapSection />
-      </section>
-
-      {/* 6. HOW IT WORKS (4 Steps Connected with Tactile Numbers) */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center max-w-2xl mx-auto mb-10">
-          <span className="font-mono text-xs font-bold uppercase tracking-wider text-[#E8590C]">
-            How Community Borrowing Works
-          </span>
-          <h2 className="font-display text-2xl sm:text-4xl font-extrabold text-[#14281D] mt-1.5">
-            Borrowing from a neighbor in 4 simple steps
-          </h2>
-          <p className="mt-2 text-sm text-[#4A5B52]">
-            Forget expensive one-off purchases and zero customer support. Renting locally is fast and human.
-          </p>
-        </div>
-
-        <HowItWorksSteps />
-      </section>
-
-      {/* 7. TRUST SECTION (Neighbor Stories, Animated Counters & Trust Seal) */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <TrustSection />
-      </section>
-
-      {/* 8. LEND YOUR GEAR BANNER (Editorial Kraft Paper Styling) */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-[#14281D] text-[#F6F1E9] rounded-3xl p-8 sm:p-12 border-2 border-[#14281D] shadow-hard-xl flex flex-col md:flex-row items-center justify-between gap-8 relative overflow-hidden">
-          {/* Subtle background doodle stamp */}
-          <div className="absolute -right-8 -bottom-8 font-mono text-8xl font-black text-white/[0.04] select-none pointer-events-none">
-            SHARING
-          </div>
-
-          <div className="space-y-3 max-w-xl text-center md:text-left relative z-10">
-            <span className="font-mono text-xs font-bold text-[#F2B705] uppercase tracking-wider">
-              Put idle tools to work
+      {/* How It Works Section */}
+      <section className="relative z-10 bg-white/90 backdrop-blur-xs border-y border-[#E1E5E1] py-14">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center max-w-2xl mx-auto mb-12">
+            <span className="text-xs font-bold text-[#236B45] uppercase tracking-wider">
+              Simple 3-Step Process
             </span>
-            <h3 className="font-display text-2xl sm:text-4xl font-bold text-white">
-              Have tools sitting in your closet 50 weeks a year?
-            </h3>
-            <p className="text-sm text-[#DCE5DD] leading-relaxed">
-              Drills, ladders, camping tents, and speakers gather dust 95% of the time. Help your neighbors build and explore, meet local creators, and earn passive rental income safely.
+            <h2 className="text-2xl sm:text-3xl font-bold text-[#252B27] mt-2">
+              How InstantShare Works
+            </h2>
+            <p className="mt-2 text-sm text-slate-600">
+              Renting from verified people around you is fast, safe, and straightforward.
             </p>
           </div>
 
-          <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto relative z-10">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
+            <div className="bg-[#F8F8F5] p-6 rounded-2xl border border-[#E1E5E1]">
+              <div className="w-10 h-10 rounded-xl bg-[#236B45] text-white font-bold flex items-center justify-center text-sm mb-4">
+                1
+              </div>
+              <h3 className="text-lg font-semibold text-slate-900 mb-2">
+                Discover Nearby Items (200m)
+              </h3>
+              <p className="text-xs text-slate-600 leading-relaxed">
+                Use your GPS location to instantly spot items available within a 100m to 500m walking radius.
+              </p>
+            </div>
+
+            <div className="bg-[#F8F8F5] p-6 rounded-2xl border border-[#E1E5E1]">
+              <div className="w-10 h-10 rounded-xl bg-[#236B45] text-white font-bold flex items-center justify-center text-sm mb-4">
+                2
+              </div>
+              <h3 className="text-lg font-semibold text-slate-900 mb-2">
+                Request a Rental Slot
+              </h3>
+              <p className="text-xs text-slate-600 leading-relaxed">
+                Pick your start and end hours. Total cost is calculated automatically. The owner
+                reviews and approves quickly.
+              </p>
+            </div>
+
+            <div className="bg-[#F8F8F5] p-6 rounded-2xl border border-[#E1E5E1]">
+              <div className="w-10 h-10 rounded-xl bg-[#236B45] text-white font-bold flex items-center justify-center text-sm mb-4">
+                3
+              </div>
+              <h3 className="text-lg font-semibold text-slate-900 mb-2">
+                Walk Over, Use & Return
+              </h3>
+              <p className="text-xs text-slate-600 leading-relaxed">
+                Walk a couple of minutes to pick up the item, complete your project, and return it safely.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Owner Encouragement Banner */}
+      <section className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="bg-[#EEF3EE] rounded-3xl p-8 sm:p-12 border border-[#DCFCE7] flex flex-col md:flex-row items-center justify-between gap-8">
+          <div className="space-y-3 max-w-xl text-center md:text-left">
+            <span className="text-xs font-bold text-[#236B45] uppercase tracking-wider">
+              Earn from Idle Items
+            </span>
+            <h3 className="text-2xl sm:text-3xl font-bold text-[#252B27]">
+              Have gear gathering dust in your closet?
+            </h3>
+            <p className="text-sm text-slate-600 leading-relaxed">
+              Drills, ladders, cameras, and party speakers sit unused 95% of the year. Put them to
+              work, meet neighborhood creators, and earn passive rental income securely.
+            </p>
+          </div>
+
+          <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
             <Link
               to="/add-item"
-              className="btn-tactile px-6 py-3.5 bg-[#E8590C] hover:bg-[#d44e06] text-white font-mono text-xs font-bold uppercase tracking-wider rounded-xl border-2 border-white/40 shadow-hard-sm text-center"
+              className="px-6 py-3 bg-[#236B45] hover:bg-[#1b5636] text-white text-sm font-semibold rounded-xl shadow-xs transition-colors text-center cursor-pointer"
             >
               List an Item for Rent
             </Link>
             <Link
               to="/my-listings"
-              className="btn-tactile px-6 py-3.5 bg-white hover:bg-[#FAF7F2] text-[#14281D] font-mono text-xs font-bold uppercase tracking-wider rounded-xl border-2 border-[#14281D] shadow-hard-sm text-center"
+              className="px-6 py-3 bg-white hover:bg-slate-50 text-slate-800 text-sm font-semibold rounded-xl border border-slate-300 transition-colors text-center cursor-pointer"
             >
               Manage My Listings
             </Link>

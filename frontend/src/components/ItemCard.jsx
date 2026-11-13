@@ -1,22 +1,19 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { MapPin, Star, ArrowRight, Navigation2, Footprints, Heart } from 'lucide-react';
+import { MapPin, Clock, Star, ArrowRight, Navigation2, Footprints } from 'lucide-react';
 import { formatCurrency } from '../utils/pricing';
 import { useLocation } from '../context/LocationContext';
 import { useUser } from '../context/UserContext';
-import { heartPop } from '../utils/animations';
 
-export const ItemCard = ({ item, customDistance = null, showWalkTime = true, featured = false }) => {
+export const ItemCard = ({ item, customDistance = null, showWalkTime = true }) => {
   const isHourly = item.rentalType === 'HOURLY';
   const { getDistanceToItem, hasLocation } = useLocation();
   const { users } = useUser();
-  const [isLiked, setIsLiked] = useState(false);
 
   // Find owner name if available
   const owner = users?.find((u) => u.id === item.ownerId);
 
-  // Compute distance
+  // Compute or use passed distance
   const distanceInfo =
     customDistance ||
     (item.distanceFormatted
@@ -32,170 +29,139 @@ export const ItemCard = ({ item, customDistance = null, showWalkTime = true, fea
   const isUltraClose = distanceInfo && distanceInfo.meters <= 200;
 
   return (
-    <motion.div
-      whileHover={{ y: -4, x: -2, boxShadow: '6px 6px 0px #14281D' }}
-      transition={{ duration: 0.18, ease: 'easeOut' }}
-      className={`group bg-white rounded-2xl border-2 border-[#14281D] overflow-hidden flex flex-col shadow-hard relative transition-all ${
-        featured ? 'md:col-span-2' : ''
-      }`}
-    >
-      {/* Item Image with Tactile Badges */}
-      <div className="relative aspect-[4/3] w-full bg-[#FAF7F2] overflow-hidden border-b-2 border-[#14281D]">
+    <div className="group bg-white rounded-2xl border border-[#E1E5E1] overflow-hidden flex flex-col hover:border-[#236B45]/50 hover:shadow-md transition-all duration-200">
+      {/* Item Image with Badges */}
+      <div className="relative aspect-[4/3] w-full bg-slate-100 overflow-hidden">
         <img
           src={item.imageUrl}
           alt={item.name}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
+          className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-300"
           loading="lazy"
         />
 
-        {/* Top-Left: Distance Badge */}
-        <div className="absolute top-3 left-3 z-10 flex flex-col gap-1 items-start">
+        {/* Top-Left: Distance Badge or Availability */}
+        <div className="absolute top-3 left-3 flex flex-col gap-1.5 items-start">
           {distanceInfo ? (
             <span
-              className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-mono font-bold border border-[#14281D] shadow-hard-sm ${
+              className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold shadow-xs backdrop-blur-xs transition-colors ${
                 isUltraClose
-                  ? 'bg-[#F2B705] text-[#14281D]'
-                  : 'bg-white text-[#14281D]'
+                  ? 'bg-[#236B45] text-white border border-[#236B45]'
+                  : 'bg-white/95 text-slate-800 border border-slate-200'
               }`}
             >
-              <Navigation2 className="w-3 h-3 text-[#E8590C] fill-[#E8590C]" />
+              <Navigation2 className="w-3 h-3 text-[#FACC15] fill-[#FACC15]" />
               <span>{distanceInfo.formatted}</span>
             </span>
           ) : (
-            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-mono font-bold bg-white text-[#14281D] border border-[#14281D] shadow-hard-sm">
-              <span className="w-2 h-2 rounded-full bg-[#22c55e] animate-pulse" />
-              <span>Available</span>
-            </span>
+            <div>
+              {item.available ? (
+                <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-50/95 text-emerald-800 border border-emerald-200 backdrop-blur-xs">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 mr-1.5 animate-pulse"></span>
+                  Available
+                </span>
+              ) : (
+                <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-slate-100/95 text-slate-700 border border-slate-300 backdrop-blur-xs">
+                  Currently Rented
+                </span>
+              )}
+            </div>
           )}
         </div>
 
-        {/* Top-Right: Wishlist Heart Pop Button */}
-        <div className="absolute top-3 right-3 z-10 flex items-center gap-1.5">
-          <motion.button
-            type="button"
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              setIsLiked(!isLiked);
-            }}
-            variants={heartPop}
-            animate={isLiked ? 'popped' : 'idle'}
-            className="w-8 h-8 rounded-full bg-white border-2 border-[#14281D] shadow-hard-sm flex items-center justify-center hover:bg-[#FAF7F2] transition-colors cursor-pointer"
-            aria-label="Save to wishlist"
-          >
-            <Heart
-              className={`w-4 h-4 transition-colors ${
-                isLiked ? 'fill-[#E8590C] text-[#E8590C]' : 'text-[#14281D]'
-              }`}
-            />
-          </motion.button>
+        {/* Top-Right: Category Badge */}
+        <div className="absolute top-3 right-3">
+          <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-white/95 text-slate-700 border border-slate-200 shadow-xs backdrop-blur-xs">
+            {item.category}
+          </span>
         </div>
 
-        {/* Bottom Bar: Walking Time Banner */}
-        {distanceInfo?.walkingTime && showWalkTime && (
-          <div className="absolute bottom-2 left-3 right-3 z-10">
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-mono font-bold bg-[#14281D]/90 text-white backdrop-blur-xs border border-white/20">
-              <Footprints className="w-3.5 h-3.5 text-[#F2B705]" />
+        {/* Bottom Banner on Image if distance & walking time known */}
+        {distanceInfo && showWalkTime && distanceInfo.walkingTime && (
+          <div className="absolute bottom-2 left-3 right-3">
+            <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[11px] font-medium bg-black/60 text-white backdrop-blur-xs">
+              <Footprints className="w-3 h-3 text-emerald-400" />
               <span>{distanceInfo.walkingTime}</span>
-              <span className="text-white/60">• {item.location}</span>
+              <span className="text-slate-300">• {item.location}</span>
             </span>
           </div>
         )}
-
-        {/* Slide-up "Borrow Now" Overlay Button on Hover */}
-        <div className="absolute inset-x-0 bottom-0 p-3 bg-gradient-to-t from-black/70 to-transparent translate-y-full group-hover:translate-y-0 transition-transform duration-200 z-20 hidden sm:flex items-center justify-center">
-          <Link
-            to={`/items/${item.id}`}
-            className="btn-tactile w-full py-2.5 rounded-xl bg-[#F2B705] text-[#14281D] font-mono font-bold text-xs uppercase tracking-wider border-2 border-[#14281D] shadow-hard-sm flex items-center justify-center gap-1.5"
-          >
-            <span>Borrow From Neighbor</span>
-            <ArrowRight className="w-3.5 h-3.5" />
-          </Link>
-        </div>
       </div>
 
-      {/* Card Content Body */}
-      <div className="p-4 sm:p-5 flex-1 flex flex-col justify-between space-y-4">
+      {/* Card Body */}
+      <div className="p-5 flex-1 flex flex-col justify-between">
         <div>
-          {/* Category & Rating */}
-          <div className="flex items-center justify-between text-xs font-mono text-[#4A5B52] mb-1.5">
-            <span className="font-bold uppercase tracking-wider text-[#E8590C]">
-              {item.category}
+          {/* Location and Rating */}
+          <div className="flex items-center justify-between text-xs text-slate-500 mb-2">
+            <span className="inline-flex items-center gap-1 line-clamp-1">
+              <MapPin className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
+              {item.location}
             </span>
             {item.rating && (
-              <span className="inline-flex items-center gap-1 font-bold text-[#14281D] bg-[#FAF7F2] px-2 py-0.5 rounded-md border border-[#14281D]/20">
-                <Star className="w-3.5 h-3.5 text-[#E8590C] fill-[#E8590C]" />
-                <span>{item.rating}</span>
-                <span className="text-[#4A5B52]">({item.reviewsCount || 12})</span>
+              <span className="inline-flex items-center gap-1 font-medium text-slate-700 flex-shrink-0">
+                <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
+                {item.rating.toFixed(1)}
               </span>
             )}
           </div>
 
-          {/* Item Name */}
-          <Link to={`/items/${item.id}`} className="group-hover:text-[#E8590C] transition-colors">
-            <h3 className="font-display font-bold text-base sm:text-lg text-[#14281D] line-clamp-1 leading-snug">
+          {/* Item Title */}
+          <Link to={`/items/${item.id}`} className="block group-hover:text-[#236B45] transition-colors">
+            <h3 className="font-semibold text-base text-[#252B27] line-clamp-2 leading-snug">
               {item.name}
             </h3>
           </Link>
 
           {/* Short Description */}
-          <p className="text-xs text-[#4A5B52] line-clamp-2 mt-1 leading-relaxed">
+          <p className="mt-2 text-xs text-slate-600 line-clamp-2 leading-relaxed">
             {item.description}
           </p>
+
+          {/* Owner info snippet if available */}
+          {owner && (
+            <div className="mt-3 pt-2.5 border-t border-slate-100/80 flex items-center justify-between text-[11px] text-slate-500">
+              <div className="flex items-center gap-1.5">
+                <img
+                  src={owner.avatar}
+                  alt={owner.name}
+                  className="w-4 h-4 rounded-full object-cover"
+                />
+                <span>Owner: <strong className="text-slate-700 font-medium">{owner.name}</strong></span>
+              </div>
+              {item.available && (
+                <span className="text-emerald-700 font-medium flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                  Ready now
+                </span>
+              )}
+            </div>
+          )}
         </div>
 
-        {/* Footer: Owner Avatar & Price Pill */}
-        <div className="pt-3 border-t border-[#14281D]/15 flex items-center justify-between">
-          {/* Owner Info */}
-          <div className="flex items-center gap-2 min-w-0">
-            {owner?.avatar ? (
-              <img
-                src={owner.avatar}
-                alt={owner.name}
-                className="w-7 h-7 rounded-lg object-cover border border-[#14281D]"
-              />
-            ) : (
-              <div className="w-7 h-7 rounded-lg bg-[#DCE5DD] text-[#14281D] font-bold text-xs flex items-center justify-center border border-[#14281D]">
-                {owner?.name?.charAt(0) || 'N'}
-              </div>
-            )}
-            <div className="truncate text-xs">
-              <div className="font-bold text-[#14281D] truncate leading-tight">
-                {owner?.name || 'Local Neighbor'}
-              </div>
-              <div className="text-[10px] text-[#4A5B52] font-mono truncate">
-                {owner?.location?.split(',')[0] || 'Nearby'}
-              </div>
+        {/* Pricing & CTA */}
+        <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
+          <div>
+            <div className="text-[11px] text-slate-500 font-medium">Rental Rate</div>
+            <div className="flex items-baseline gap-1">
+              <span className="text-lg font-bold text-[#236B45]">
+                {formatCurrency(item.rentalPrice)}
+              </span>
+              <span className="text-xs text-slate-500 font-medium">
+                /{isHourly ? 'hour' : 'day'}
+              </span>
             </div>
           </div>
 
-          {/* Price Badge in Space Grotesk Mono */}
-          <div className="text-right flex-shrink-0">
-            <div className="font-mono text-base font-extrabold text-[#14281D] leading-none">
-              {formatCurrency(item.rentalPrice)}
-            </div>
-            <div className="font-mono text-[10px] text-[#4A5B52] uppercase font-bold mt-0.5">
-              per {isHourly ? 'hour' : 'day'}
-            </div>
-          </div>
+          <Link
+            to={`/items/${item.id}`}
+            className="inline-flex items-center gap-1 px-3 py-2 text-xs font-medium rounded-xl text-slate-700 bg-[#EEF3EE] hover:bg-[#236B45] hover:text-white transition-all cursor-pointer"
+          >
+            <span>View Details</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </Link>
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 };
-
-// Shimmer Skeleton Loader for Listings
-export const ItemCardSkeleton = () => (
-  <div className="bg-white rounded-2xl border-2 border-[#14281D] p-3 shadow-hard animate-pulse space-y-3">
-    <div className="aspect-[4/3] w-full bg-[#FAF7F2] rounded-xl border border-[#14281D]/20" />
-    <div className="h-4 bg-[#EDE6DC] rounded w-1/3" />
-    <div className="h-6 bg-[#EDE6DC] rounded w-3/4" />
-    <div className="h-4 bg-[#EDE6DC] rounded w-full" />
-    <div className="pt-3 border-t border-slate-200 flex justify-between items-center">
-      <div className="w-8 h-8 rounded-lg bg-[#EDE6DC]" />
-      <div className="w-16 h-6 rounded bg-[#EDE6DC]" />
-    </div>
-  </div>
-);
 
 export default ItemCard;

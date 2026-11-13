@@ -77,30 +77,27 @@ export const MyBookings = () => {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
       {/* Header */}
-      <div className="pb-4 border-b-2 border-[#14281D]/10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="pb-4 border-b border-[#E1E5E1] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-md bg-[#F2B705]/20 border border-[#14281D]/20 text-[11px] font-mono font-bold text-[#14281D] mb-1">
-            <span>● BORROWING HISTORY</span>
-          </div>
-          <h1 className="text-3xl sm:text-4xl font-serif font-black text-[#14281D] tracking-tight">
-            My Borrow Requests
+          <h1 className="text-2xl sm:text-3xl font-bold text-[#252B27] tracking-tight">
+            My Rental Bookings
           </h1>
-          <p className="text-xs sm:text-sm text-[#14281D]/70 font-sans mt-1">
-            Track equipment you have requested or borrowed as{' '}
-            <strong className="text-[#14281D]">{currentUser.name}</strong>
+          <p className="text-xs sm:text-sm text-slate-500 mt-1">
+            Track equipment you have requested or rented as{' '}
+            <strong className="text-slate-700">{currentUser.name}</strong>
           </p>
         </div>
 
         <Link
           to="/explore"
-          className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#14281D] hover:bg-[#E8590C] text-[#F6F1E9] text-xs font-bold rounded-xl border-2 border-[#14281D] shadow-hard btn-tactile transition-colors self-start sm:self-auto"
+          className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#236B45] hover:bg-[#1b5636] text-white text-xs font-semibold rounded-xl shadow-xs transition-colors self-start sm:self-auto"
         >
-          <span>Browse Neighborhood</span>
+          <span>Find More Items</span>
         </Link>
       </div>
 
       {/* Status Filter Tabs */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-2">
+      <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
         {STATUS_TABS.map((tab) => {
           const count =
             tab.id === 'ALL'
@@ -113,16 +110,16 @@ export const MyBookings = () => {
               key={tab.id}
               type="button"
               onClick={() => setSelectedStatus(tab.id)}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-mono font-bold whitespace-nowrap transition-all cursor-pointer flex items-center gap-2 border-2 border-[#14281D] ${
+              className={`px-3.5 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors cursor-pointer flex items-center gap-1.5 ${
                 isSelected
-                  ? 'bg-[#14281D] text-[#F6F1E9] shadow-hard-sm'
-                  : 'bg-[#FAF8F5] text-[#14281D] hover:bg-white'
+                  ? 'bg-[#236B45] text-white shadow-xs'
+                  : 'bg-white border border-[#E1E5E1] text-slate-600 hover:bg-[#EEF3EE]'
               }`}
             >
               <span>{tab.label}</span>
               <span
-                className={`text-[10px] px-1.5 py-0.2 rounded-md ${
-                  isSelected ? 'bg-white/20 text-[#F2B705]' : 'bg-[#14281D]/10 text-[#14281D]'
+                className={`text-[10px] px-1.5 py-0.2 rounded-full ${
+                  isSelected ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-600'
                 }`}
               >
                 {count}
@@ -136,15 +133,15 @@ export const MyBookings = () => {
       {isLoading ? (
         <LoadingSpinner label="Fetching your bookings..." />
       ) : filteredBookings.length === 0 ? (
-        <div className="bg-[#FAF8F5] rounded-3xl border-2 border-[#14281D] shadow-hard p-12 text-center max-w-lg mx-auto space-y-4">
-          <div className="w-16 h-16 rounded-2xl bg-[#F2B705] border-2 border-[#14281D] shadow-hard-sm text-[#14281D] flex items-center justify-center mx-auto transform -rotate-3">
+        <div className="bg-white rounded-3xl border border-[#E1E5E1] p-12 text-center max-w-lg mx-auto space-y-4">
+          <div className="w-16 h-16 rounded-full bg-[#EEF3EE] text-[#236B45] flex items-center justify-center mx-auto">
             <PackageSearch className="w-8 h-8" />
           </div>
           <div className="space-y-1">
-            <h3 className="text-xl font-serif font-black text-[#14281D]">
+            <h3 className="text-lg font-semibold text-slate-900">
               No {selectedStatus !== 'ALL' ? selectedStatus.toLowerCase() : ''} bookings found
             </h3>
-            <p className="text-xs text-[#14281D]/70 font-sans leading-relaxed">
+            <p className="text-xs text-slate-500 leading-relaxed">
               {selectedStatus === 'ALL'
                 ? `You haven't requested any items yet under ${currentUser.name}. Explore neighborhood gear to make your first rental request!`
                 : `There are currently no bookings with status "${selectedStatus}".`}
@@ -154,9 +151,9 @@ export const MyBookings = () => {
             <div className="pt-2">
               <Link
                 to="/explore"
-                className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#14281D] hover:bg-[#E8590C] text-[#F6F1E9] text-xs font-bold rounded-xl border-2 border-[#14281D] shadow-hard btn-tactile transition-colors"
+                className="inline-flex items-center gap-1.5 px-5 py-2.5 bg-[#236B45] hover:bg-[#1b5636] text-white text-xs font-semibold rounded-xl transition-colors"
               >
-                <span>Browse Neighborhood Gear</span>
+                <span>Browse Rental Marketplace</span>
               </Link>
             </div>
           )}
