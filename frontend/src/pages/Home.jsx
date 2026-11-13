@@ -11,6 +11,8 @@ import {
 import ItemCard from '../components/ItemCard';
 import CategoryFilter from '../components/CategoryFilter';
 import NearbyDiscoverySection from '../components/NearbyDiscoverySection';
+import Tilt3DImageCard from '../components/3d/Tilt3DImageCard';
+import AnimatedHomeBackground from '../components/ui/AnimatedHomeBackground';
 import { CATEGORIES } from '../data/mockData';
 import apiService from '../services/apiService';
 import { useUser } from '../context/UserContext';
@@ -68,9 +70,12 @@ export const Home = () => {
   };
 
   return (
-    <div className="space-y-12 sm:space-y-16 pb-16">
+    <div className="relative space-y-12 sm:space-y-16 pb-16 overflow-hidden">
+      {/* Dynamic Animated Hyperlocal Background */}
+      <AnimatedHomeBackground />
+
       {/* Hero Section */}
-      <section className="pt-6 sm:pt-10">
+      <section className="relative z-10 pt-6 sm:pt-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
             {/* Left Column: Headline and Functional Search */}
@@ -159,34 +164,16 @@ export const Home = () => {
               </div>
             </div>
 
-            {/* Right Column: Authentic Photography of Real People & Gear */}
+            {/* Right Column: Image in Continuous Random 3D Tilt Motion */}
             <div className="lg:col-span-5">
-              <div className="relative rounded-3xl overflow-hidden border border-[#E1E5E1] shadow-lg bg-white">
-                <img
-                  src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=900&q=80"
-                  alt="People collaborating and sharing tools"
-                  className="w-full h-80 sm:h-96 object-cover"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent flex items-end p-6">
-                  <div className="text-white space-y-1">
-                    <div className="text-xs font-semibold uppercase tracking-wider text-emerald-300">
-                      Hyperlocal Sharing
-                    </div>
-                    <p className="text-sm font-medium text-slate-100 leading-snug">
-                      "I needed an electric drill for 2 hours to mount bookshelves. Found Vikram 145m
-                      away on our block. Picked it up in 3 minutes!"
-                    </p>
-                    <div className="text-xs text-slate-300 pt-1">— Aarav S., Green Park Neighbor</div>
-                  </div>
-                </div>
-              </div>
+              <Tilt3DImageCard />
             </div>
           </div>
         </div>
       </section>
 
       {/* CORE FEATURE: Hyperlocal Nearby Discovery Section */}
-      <section id="nearby-section" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 scroll-mt-20">
+      <section id="nearby-section" className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 scroll-mt-20">
         <NearbyDiscoverySection
           title="Nearby Items (Walking Distance)"
           subtitle="Discover tools, camping gear, and appliances within a 200m radius of your coordinates."
@@ -194,7 +181,7 @@ export const Home = () => {
       </section>
 
       {/* Categories Section */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-6 gap-2">
           <div>
             <span className="text-xs font-bold text-[#236B45] uppercase tracking-wider">
@@ -222,7 +209,7 @@ export const Home = () => {
       </section>
 
       {/* Featured Items Section */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-6 gap-2">
           <div>
             <span className="text-xs font-bold text-[#236B45] uppercase tracking-wider">
@@ -260,7 +247,7 @@ export const Home = () => {
       </section>
 
       {/* How It Works Section */}
-      <section className="bg-white border-y border-[#E1E5E1] py-14">
+      <section className="relative z-10 bg-white/90 backdrop-blur-xs border-y border-[#E1E5E1] py-14">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-2xl mx-auto mb-12">
             <span className="text-xs font-bold text-[#236B45] uppercase tracking-wider">
@@ -316,7 +303,7 @@ export const Home = () => {
       </section>
 
       {/* Owner Encouragement Banner */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="bg-[#EEF3EE] rounded-3xl p-8 sm:p-12 border border-[#DCFCE7] flex flex-col md:flex-row items-center justify-between gap-8">
           <div className="space-y-3 max-w-xl text-center md:text-left">
             <span className="text-xs font-bold text-[#236B45] uppercase tracking-wider">
