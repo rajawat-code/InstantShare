@@ -279,9 +279,9 @@ export const Explore = () => {
                 {locationStatus === 'locating'
                   ? 'Acquiring GPS location...'
                   : isDemoActive
-                  ? 'Sample Demo Hub Active: Green Park, New Delhi'
+                  ? 'Area: Green Park, New Delhi'
                   : hasLocation
-                  ? 'Current Location Enabled'
+                  ? `Area: ${location?.areaName || location?.displayArea || 'Your Nearby Neighborhood'}`
                   : 'Location not enabled'}
               </span>
 
@@ -295,7 +295,10 @@ export const Explore = () => {
             <div className="text-[11px] text-slate-500">
               {hasLocation ? (
                 <span>
-                  Filtering items within <strong>{radius}m</strong> • Sorted nearest to farthest
+                  Showing items within <strong>{radius}m</strong> of{' '}
+                  <strong className="text-slate-700">
+                    {location?.areaName || location?.displayArea || (isDemoActive ? 'Green Park, New Delhi' : 'your neighborhood')}
+                  </strong>
                 </span>
               ) : (
                 <span>Click "Use My Location" to uncover gear you can walk over and borrow</span>

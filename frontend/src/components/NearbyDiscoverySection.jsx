@@ -176,11 +176,11 @@ export const NearbyDiscoverySection = ({ title, subtitle, showExploreLink = true
             <div className="text-[11px] text-slate-500 mt-0.5">
               {isDemoActive ? (
                 <span>
-                  {demoLocationMeta.name} • <em>Demonstrating items within 100m–500m</em>
+                  {demoLocationMeta.name} • <em>Demonstrating items within 100m–300m</em>
                 </span>
               ) : hasLocation ? (
-                <span>
-                  Lat: {location.lat.toFixed(4)}, Lng: {location.lng.toFixed(4)}
+                <span className="font-medium text-slate-700">
+                  {location.areaName || location.displayArea || location.name || 'Your Nearby Neighborhood'}
                 </span>
               ) : (
                 <span>Click "Find Items Near Me" or test with the sample demo hub</span>

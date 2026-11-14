@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import {
   ArrowLeft,
@@ -50,14 +50,19 @@ export const AddItem = () => {
   const { currentUser, showToast } = useUser();
   const { location } = useLocation();
 
+  const [categoriesList, setCategoriesList] = useState(
+    CATEGORIES.map((cat, idx) => ({ id: idx + 1, name: cat }))
+  );
+
   const [formData, setFormData] = useState({
     name: '',
     description: '',
     category: CATEGORIES[0],
+    categoryId: 1,
     rentalPrice: '',
     rentalType: 'DAILY',
     imageUrl: PRESET_IMAGES[0].url,
-    location: currentUser.location || 'Agra, Uttar Pradesh',
+    location: currentUser.location || location?.areaName || 'Green Park, New Delhi',
     available: true,
     condition: 'Excellent',
     deposit: '',
@@ -65,6 +70,31 @@ export const AddItem = () => {
 
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (location?.areaName && (!formData.location || formData.location === 'Agra, Uttar Pradesh')) {
+      setFormData((prev) => ({ ...prev, location: location.areaName }));
+    }
+  }, [location?.areaName]);
+
+  useEffect(() => {
+    const fetchCats = async () => {
+      try {
+        const cats = await apiService.getCategories();
+        if (Array.isArray(cats) && cats.length > 0) {
+          setCategoriesList(cats);
+          setFormData((prev) => ({
+            ...prev,
+            category: prev.category || cats[0].name,
+            categoryId: cats[0].id || 1,
+          }));
+        }
+      } catch (err) {
+        console.warn('Failed to load dynamic categories in AddItem:', err);
+      }
+    };
+    fetchCats();
+  }, []);
 
   const validate = () => {
     const errs = {};
@@ -98,10 +128,19 @@ export const AddItem = () => {
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: type === 'checkbox' ? checked : value,
-    }));
+    if (name === 'category') {
+      const matched = categoriesList.find((c) => c.name === value);
+      setFormData((prev) => ({
+        ...prev,
+        category: value,
+        categoryId: matched ? matched.id : 1,
+      }));
+    } else {
+      setFormData((prev) => ({
+        ...prev,
+        [name]: type === 'checkbox' ? checked : value,
+      }));
+    }
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: null }));
     }
@@ -122,16 +161,22 @@ export const AddItem = () => {
       setIsSubmitting(true);
       const newItem = {
         name: formData.name.trim(),
+        title: formData.name.trim(),
         description: formData.description.trim(),
         category: formData.category,
+        categoryId: formData.categoryId || 1,
         rentalPrice: Number(formData.rentalPrice),
         rentalType: formData.rentalType,
         imageUrl: formData.imageUrl.trim(),
+        imageUrls: [formData.imageUrl.trim()],
         location: formData.location.trim(),
         available: Boolean(formData.available),
         condition: formData.condition,
         deposit: formData.deposit ? Number(formData.deposit) : 0,
-        ownerId: currentUser.id,
+        securityDeposit: formData.deposit ? Number(formData.deposit) : 0,
+        ownerId: currentUser?.id,
+        ownerName: currentUser?.name || 'Verified Neighbor',
+        ownerEmail: currentUser?.email,
         lat: location?.lat || 28.5585,
         lng: location?.lng || 77.2029,
       };
@@ -202,9 +247,9 @@ export const AddItem = () => {
                 onChange={handleChange}
                 className="w-full px-3.5 py-2.5 text-sm bg-[#F8F8F5] border border-[#E1E5E1] rounded-xl focus:outline-none focus:border-[#236B45] cursor-pointer"
               >
-                {CATEGORIES.map((cat) => (
-                  <option key={cat} value={cat}>
-                    {cat}
+                {categoriesList.map((cat) => (
+                  <option key={cat.id || cat.name} value={cat.name}>
+                    {cat.name}
                   </option>
                 ))}
               </select>

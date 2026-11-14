@@ -69,6 +69,60 @@ export const mockUsers = [
     rating: 4.9,
     reviewsCount: 51,
     memberSince: "Dec 2023"
+  },
+  {
+    id: 6,
+    name: "Anshuman Rajawat (Owner 1)",
+    email: "owner1@instantshare.test",
+    role: "OWNER",
+    avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80",
+    location: "Sector 1, HSR Layout",
+    phone: "+91 98765 43210",
+    bio: "Owner of cordless drills and mirrorless camera gear.",
+    rating: 4.9,
+    reviewsCount: 14,
+    memberSince: "Nov 2024"
+  },
+  {
+    id: 7,
+    name: "Atul Kumar (Owner 2)",
+    email: "owner2@instantshare.test",
+    role: "OWNER",
+    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=300&q=80",
+    location: "Sector 1, 14th Main",
+    phone: "+91 98765 43211",
+    bio: "Sharing aluminum telescoping ladders and DIY gear.",
+    rating: 4.8,
+    reviewsCount: 8,
+    memberSince: "Nov 2024"
+  },
+  {
+    id: 8,
+    name: "Abhimanyu Agnivanshi (Renter)",
+    email: "renter@instantshare.test",
+    role: "RENTER",
+    avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=300&q=80",
+    location: "Sector 1, 9th Cross",
+    phone: "+91 98765 43212",
+    bio: "Avid maker and DIY enthusiast renting gear from neighbors.",
+    rating: 5.0,
+    reviewsCount: 6,
+    memberSince: "Nov 2024"
+  },
+  {
+    id: 9,
+    name: "Sharma Hardware Store (Business)",
+    email: "business@instantshare.test",
+    role: "BUSINESS",
+    businessName: "Sharma Hardware & Tool Rentals",
+    businessDescription: "Trusted neighborhood hardware supply since 2012",
+    avatar: "https://images.unsplash.com/photo-1581244277943-fe4a9c777189?auto=format&fit=crop&w=300&q=80",
+    location: "Sector 2 Commercial Main Rd",
+    phone: "+91 98765 43213",
+    bio: "Commercial hardware store providing heavy-duty high-pressure washers and tools.",
+    rating: 4.9,
+    reviewsCount: 27,
+    memberSince: "Nov 2024"
   }
 ];
 

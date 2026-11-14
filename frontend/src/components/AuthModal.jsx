@@ -1,12 +1,16 @@
 import React, { useState } from 'react';
-import { LogIn, UserPlus, X, Mail, Lock, User, Phone, Briefcase, AlertCircle, Loader2 } from 'lucide-react';
+import { LogIn, UserPlus, X, Mail, Lock, User, Phone, Briefcase, AlertCircle, Loader2, Eye, EyeOff, ServerOff, Zap } from 'lucide-react';
 import { useUser } from '../context/UserContext';
+import apiService from '../services/apiService';
 
 export const AuthModal = ({ isOpen, initialTab = 'login', onClose }) => {
   const { login, register, showToast } = useUser();
   const [tab, setTab] = useState(initialTab); // 'login' | 'register'
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
+  const [errorDetails, setErrorDetails] = useState(null);
+  const [showLoginPassword, setShowLoginPassword] = useState(false);
+  const [showRegPassword, setShowRegPassword] = useState(false);
 
   // Login form state
   const [loginForm, setLoginForm] = useState({
@@ -32,9 +36,23 @@ export const AuthModal = ({ isOpen, initialTab = 'login', onClose }) => {
     try {
       setIsSubmitting(true);
       setError(null);
-      await login(loginForm.email.trim(), loginForm.password);
+      setErrorDetails(null);
+      await login(loginForm.email.trim(), loginForm.password, false);
       onClose();
     } catch (err) {
+      const isNet = Boolean(
+        err.isNetworkError ||
+          err.code === 'ERR_NETWORK' ||
+          err.errorCode === 'ERR_CONNECTION_REFUSED' ||
+          err.message?.includes('Network Error') ||
+          err.message?.includes('Connection refused')
+      );
+      setErrorDetails({
+        message: err.message || 'Invalid email or password.',
+        status: err.status || (isNet ? 'net::ERR_CONNECTION_REFUSED' : 401),
+        endpoint: `${apiService.getBaseUrl()}/auth/login`,
+        isNetworkError: isNet,
+      });
       setError(err.message || 'Invalid email or password.');
     } finally {
       setIsSubmitting(false);
@@ -50,6 +68,7 @@ export const AuthModal = ({ isOpen, initialTab = 'login', onClose }) => {
     try {
       setIsSubmitting(true);
       setError(null);
+      setErrorDetails(null);
       const payload = {
         name: regForm.name.trim(),
         email: regForm.email.trim(),
@@ -59,10 +78,50 @@ export const AuthModal = ({ isOpen, initialTab = 'login', onClose }) => {
         businessName: regForm.role === 'BUSINESS' ? regForm.businessName.trim() : undefined,
         businessDescription: regForm.role === 'BUSINESS' ? regForm.businessDescription.trim() : undefined,
       };
-      await register(payload);
+      await register(payload, false);
       onClose();
     } catch (err) {
+      const isNet = Boolean(
+        err.isNetworkError ||
+          err.code === 'ERR_NETWORK' ||
+          err.errorCode === 'ERR_CONNECTION_REFUSED' ||
+          err.message?.includes('Network Error') ||
+          err.message?.includes('Connection refused')
+      );
+      setErrorDetails({
+        message: err.message || 'Registration failed.',
+        status: err.status || (isNet ? 'net::ERR_CONNECTION_REFUSED' : 400),
+        endpoint: `${apiService.getBaseUrl()}/auth/register`,
+        isNetworkError: isNet,
+      });
       setError(err.message || 'Registration failed.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleProceedOffline = async () => {
+    try {
+      setIsSubmitting(true);
+      setError(null);
+      setErrorDetails(null);
+      if (tab === 'login') {
+        await login(loginForm.email.trim(), loginForm.password, true);
+      } else {
+        const payload = {
+          name: regForm.name.trim(),
+          email: regForm.email.trim(),
+          password: regForm.password,
+          phone: regForm.phone.trim() || undefined,
+          role: regForm.role,
+          businessName: regForm.role === 'BUSINESS' ? regForm.businessName.trim() : undefined,
+          businessDescription: regForm.role === 'BUSINESS' ? regForm.businessDescription.trim() : undefined,
+        };
+        await register(payload, true);
+      }
+      onClose();
+    } catch (err) {
+      setError(err.message);
     } finally {
       setIsSubmitting(false);
     }
@@ -120,10 +179,36 @@ export const AuthModal = ({ isOpen, initialTab = 'login', onClose }) => {
           </button>
         </div>
 
-        {error && (
-          <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 flex items-start gap-2 text-rose-700 text-xs">
-            <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
-            <span>{error}</span>
+        {errorDetails && (
+          <div className="p-3.5 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-xs space-y-2 animate-in fade-in">
+            <div className="flex items-start gap-2">
+              <AlertCircle className="w-4 h-4 text-rose-600 flex-shrink-0 mt-0.5" />
+              <div className="flex-1 space-y-0.5">
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  <span className="font-bold text-rose-900">
+                    {errorDetails.isNetworkError ? 'Backend Server Offline' : 'Request Error'}
+                  </span>
+                  <span className="font-mono text-[10px] bg-rose-200/60 text-rose-800 px-1.5 py-0.2 rounded font-semibold">
+                    {errorDetails.status}
+                  </span>
+                </div>
+                <p className="text-[11px] text-rose-700 leading-normal">{errorDetails.message}</p>
+              </div>
+            </div>
+
+            {errorDetails.isNetworkError && (
+              <div className="pt-1 flex items-center justify-between gap-2 border-t border-rose-200/60">
+                <span className="text-[10px] text-slate-500">Target: {errorDetails.endpoint}</span>
+                <button
+                  type="button"
+                  onClick={handleProceedOffline}
+                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#236B45] text-white text-[11px] font-semibold transition cursor-pointer"
+                >
+                  <Zap className="w-3 h-3 text-amber-300" />
+                  <span>Use Offline Mode</span>
+                </button>
+              </div>
+            )}
           </div>
         )}
 
@@ -148,15 +233,27 @@ export const AuthModal = ({ isOpen, initialTab = 'login', onClose }) => {
             <div className="space-y-1">
               <label className="text-xs font-semibold text-slate-700 block">Password</label>
               <div className="relative">
-                <Lock className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
+                <Lock className="w-4 h-4 text-slate-400 absolute left-3 top-2.5 pointer-events-none" />
                 <input
-                  type="password"
+                  type={showLoginPassword ? 'text' : 'password'}
                   required
                   placeholder="Password"
                   value={loginForm.password}
                   onChange={(e) => setLoginForm({ ...loginForm, password: e.target.value })}
-                  className="w-full pl-9 pr-3 py-2 text-xs rounded-xl border border-slate-300 focus:ring-2 focus:ring-[#236B45] focus:outline-hidden"
+                  className="w-full pl-9 pr-9 py-2 text-xs rounded-xl border border-slate-300 focus:ring-2 focus:ring-[#236B45] focus:outline-hidden"
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowLoginPassword(!showLoginPassword)}
+                  className="absolute right-2.5 top-2 p-1 text-slate-400 hover:text-slate-600 transition-colors cursor-pointer"
+                  title={showLoginPassword ? 'Hide password' : 'Show password'}
+                >
+                  {showLoginPassword ? (
+                    <EyeOff className="w-3.5 h-3.5 text-[#236B45]" />
+                  ) : (
+                    <Eye className="w-3.5 h-3.5" />
+                  )}
+                </button>
               </div>
             </div>
 
@@ -218,15 +315,27 @@ export const AuthModal = ({ isOpen, initialTab = 'login', onClose }) => {
             <div className="space-y-1">
               <label className="text-xs font-semibold text-slate-700 block">Password (6–50 chars)</label>
               <div className="relative">
-                <Lock className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
+                <Lock className="w-4 h-4 text-slate-400 absolute left-3 top-2.5 pointer-events-none" />
                 <input
-                  type="password"
+                  type={showRegPassword ? 'text' : 'password'}
                   required
                   placeholder="At least 6 characters"
                   value={regForm.password}
                   onChange={(e) => setRegForm({ ...regForm, password: e.target.value })}
-                  className="w-full pl-9 pr-3 py-2 text-xs rounded-xl border border-slate-300 focus:ring-2 focus:ring-[#236B45] focus:outline-hidden"
+                  className="w-full pl-9 pr-9 py-2 text-xs rounded-xl border border-slate-300 focus:ring-2 focus:ring-[#236B45] focus:outline-hidden"
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowRegPassword(!showRegPassword)}
+                  className="absolute right-2.5 top-2 p-1 text-slate-400 hover:text-slate-600 transition-colors cursor-pointer"
+                  title={showRegPassword ? 'Hide password' : 'Show password'}
+                >
+                  {showRegPassword ? (
+                    <EyeOff className="w-3.5 h-3.5 text-[#236B45]" />
+                  ) : (
+                    <Eye className="w-3.5 h-3.5" />
+                  )}
+                </button>
               </div>
             </div>
 

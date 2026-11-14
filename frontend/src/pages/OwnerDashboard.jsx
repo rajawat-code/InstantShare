@@ -61,7 +61,7 @@ export const OwnerDashboard = () => {
   const activeRentals = requests.filter((r) => r.status === 'ACTIVE').length;
   const completedRentals = requests.filter((r) => r.status === 'COMPLETED').length;
   const totalEarnings = requests
-    .filter((r) => r.status === 'COMPLETED' || r.status === 'ACTIVE')
+    .filter((r) => r.status === 'COMPLETED' || r.status === 'ACTIVE' || r.status === 'CONFIRMED')
     .reduce((sum, r) => sum + (r.totalAmount || 0), 0);
 
   const handleActionClick = (booking, newStatus, label, message, variant = 'primary') => {
@@ -339,7 +339,7 @@ export const OwnerDashboard = () => {
                             </>
                           )}
 
-                          {b.status === 'ACCEPTED' && (
+                          {(b.status === 'ACCEPTED' || b.status === 'CONFIRMED') && (
                             <button
                               type="button"
                               onClick={() =>
@@ -347,7 +347,7 @@ export const OwnerDashboard = () => {
                                   b,
                                   'ACTIVE',
                                   'Mark as Handed Over',
-                                  `Confirm that you have physically handed over ${b.itemName} to ${b.renterName}? Status will become ACTIVE.`,
+                                  `Confirm that you have physically handed over ${b.itemName} to ${b.renterName}? Status will become ACTIVE on the backend.`,
                                   'primary'
                                 )
                               }
@@ -473,7 +473,7 @@ export const OwnerDashboard = () => {
                       </>
                     )}
 
-                    {b.status === 'ACCEPTED' && (
+                    {(b.status === 'ACCEPTED' || b.status === 'CONFIRMED') && (
                       <button
                         type="button"
                         onClick={() =>

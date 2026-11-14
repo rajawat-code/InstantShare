@@ -11,10 +11,15 @@ export const EditItem = () => {
   const navigate = useNavigate();
   const { currentUser, showToast, dataVersion } = useUser();
 
+  const [categoriesList, setCategoriesList] = useState(
+    CATEGORIES.map((cat, idx) => ({ id: idx + 1, name: cat }))
+  );
+
   const [formData, setFormData] = useState({
     name: '',
     description: '',
     category: CATEGORIES[0],
+    categoryId: 1,
     rentalPrice: '',
     rentalType: 'DAILY',
     imageUrl: '',
@@ -30,10 +35,18 @@ export const EditItem = () => {
   const [loadError, setLoadError] = useState(null);
 
   useEffect(() => {
-    const fetchItem = async () => {
+    const fetchItemAndCats = async () => {
       try {
         setIsLoading(true);
-        const item = await apiService.getItemById(id);
+        const [item, cats] = await Promise.all([
+          apiService.getItemById(id),
+          apiService.getCategories().catch(() => null),
+        ]);
+
+        if (Array.isArray(cats) && cats.length > 0) {
+          setCategoriesList(cats);
+        }
+
         if (!item) {
           setLoadError('Item not found.');
           return;
@@ -45,10 +58,13 @@ export const EditItem = () => {
           return;
         }
 
+        const matchedCat = cats?.find((c) => c.name === item.category || c.id === item.categoryId);
+
         setFormData({
           name: item.name || '',
           description: item.description || '',
           category: item.category || CATEGORIES[0],
+          categoryId: item.categoryId || (matchedCat ? matchedCat.id : 1),
           rentalPrice: item.rentalPrice || '',
           rentalType: item.rentalType || 'DAILY',
           imageUrl: item.imageUrl || '',
@@ -67,7 +83,7 @@ export const EditItem = () => {
       }
     };
 
-    fetchItem();
+    fetchItemAndCats();
   }, [id, currentUser.id, dataVersion]);
 
   const validate = () => {
@@ -97,10 +113,19 @@ export const EditItem = () => {
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: type === 'checkbox' ? checked : value,
-    }));
+    if (name === 'category') {
+      const matched = categoriesList.find((c) => c.name === value);
+      setFormData((prev) => ({
+        ...prev,
+        category: value,
+        categoryId: matched ? matched.id : 1,
+      }));
+    } else {
+      setFormData((prev) => ({
+        ...prev,
+        [name]: type === 'checkbox' ? checked : value,
+      }));
+    }
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: null }));
     }
@@ -114,15 +139,19 @@ export const EditItem = () => {
       setIsSubmitting(true);
       const updatedFields = {
         name: formData.name.trim(),
+        title: formData.name.trim(),
         description: formData.description.trim(),
         category: formData.category,
+        categoryId: formData.categoryId || 1,
         rentalPrice: Number(formData.rentalPrice),
         rentalType: formData.rentalType,
         imageUrl: formData.imageUrl.trim(),
+        imageUrls: [formData.imageUrl.trim()],
         location: formData.location.trim(),
         available: Boolean(formData.available),
         condition: formData.condition,
         deposit: formData.deposit ? Number(formData.deposit) : 0,
+        securityDeposit: formData.deposit ? Number(formData.deposit) : 0,
         lat: formData.lat || 28.5585,
         lng: formData.lng || 77.2029,
       };
@@ -214,9 +243,9 @@ export const EditItem = () => {
                 onChange={handleChange}
                 className="w-full px-3.5 py-2.5 text-sm bg-[#F8F8F5] border border-[#E1E5E1] rounded-xl focus:outline-none focus:border-[#236B45] cursor-pointer"
               >
-                {CATEGORIES.map((cat) => (
-                  <option key={cat} value={cat}>
-                    {cat}
+                {categoriesList.map((cat) => (
+                  <option key={cat.id || cat.name} value={cat.name}>
+                    {cat.name}
                   </option>
                 ))}
               </select>

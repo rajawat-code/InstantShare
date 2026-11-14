@@ -57,10 +57,17 @@ export const BookingCard = ({ booking, onCancelRequest, onPayNow, onReview }) =>
       {/* Right: Total amount and actions */}
       <div className="w-full md:w-auto flex md:flex-col items-center md:items-end justify-between gap-3 pt-3 md:pt-0 border-t md:border-t-0 border-slate-100">
         <div className="text-left md:text-right">
-          <div className="text-xs text-slate-400">Total Rental Cost</div>
+          <div className="text-xs text-slate-400">Total Payable</div>
           <div className="text-lg font-bold text-[#236B45]">
             {formatCurrency(booking.totalAmount)}
           </div>
+          {(booking.quotedAmount > 0 || booking.platformFee > 0 || booking.deposit > 0) && (
+            <div className="text-[10px] text-slate-400">
+              Rent {formatCurrency(booking.quotedAmount || booking.totalAmount)}
+              {booking.platformFee ? ` + Fee ${formatCurrency(booking.platformFee)}` : ''}
+              {booking.deposit ? ` + Dep ${formatCurrency(booking.deposit)}` : ''}
+            </div>
+          )}
         </div>
 
         <div className="flex items-center gap-2">

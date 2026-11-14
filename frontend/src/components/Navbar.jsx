@@ -26,11 +26,9 @@ export const Navbar = () => {
     users,
     switchUser,
     resetAllData,
-    isBackendOnline,
-    isCheckingBackend,
-    recheckBackend,
+    myListingsCount,
   } = useUser();
-  const { hasLocation, isDemoActive, radius, requestCurrentLocation } = useLocation();
+  const { location, hasLocation, isDemoActive, radius, requestCurrentLocation } = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
@@ -69,53 +67,36 @@ export const Navbar = () => {
             </div>
           </Link>
 
-          {/* Desktop Navigation */}
+          {/* Desktop Navigation with Equipment Count on My Listings */}
           <nav className="hidden md:flex items-center gap-1 lg:gap-2">
             {navLinks.map((link) => (
               <NavLink
                 key={link.path}
                 to={link.path}
                 className={({ isActive }) =>
-                  `px-3 py-2 rounded-xl text-sm font-medium transition-colors ${
+                  `px-3 py-2 rounded-xl text-sm font-medium transition-colors inline-flex items-center gap-1.5 ${
                     isActive
                       ? 'text-[#236B45] bg-[#EEF3EE]'
                       : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
                   }`
                 }
               >
-                {link.label}
+                <span>{link.label}</span>
+                {link.path === '/my-listings' && (
+                  <span
+                    className="px-1.5 py-0.2 text-[10px] font-bold rounded-full bg-[#236B45] text-white shadow-xs"
+                    title={`${myListingsCount || 0} equipment listed by you`}
+                  >
+                    {myListingsCount || 0}
+                  </span>
+                )}
               </NavLink>
             ))}
           </nav>
 
           {/* Actions & Demo Switcher */}
           <div className="hidden md:flex items-center gap-2.5">
-            {/* Backend API Connectivity Indicator */}
-            <button
-              type="button"
-              onClick={recheckBackend}
-              className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-semibold border transition-all cursor-pointer ${
-                isBackendOnline
-                  ? 'bg-emerald-50 text-emerald-800 border-emerald-300 hover:bg-emerald-100'
-                  : 'bg-amber-50 text-amber-800 border-amber-200 hover:bg-amber-100'
-              }`}
-              title={
-                isBackendOnline
-                  ? 'Spring Boot Backend Connected (http://localhost:8080/api). Click to recheck.'
-                  : 'Backend offline or pending. Using Local Storage Fallback. Click to test port 8080.'
-              }
-            >
-              <span
-                className={`w-2 h-2 rounded-full ${
-                  isBackendOnline ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500'
-                }`}
-              />
-              <span className="hidden lg:inline text-[11px]">
-                {isCheckingBackend ? 'Probing...' : isBackendOnline ? 'Spring Boot 8080' : 'Backend Ready'}
-              </span>
-            </button>
-
-            {/* Quick Nearby Mode Pill */}
+            {/* Quick Nearby Mode Pill - Shows Clean Area Name */}
             <Link
               to={`/explore?nearby=true&radius=${radius}`}
               className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all cursor-pointer ${
@@ -125,11 +106,13 @@ export const Navbar = () => {
                     : 'bg-[#EEF3EE] text-[#236B45] border-[#DCFCE7] hover:bg-emerald-100'
                   : 'bg-white text-slate-700 border-[#E1E5E1] hover:bg-slate-50'
               }`}
-              title="Hyperlocal equipment within walking distance"
+              title="Hyperlocal equipment in your area"
             >
-              <Navigation2 className="w-3.5 h-3.5 text-[#236B45] fill-[#236B45]" />
-              <span>
-                {hasLocation ? (isDemoActive ? 'Demo Hub (200m)' : `GPS Nearby (${radius}m)`) : 'Near Me (200m)'}
+              <MapPin className="w-3.5 h-3.5 text-[#236B45]" />
+              <span className="max-w-[150px] truncate text-xs">
+                {hasLocation
+                  ? location?.areaName || location?.displayArea || (isDemoActive ? 'Green Park, New Delhi' : 'Your Area')
+                  : 'Near Me'}
               </span>
             </Link>
 
@@ -219,17 +202,14 @@ export const Navbar = () => {
                     </div>
 
                     <div className="pt-2 border-t border-slate-100 px-3 space-y-1">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setIsUserMenuOpen(false);
-                          setIsAuthModalOpen(true);
-                        }}
+                      <Link
+                        to="/login"
+                        onClick={() => setIsUserMenuOpen(false)}
                         className="w-full flex items-center gap-2 px-3 py-2 text-xs font-semibold text-[#236B45] hover:bg-[#EEF3EE] rounded-lg transition-colors cursor-pointer text-left"
                       >
                         <LogIn className="w-3.5 h-3.5" />
-                        <span>Sign In / Register (JWT API)</span>
-                      </button>
+                        <span>Sign In / Register Page</span>
+                      </Link>
 
                       <Link
                         to="/profile"
@@ -314,14 +294,19 @@ export const Navbar = () => {
                 to={link.path}
                 onClick={() => setIsMobileMenuOpen(false)}
                 className={({ isActive }) =>
-                  `flex items-center px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${
+                  `flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${
                     isActive
                       ? 'text-[#236B45] bg-[#EEF3EE]'
                       : 'text-slate-700 hover:bg-slate-50'
                   }`
                 }
               >
-                {link.label}
+                <span>{link.label}</span>
+                {link.path === '/my-listings' && (
+                  <span className="px-2 py-0.5 text-xs font-bold rounded-full bg-[#236B45] text-white">
+                    {myListingsCount || 0}
+                  </span>
+                )}
               </NavLink>
             ))}
           </div>
@@ -332,16 +317,13 @@ export const Navbar = () => {
               <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
                 Switch Demo User
               </span>
-              <button
-                type="button"
-                onClick={() => {
-                  setIsMobileMenuOpen(false);
-                  setIsAuthModalOpen(true);
-                }}
+              <Link
+                to="/login"
+                onClick={() => setIsMobileMenuOpen(false)}
                 className="text-xs text-[#236B45] font-semibold hover:underline"
               >
                 Sign In / Register
-              </button>
+              </Link>
             </div>
             <div className="grid grid-cols-2 gap-2">
               {users.map((u) => (

@@ -285,44 +285,104 @@ export const apiService = {
   // ---------------------------------------------------------------------------
   // 1. Authentication & User Profile APIs
   // ---------------------------------------------------------------------------
-  login: async (email, password) => {
-    try {
-      const data = await apiClient.post('/auth/login', { email, password });
-      if (data && data.token) {
-        localStorage.setItem('instantshare_token', data.token);
-        localStorage.setItem('instantshare_auth_user', JSON.stringify(data));
+  login: async (email, password, forceOfflineFallback = false) => {
+    if (!forceOfflineFallback) {
+      try {
+        const data = await apiClient.post('/auth/login', { email, password });
+        if (data && data.token) {
+          localStorage.setItem('instantshare_token', data.token);
+          localStorage.setItem('instantshare_auth_user', JSON.stringify(data));
+        }
+        return data;
+      } catch (err) {
+        // If it's an HTTP response error from Spring Boot (401, 400, 403, 500), throw directly
+        if (err.status) {
+          throw err;
+        }
+
+        // Connection refused / Network error (Spring Boot not running on port 8080)
+        const activeUrl = `${getApiBaseUrl()}/auth/login`;
+        console.warn(`[InstantShare Auth] net::ERR_CONNECTION_REFUSED at ${activeUrl}`);
+        const netErr = new Error(
+          `Connection refused at ${activeUrl}. The Spring Boot backend service is not running or unreachable.`
+        );
+        netErr.isNetworkError = true;
+        netErr.endpoint = activeUrl;
+        netErr.backendUrl = getApiBaseUrl();
+        netErr.errorCode = 'ERR_CONNECTION_REFUSED';
+        netErr.originalError = err;
+        throw netErr;
       }
-      return data;
-    } catch (err) {
-      console.warn('Backend login failed, using local auth mock fallback:', err.message);
-      // Fallback: match local mock user by email
-      const users = storageService.getUsers();
-      const matched = users.find((u) => u.email.toLowerCase() === email.toLowerCase());
-      if (matched) {
-        return {
-          userId: matched.id,
-          name: matched.name,
-          email: matched.email,
-          role: matched.role || 'RENTER',
-          token: 'mock-jwt-token-fallback',
-        };
-      }
-      throw err;
     }
+
+    // Local offline mock fallback
+    const users = storageService.getUsers();
+    let matched = users.find((u) => u.email.toLowerCase() === email.toLowerCase());
+    if (!matched) {
+      matched = {
+        id: Date.now(),
+        name: email.split('@')[0],
+        email: email,
+        role: 'RENTER',
+      };
+      storageService.addUser(matched);
+    }
+    const mockAuth = {
+      userId: matched.id,
+      name: matched.name,
+      email: matched.email,
+      role: matched.role || 'RENTER',
+      token: 'mock-jwt-token-fallback-' + Date.now(),
+      tokenType: 'Bearer',
+      isOfflineFallback: true,
+    };
+    localStorage.setItem('instantshare_token', mockAuth.token);
+    localStorage.setItem('instantshare_auth_user', JSON.stringify(mockAuth));
+    return mockAuth;
   },
 
-  register: async (userData) => {
-    try {
-      const data = await apiClient.post('/auth/register', userData);
-      if (data && data.token) {
-        localStorage.setItem('instantshare_token', data.token);
-        localStorage.setItem('instantshare_auth_user', JSON.stringify(data));
+  register: async (userData, forceOfflineFallback = false) => {
+    if (!forceOfflineFallback) {
+      try {
+        const data = await apiClient.post('/auth/register', userData);
+        if (data && data.token) {
+          localStorage.setItem('instantshare_token', data.token);
+          localStorage.setItem('instantshare_auth_user', JSON.stringify(data));
+        }
+        return data;
+      } catch (err) {
+        // If it's an HTTP response error from Spring Boot (400 VALIDATION_FAILED, duplicate email, etc.)
+        if (err.status) {
+          throw err;
+        }
+
+        const activeUrl = `${getApiBaseUrl()}/auth/register`;
+        console.warn(`[InstantShare Auth] net::ERR_CONNECTION_REFUSED at ${activeUrl}`);
+        const netErr = new Error(
+          `Connection refused at ${activeUrl}. The Spring Boot backend service is not running or unreachable.`
+        );
+        netErr.isNetworkError = true;
+        netErr.endpoint = activeUrl;
+        netErr.backendUrl = getApiBaseUrl();
+        netErr.errorCode = 'ERR_CONNECTION_REFUSED';
+        netErr.originalError = err;
+        throw netErr;
       }
-      return data;
-    } catch (err) {
-      console.warn('Backend register failed, using local storage:', err.message);
-      return storageService.addUser(userData);
     }
+
+    const newUser = storageService.addUser(userData);
+    const mockAuth = {
+      userId: newUser.id,
+      name: newUser.name,
+      email: newUser.email,
+      role: newUser.role || 'RENTER',
+      token: 'mock-jwt-token-fallback-' + Date.now(),
+      tokenType: 'Bearer',
+      isOfflineFallback: true,
+    };
+    localStorage.setItem('instantshare_token', mockAuth.token);
+    localStorage.setItem('instantshare_auth_user', JSON.stringify(mockAuth));
+    return mockAuth;
   },
 
   logout: () => {
@@ -552,21 +612,26 @@ export const apiService = {
   },
 
   createItem: async (itemData) => {
+    // 1. Immediately store in local storage so the newly listed equipment is NEVER lost
+    const localItem = storageService.saveItem(itemData);
+
     try {
       const payload = mapItemToBackendEquipmentRequest(itemData);
       const res = await apiClient.post('/equipment', payload);
       if (res) {
         const mapped = mapBackendEquipmentToItem(res);
-        // Also sync into local storage for offline consistency
-        storageService.saveItem(mapped);
+        // Preserve user ownership metadata
+        mapped.ownerId = mapped.ownerId || itemData.ownerId;
+        mapped.ownerName = mapped.ownerName || itemData.ownerName;
+        mapped.ownerEmail = mapped.ownerEmail || itemData.ownerEmail;
+        storageService.updateItem(localItem.id, mapped);
         return mapped;
       }
-    } catch {
-      // Fallback to local storage
+    } catch (err) {
+      console.warn('[InstantShare] Backend listing sync error; equipment saved locally:', err.message);
     }
 
-    await delay(80);
-    return storageService.saveItem(itemData);
+    return localItem;
   },
 
   updateItem: async (id, updatedFields) => {
@@ -596,17 +661,27 @@ export const apiService = {
     return storageService.deleteItem(id);
   },
 
-  getMyListings: async (ownerId) => {
+  getMyListings: async (ownerId, userEmail) => {
+    let backendItems = [];
     try {
       const res = await apiClient.get('/equipment/my');
-      if (Array.isArray(res)) {
-        return res.map(mapBackendEquipmentToItem);
+      if (Array.isArray(res) && res.length > 0) {
+        backendItems = res.map(mapBackendEquipmentToItem);
       }
     } catch {
       // Fallback
     }
-    await delay(60);
-    return storageService.getItemsByOwner(ownerId);
+
+    // Always retrieve local items matching this user (by ID or Email)
+    const localItems = storageService.getItemsByOwner(ownerId, userEmail);
+
+    if (backendItems.length > 0) {
+      const backendIds = new Set(backendItems.map((i) => String(i.id)));
+      const extraLocal = localItems.filter((i) => !backendIds.has(String(i.id)));
+      return [...backendItems, ...extraLocal];
+    }
+
+    return localItems;
   },
 
   // ---------------------------------------------------------------------------

@@ -80,6 +80,11 @@ export const ItemDetails = () => {
     ? calculateRentalCost(startDate, endDate, item.rentalPrice, item.rentalType)
     : { units: 0, durationText: '', totalAmount: 0, isValid: false, error: null };
 
+  const quotedAmount = costCalculation.totalAmount;
+  const platformFee = Math.round(quotedAmount * 0.1);
+  const securityDeposit = Number(item?.deposit || 0);
+  const totalPayable = quotedAmount + platformFee + securityDeposit;
+
   const isOwner = item && currentUser && currentUser.id === item.ownerId;
 
   // Distance from user to this item
@@ -143,7 +148,12 @@ export const ItemDetails = () => {
         durationUnits: costCalculation.units,
         rentalRate: item.rentalPrice,
         rentalType: item.rentalType,
-        totalAmount: costCalculation.totalAmount,
+        quotedAmount,
+        platformFee,
+        securityDeposit,
+        totalPayable,
+        totalAmount: totalPayable,
+        deposit: securityDeposit,
         notes: bookingNotes.trim() || 'No special notes provided.',
       };
 
@@ -459,7 +469,7 @@ export const ItemDetails = () => {
                   />
                 </div>
 
-                {/* Calculation Summary Box */}
+                {/* Calculation Summary Box (Matching Backend API Breakdown) */}
                 <div className="bg-[#F8F8F5] rounded-2xl p-4 border border-[#E1E5E1] space-y-2 text-xs">
                   <div className="flex items-center justify-between text-slate-600">
                     <span>Rental Duration:</span>
@@ -476,17 +486,32 @@ export const ItemDetails = () => {
                     </span>
                   </div>
 
-                  {item.deposit && (
+                  <div className="pt-2 border-t border-slate-200/80 space-y-1.5">
                     <div className="flex items-center justify-between text-slate-600">
-                      <span>Refundable Deposit:</span>
-                      <span>{formatCurrency(item.deposit)}</span>
+                      <span>Quoted Rental Amount:</span>
+                      <span className="font-semibold text-slate-800">{formatCurrency(quotedAmount)}</span>
                     </div>
-                  )}
+
+                    <div className="flex items-center justify-between text-slate-600">
+                      <span>Platform Fee (10%):</span>
+                      <span className="font-semibold text-slate-800">{formatCurrency(platformFee)}</span>
+                    </div>
+
+                    {securityDeposit > 0 && (
+                      <div className="flex items-center justify-between text-slate-600">
+                        <span>Refundable Deposit:</span>
+                        <span className="font-semibold text-slate-800">{formatCurrency(securityDeposit)}</span>
+                      </div>
+                    )}
+                  </div>
 
                   <div className="pt-2 border-t border-slate-200 flex items-center justify-between font-bold text-sm text-slate-900">
-                    <span>Estimated Rental Total:</span>
+                    <div>
+                      <span>Total Payable:</span>
+                      <span className="block text-[10px] text-slate-400 font-normal">Quoted + 10% fee + deposit</span>
+                    </div>
                     <span className="text-base text-[#236B45]">
-                      {formatCurrency(costCalculation.totalAmount)}
+                      {formatCurrency(totalPayable)}
                     </span>
                   </div>
                 </div>

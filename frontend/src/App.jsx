@@ -16,6 +16,7 @@ import MyListings from './pages/MyListings';
 import MyBookings from './pages/MyBookings';
 import OwnerDashboard from './pages/OwnerDashboard';
 import Profile from './pages/Profile';
+import AuthPage from './pages/AuthPage';
 import HeroDemo from './pages/HeroDemo';
 import DemoOne from './pages/DemoOne';
 
@@ -85,6 +86,9 @@ const AppLayout = () => {
           <Route path="/my-bookings" element={<MyBookings />} />
           <Route path="/dashboard" element={<OwnerDashboard />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/login" element={<AuthPage initialMode="login" />} />
+          <Route path="/register" element={<AuthPage initialMode="register" />} />
+          <Route path="/auth" element={<AuthPage initialMode="login" />} />
           <Route path="/hero-demo" element={<HeroDemo />} />
           <Route path="/demo-one" element={<DemoOne />} />
           <Route path="/shader-demo" element={<DemoOne />} />

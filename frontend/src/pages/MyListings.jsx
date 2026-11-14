@@ -28,8 +28,10 @@ export const MyListings = () => {
     const fetchListings = async () => {
       try {
         setIsLoading(true);
-        const userItems = await apiService.getMyListings(currentUser.id);
-        setListings(userItems);
+        const ownerId = currentUser?.id ?? storageService.getCurrentUserId();
+        const ownerEmail = currentUser?.email;
+        const userItems = await apiService.getMyListings(ownerId, ownerEmail);
+        setListings(Array.isArray(userItems) ? userItems : []);
       } catch (err) {
         console.error('Failed to load listings:', err);
       } finally {
@@ -38,7 +40,7 @@ export const MyListings = () => {
     };
 
     fetchListings();
-  }, [currentUser.id, dataVersion]);
+  }, [currentUser?.id, currentUser?.email, dataVersion]);
 
   const handleDeleteConfirm = async () => {
     if (!deleteTarget) return;
@@ -61,12 +63,17 @@ export const MyListings = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#E1E5E1]">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-[#252B27] tracking-tight">
-            My Item Listings
-          </h1>
+          <div className="flex items-center gap-3 flex-wrap">
+            <h1 className="text-2xl sm:text-3xl font-bold text-[#252B27] tracking-tight">
+              My Item Listings
+            </h1>
+            <span className="px-2.5 py-1 text-xs font-bold rounded-full bg-[#EEF3EE] text-[#236B45] border border-[#DCFCE7]">
+              {listings.length} {listings.length === 1 ? 'equipment listed' : 'equipments listed'}
+            </span>
+          </div>
           <p className="text-xs sm:text-sm text-slate-500 mt-1">
-            Manage equipment you've shared on InstantShare as{' '}
-            <strong className="text-slate-700">{currentUser.name}</strong>
+            Equipment listed by <strong className="text-slate-700">{currentUser?.name}</strong> •{' '}
+            <span>{listings.length} items shared with your community</span>
           </p>
         </div>
 

@@ -9,6 +9,23 @@ import { DEMO_LOCATION } from '../utils/geo';
 
 export const LOCATION_STORAGE_KEY = 'instantshare_user_location';
 
+/**
+ * Returns a human-friendly area name for coordinates (never exposes raw lat/lon to users)
+ */
+export const getAreaNameFromCoords = (lat, lng) => {
+  if (lat === undefined || lng === undefined) return 'Your Local Neighborhood';
+  if (Math.abs(lat - 28.5585) < 0.05 && Math.abs(lng - 77.2029) < 0.05) {
+    return 'Green Park, New Delhi';
+  }
+  if (Math.abs(lat - 12.9141) < 0.05 && Math.abs(lng - 77.6369) < 0.05) {
+    return 'HSR Layout, Bangalore';
+  }
+  if (Math.abs(lat - 28.4744) < 0.05 && Math.abs(lng - 77.5040) < 0.05) {
+    return 'Knowledge Park III, Greater Noida';
+  }
+  return 'Your Nearby Neighborhood';
+};
+
 export const locationService = {
   /**
    * Check if geolocation is supported by the user's browser
@@ -20,7 +37,7 @@ export const locationService = {
   /**
    * Request user's current GPS position via browser Geolocation API
    * @param {Object} options Geolocation options
-   * @returns {Promise<{lat: number, lng: number, accuracy: number, isDemo: boolean}>}
+   * @returns {Promise<{lat: number, lng: number, accuracy: number, isDemo: boolean, areaName: string}>}
    */
   getCurrentPosition: (options = {}) => {
     return new Promise((resolve, reject) => {
@@ -40,14 +57,44 @@ export const locationService = {
       };
 
       navigator.geolocation.getCurrentPosition(
-        (position) => {
+        async (position) => {
+          const lat = position.coords.latitude;
+          const lng = position.coords.longitude;
+          let areaName = getAreaNameFromCoords(lat, lng);
+
+          // Fast reverse geocoding to resolve neighborhood/city name
+          try {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 2000);
+            const res = await fetch(
+              `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}`,
+              { signal: controller.signal }
+            );
+            clearTimeout(timeoutId);
+            if (res.ok) {
+              const data = await res.json();
+              const addr = data.address || {};
+              const neighbourhood =
+                addr.suburb || addr.neighbourhood || addr.residential || addr.subdistrict;
+              const city = addr.city || addr.town || addr.county || addr.state_district;
+              if (neighbourhood && city) areaName = `${neighbourhood}, ${city}`;
+              else if (city) areaName = city;
+              else if (data.name) areaName = data.name;
+            }
+          } catch {
+            // Keep default friendly area fallback
+          }
+
           const loc = {
-            lat: position.coords.latitude,
-            lng: position.coords.longitude,
+            lat,
+            lng,
             accuracy: Math.round(position.coords.accuracy || 0),
             isDemo: false,
             timestamp: position.timestamp || Date.now(),
-            label: 'Your Current Location',
+            label: areaName,
+            areaName,
+            displayArea: areaName,
+            name: areaName,
           };
           try {
             sessionStorage.setItem(LOCATION_STORAGE_KEY, JSON.stringify(loc));
@@ -98,6 +145,8 @@ export const locationService = {
       timestamp: Date.now(),
       label: DEMO_LOCATION.shortName,
       name: DEMO_LOCATION.name,
+      areaName: 'Green Park, New Delhi',
+      displayArea: 'Green Park, New Delhi',
     };
     try {
       sessionStorage.setItem(LOCATION_STORAGE_KEY, JSON.stringify(loc));

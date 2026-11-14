@@ -21,6 +21,28 @@ export const UserProvider = ({ children }) => {
   const [isBackendOnline, setIsBackendOnline] = useState(false);
   const [isCheckingBackend, setIsCheckingBackend] = useState(true);
   const [apiBaseUrl, setApiBaseUrlState] = useState(() => apiService.getBaseUrl());
+  const [myListingsCount, setMyListingsCount] = useState(0);
+
+  // Compute how many equipment are listed by this particular user
+  useEffect(() => {
+    let isMounted = true;
+    const updateCount = async () => {
+      try {
+        const ownerId = currentUser?.id ?? storageService.getCurrentUserId();
+        const ownerEmail = currentUser?.email;
+        const items = await apiService.getMyListings(ownerId, ownerEmail);
+        if (isMounted) {
+          setMyListingsCount(Array.isArray(items) ? items.length : 0);
+        }
+      } catch {
+        if (isMounted) setMyListingsCount(0);
+      }
+    };
+    updateCount();
+    return () => {
+      isMounted = false;
+    };
+  }, [currentUser?.id, currentUser?.email, dataVersion]);
 
   // Probe Spring Boot backend on mount
   const checkBackend = useCallback(async () => {
@@ -90,19 +112,61 @@ export const UserProvider = ({ children }) => {
     }
   };
 
-  const login = async (email, password) => {
-    const authData = await apiService.login(email, password);
+  const login = async (email, password, forceOffline = false) => {
+    const authData = await apiService.login(email, password, forceOffline);
     if (authData) {
-      showToast(`Logged in successfully as ${authData.name || email}`, 'success');
+      // Find matching user or construct user object
+      const allUsers = storageService.getUsers();
+      let matched = allUsers.find(
+        (u) =>
+          u.email?.toLowerCase() === email.toLowerCase() ||
+          (authData.userId && u.id === authData.userId)
+      );
+
+      if (!matched) {
+        matched = {
+          id: authData.userId || Date.now(),
+          name: authData.name || email.split('@')[0],
+          email: authData.email || email,
+          role: authData.role || 'RENTER',
+          avatar: `https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80`,
+          location: 'Local Neighborhood',
+          memberSince: 'Just now',
+          rating: 5.0,
+          reviewsCount: 0,
+        };
+        storageService.addUser(matched);
+      }
+
+      storageService.setCurrentUser(matched.id);
+      setCurrentUserState(matched);
+      showToast(`Welcome back, ${matched.name}!`, 'success');
       setDataVersion((v) => v + 1);
       return authData;
     }
   };
 
-  const register = async (userData) => {
-    const authData = await apiService.register(userData);
+  const register = async (userData, forceOffline = false) => {
+    const authData = await apiService.register(userData, forceOffline);
     if (authData) {
-      showToast(`Registered successfully as ${userData.name}`, 'success');
+      const newUser = {
+        id: authData.userId || Date.now(),
+        name: authData.name || userData.name,
+        email: authData.email || userData.email,
+        phone: userData.phone || '',
+        role: authData.role || userData.role || 'RENTER',
+        businessName: userData.businessName || '',
+        businessDescription: userData.businessDescription || '',
+        avatar: `https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=300&q=80`,
+        location: 'Local Neighborhood',
+        memberSince: 'Just now',
+        rating: 5.0,
+        reviewsCount: 0,
+      };
+      storageService.addUser(newUser);
+      storageService.setCurrentUser(newUser.id);
+      setCurrentUserState(newUser);
+      showToast(`Account created successfully! Welcome, ${newUser.name}.`, 'success');
       setDataVersion((v) => v + 1);
       return authData;
     }
@@ -150,6 +214,7 @@ export const UserProvider = ({ children }) => {
         recheckBackend: checkBackend,
         apiBaseUrl,
         updateApiBaseUrl,
+        myListingsCount,
       }}
     >
       {children}

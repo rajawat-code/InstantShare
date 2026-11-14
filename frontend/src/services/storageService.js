@@ -93,6 +93,44 @@ export const storageService = {
     }
   },
 
+  addUser: (userData) => {
+    try {
+      const users = storageService.getUsers();
+      const newUser = {
+        ...userData,
+        id: userData.id || Date.now(),
+        avatar:
+          userData.avatar ||
+          'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=300&q=80',
+        location: userData.location || 'Local Neighborhood',
+        memberSince: userData.memberSince || 'Just now',
+        rating: userData.rating || 5.0,
+        reviewsCount: userData.reviewsCount || 0,
+      };
+      const updated = [...users, newUser];
+      localStorage.setItem(KEYS.USERS, JSON.stringify(updated));
+      window.dispatchEvent(new Event('instantshare_user_changed'));
+      return newUser;
+    } catch (e) {
+      console.error('Failed to add user to localStorage:', e);
+      return userData;
+    }
+  },
+
+  updateCurrentUser: (updateData) => {
+    try {
+      const current = storageService.getCurrentUser();
+      const updatedUser = { ...current, ...updateData };
+      const users = storageService.getUsers().map((u) => (u.id === current.id ? updatedUser : u));
+      localStorage.setItem(KEYS.USERS, JSON.stringify(users));
+      window.dispatchEvent(new Event('instantshare_user_changed'));
+      return updatedUser;
+    } catch (e) {
+      console.error('Failed to update current user in localStorage:', e);
+      return updateData;
+    }
+  },
+
   // ================= ITEMS =================
   getItems: () => {
     try {
@@ -162,12 +200,22 @@ export const storageService = {
     const items = storageService.getItems();
     const newItem = {
       ...itemData,
-      id: Date.now(),
-      rating: 5.0,
-      reviewsCount: 0,
-      createdAt: new Date().toISOString(),
+      id: itemData.id || Date.now(),
+      ownerId: itemData.ownerId,
+      ownerName: itemData.ownerName || 'Verified Neighbor',
+      ownerEmail: itemData.ownerEmail || undefined,
+      rating: itemData.rating || 5.0,
+      reviewsCount: itemData.reviewsCount || 0,
+      createdAt: itemData.createdAt || new Date().toISOString(),
     };
-    const updated = [newItem, ...items];
+    const existingIdx = items.findIndex((i) => i.id === newItem.id);
+    let updated;
+    if (existingIdx >= 0) {
+      updated = [...items];
+      updated[existingIdx] = { ...updated[existingIdx], ...newItem };
+    } else {
+      updated = [newItem, ...items];
+    }
     localStorage.setItem(KEYS.ITEMS, JSON.stringify(updated));
     window.dispatchEvent(new Event('instantshare_data_changed'));
     return newItem;
@@ -196,9 +244,25 @@ export const storageService = {
     return true;
   },
 
-  getItemsByOwner: (ownerId) => {
+  getItemsByOwner: (ownerId, userEmail) => {
     const items = storageService.getItems();
-    return items.filter((item) => item.ownerId === Number(ownerId));
+    const targetIdStr = ownerId !== undefined && ownerId !== null ? String(ownerId) : null;
+    const targetEmail = userEmail ? String(userEmail).toLowerCase().trim() : null;
+
+    return items.filter((item) => {
+      if (!item) return false;
+      const itemOwnerIdStr =
+        item.ownerId !== undefined && item.ownerId !== null ? String(item.ownerId) : null;
+      const matchesId = targetIdStr && itemOwnerIdStr === targetIdStr;
+      const matchesNum =
+        ownerId !== undefined && ownerId !== null && Number(item.ownerId) === Number(ownerId);
+      const matchesEmail =
+        targetEmail &&
+        item.ownerEmail &&
+        String(item.ownerEmail).toLowerCase().trim() === targetEmail;
+
+      return Boolean(matchesId || matchesNum || matchesEmail);
+    });
   },
 
   // ================= BOOKINGS =================
