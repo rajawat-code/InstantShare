@@ -312,13 +312,13 @@ export const NearbyDiscoverySection = ({ title, subtitle, showExploreLink = true
               or test the sample community hub where items are clustered.
             </p>
             <div className="flex flex-wrap items-center justify-center gap-2 pt-2">
-              {radius < 500 && (
+              {radius < 2000 && (
                 <button
                   type="button"
-                  onClick={() => setRadius(500)}
-                  className="px-4 py-2 bg-[#236B45] text-white text-xs font-medium rounded-xl hover:bg-[#1b5636] transition-colors cursor-pointer"
+                  onClick={() => setRadius(radius < 300 ? 500 : radius < 1000 ? 1000 : 2000)}
+                  className="px-4 py-2 bg-[#236B45] text-white text-xs font-semibold rounded-xl hover:bg-[#1b5636] transition-colors cursor-pointer"
                 >
-                  Expand Radius to 500 m
+                  Expand Radius to {radius < 300 ? '500 m' : radius < 1000 ? '1 km' : '2 km'}
                 </button>
               )}
               {!isDemoActive && (

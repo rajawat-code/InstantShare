@@ -6,8 +6,9 @@ public final class AppConstants {
 
     private AppConstants() {}
 
-    public static final List<Integer> SUPPORTED_RADII_METERS = List.of(100, 200, 300);
+    public static final List<Integer> SUPPORTED_RADII_METERS = List.of(100, 200, 300, 500, 1000, 2000);
     public static final double DEFAULT_RADIUS_METERS = 200.0;
+    public static final double MAX_RADIUS_METERS = 2000.0;
     public static final double EARTH_RADIUS_METERS = 6371000.0;
 
     public static final String ROLE_RENTER = "RENTER";

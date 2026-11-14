@@ -22,14 +22,18 @@ export const DEMO_LOCATION = {
   description: 'Sample neighborhood hub with high density of rentable tools & equipment within 500m.'
 };
 
-// Supported search radius options in meters (100, 200, 300 as supported by Spring Boot backend)
+// Supported search radius options in meters (expanding up to 2 km / 2000m)
 export const RADIUS_OPTIONS = [
   { value: 100, label: '100 m', desc: 'Immediate block (~1 min walk)' },
   { value: 200, label: '200 m', desc: 'Walking radius (~2-3 min walk)' },
   { value: 300, label: '300 m', desc: 'Neighborhood (~4 min walk)' },
+  { value: 500, label: '500 m', desc: 'Extended area (~6 min walk)' },
+  { value: 1000, label: '1 km', desc: 'Local district (~12 min walk)' },
+  { value: 2000, label: '2 km', desc: 'Wide community area up to 2 km (~5 min drive / bike)' },
 ];
 
 export const DEFAULT_RADIUS = 200; // 200 meters default
+export const MAX_RADIUS = 2000; // 2000 meters (2 km) maximum
 
 /**
  * Calculates the great-circle distance between two points in meters using the Haversine formula.
@@ -100,6 +104,11 @@ export function formatDistance(meters) {
  */
 export function estimateWalkingTime(meters) {
   if (meters === undefined || meters === null || !isFinite(meters)) return '';
+  if (meters > 1200) {
+    const driveMinutes = Math.max(2, Math.round(meters / 350));
+    const walkMinutes = Math.round(meters / 80);
+    return `~${driveMinutes} min drive (${walkMinutes} min walk)`;
+  }
   const minutes = Math.max(1, Math.round(meters / 80));
   return `~${minutes} min walk`;
 }

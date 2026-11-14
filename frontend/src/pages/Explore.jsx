@@ -544,19 +544,19 @@ export const Explore = () => {
                 </h3>
                 <p className="text-xs text-slate-500 max-w-sm mx-auto leading-relaxed">
                   {exploreMode === 'nearby'
-                    ? `Try expanding your walking radius to 500m or browse all marketplace items.`
+                    ? `Try expanding your search radius up to 2 km or browse all marketplace items.`
                     : `We couldn't find any items matching your active search and filters. Try adjusting your keywords.`}
                 </p>
               </div>
 
               <div className="flex flex-wrap items-center justify-center gap-2 pt-2">
-                {exploreMode === 'nearby' && radius < 500 && (
+                {exploreMode === 'nearby' && radius < 2000 && (
                   <button
                     type="button"
-                    onClick={() => setRadius(500)}
+                    onClick={() => setRadius(radius < 300 ? 500 : radius < 1000 ? 1000 : 2000)}
                     className="px-4 py-2 bg-[#236B45] text-white text-xs font-semibold rounded-xl hover:bg-[#1b5636] transition-colors cursor-pointer"
                   >
-                    Expand to 500m Radius
+                    Expand Radius to {radius < 300 ? '500 m' : radius < 1000 ? '1 km' : '2 km'}
                   </button>
                 )}
 
