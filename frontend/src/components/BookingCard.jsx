@@ -1,13 +1,15 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Calendar, Clock, User, ArrowRight, XCircle, CreditCard, Star } from 'lucide-react';
+import { Calendar, Clock, User, ArrowRight, XCircle, CreditCard, Star, CheckCircle2, Receipt } from 'lucide-react';
 import BookingStatusBadge from './BookingStatusBadge';
 import { formatCurrency, formatDateTime } from '../utils/pricing';
 
 export const BookingCard = ({ booking, onCancelRequest, onPayNow, onReview }) => {
   const isPending = booking.status === 'PENDING';
   const isAccepted = booking.status === 'ACCEPTED' || booking.isAcceptedByOwner;
+  const isConfirmed = booking.status === 'CONFIRMED' || booking.paymentStatus === 'SUCCESS';
   const isCompleted = booking.status === 'COMPLETED';
+  const canPay = (isPending || isAccepted) && !isConfirmed && booking.status !== 'ACTIVE' && booking.status !== 'COMPLETED' && booking.status !== 'REJECTED' && booking.status !== 'CANCELLED';
 
   return (
     <div className="bg-white rounded-2xl border border-[#E1E5E1] p-5 hover:border-slate-300 hover:shadow-xs transition-all flex flex-col md:flex-row gap-5 items-start md:items-center justify-between">
@@ -71,15 +73,27 @@ export const BookingCard = ({ booking, onCancelRequest, onPayNow, onReview }) =>
         </div>
 
         <div className="flex items-center gap-2">
-          {isAccepted && onPayNow && (
+          {canPay && onPayNow && (
             <button
               type="button"
               onClick={() => onPayNow(booking)}
               className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-white bg-[#236B45] hover:bg-[#1b5636] rounded-lg shadow-xs transition-colors cursor-pointer animate-pulse"
-              title="Owner accepted your request. Complete demo checkout."
+              title={isAccepted ? "Owner accepted! Complete demo checkout." : "Pay now with Demo Mode Gateway"}
             >
               <CreditCard className="w-3.5 h-3.5" />
               <span>Demo Pay</span>
+            </button>
+          )}
+
+          {isConfirmed && onPayNow && (
+            <button
+              type="button"
+              onClick={() => onPayNow(booking, true)}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded-lg shadow-xs transition-colors cursor-pointer"
+              title="View demo payment receipt"
+            >
+              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+              <span>Paid (Demo)</span>
             </button>
           )}
 

@@ -15,6 +15,11 @@ import {
   Edit,
   Navigation2,
   Footprints,
+  CreditCard,
+  Sparkles,
+  QrCode,
+  Building2,
+  HandCoins,
 } from 'lucide-react';
 import apiService from '../services/apiService';
 import { useUser } from '../context/UserContext';
@@ -25,6 +30,7 @@ import {
   getDefaultBookingDates,
 } from '../utils/pricing';
 import LoadingSpinner from '../components/LoadingSpinner';
+import DemoPaymentModal from '../components/DemoPaymentModal';
 
 export const ItemDetails = () => {
   const { id } = useParams();
@@ -44,6 +50,11 @@ export const ItemDetails = () => {
   const [bookingNotes, setBookingNotes] = useState('');
   const [formError, setFormError] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [checkoutBooking, setCheckoutBooking] = useState(null);
+  const [paymentMethod, setPaymentMethod] = useState('CARD'); // 'CARD' | 'UPI' | 'NETBANKING' | 'HANDOVER'
+  const [selectedTestCard, setSelectedTestCard] = useState('4242 4242 4242 4242');
+  const [selectedBank, setSelectedBank] = useState('HDFC');
+  const [upiId, setUpiId] = useState('renter@instantshare');
 
   useEffect(() => {
     const fetchItemAndOwner = async () => {
@@ -93,8 +104,8 @@ export const ItemDetails = () => {
       ? getDistanceToItem(item.lat, item.lng)
       : null;
 
-  const handleBookingSubmit = async (e) => {
-    e.preventDefault();
+  const handleBookingSubmit = async (e, openPaymentImmediately = false) => {
+    if (e && e.preventDefault) e.preventDefault();
     setFormError(null);
 
     if (!item.available) {
@@ -154,18 +165,36 @@ export const ItemDetails = () => {
         totalPayable,
         totalAmount: totalPayable,
         deposit: securityDeposit,
-        notes: bookingNotes.trim() || 'No special notes provided.',
+        paymentMethod: paymentMethod,
+        paymentMode: 'DEMO',
+        notes: `${paymentMethod === 'HANDOVER' ? '[Payment Method: Pay on Pickup] ' : '[Payment Method: Demo ' + paymentMethod + '] '}${bookingNotes.trim() || 'No special notes provided.'}`,
       };
 
-      await apiService.createBooking(newBooking);
-      showToast('Rental request submitted successfully! Status is PENDING.', 'success');
-      navigate('/my-bookings');
+      const created = await apiService.createBooking(newBooking);
+      const targetBooking = created || newBooking;
+
+      if (paymentMethod === 'HANDOVER' || !openPaymentImmediately) {
+        showToast(
+          paymentMethod === 'HANDOVER'
+            ? 'Rental request submitted! Payment will be collected during pickup.'
+            : 'Rental request submitted successfully! Status is PENDING.',
+          'success'
+        );
+        navigate('/my-bookings');
+      } else {
+        setCheckoutBooking(targetBooking);
+      }
     } catch (err) {
       console.error('Error submitting booking:', err);
       setFormError('Failed to submit booking request. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const handlePaymentSuccess = (bookingId, result) => {
+    showToast('Demo payment approved! Rental is now CONFIRMED.', 'success');
+    navigate('/my-bookings');
   };
 
   if (isLoading) {
@@ -516,24 +545,258 @@ export const ItemDetails = () => {
                   </div>
                 </div>
 
-                {/* Submit Request Button */}
-                <button
-                  type="submit"
-                  disabled={isSubmitting || !costCalculation.isValid}
-                  className="w-full py-3 bg-[#236B45] hover:bg-[#1b5636] disabled:bg-slate-300 disabled:cursor-not-allowed text-white text-sm font-semibold rounded-xl shadow-xs transition-colors flex items-center justify-center gap-2 cursor-pointer"
-                >
-                  {isSubmitting ? (
-                    <span>Submitting Request...</span>
-                  ) : (
-                    <>
-                      <span>Send Rental Request</span>
-                      <ShieldCheck className="w-4 h-4" />
-                    </>
+                {/* Integrated Demo Payment Method Selection */}
+                <div className="space-y-2.5 pt-2 border-t border-slate-100">
+                  <div className="flex items-center justify-between">
+                    <label className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                      <CreditCard className="w-3.5 h-3.5 text-[#236B45]" />
+                      <span>Choose Payment Method</span>
+                    </label>
+                    <span className="text-[10px] bg-amber-50 text-amber-800 border border-amber-200 px-2 py-0.5 rounded-full font-semibold">
+                      Demo Sandbox
+                    </span>
+                  </div>
+
+                  {/* 4 Method Tiles */}
+                  <div className="grid grid-cols-2 gap-2">
+                    {/* 1. Demo Card */}
+                    <div
+                      onClick={() => setPaymentMethod('CARD')}
+                      className={`p-2.5 rounded-xl border text-xs cursor-pointer transition-all flex items-start gap-2 ${
+                        paymentMethod === 'CARD'
+                          ? 'border-[#236B45] bg-[#EEF3EE]/70 ring-1 ring-[#236B45]'
+                          : 'border-slate-200 hover:bg-slate-50'
+                      }`}
+                    >
+                      <input
+                        type="radio"
+                        name="paymentMethodRadio"
+                        checked={paymentMethod === 'CARD'}
+                        onChange={() => setPaymentMethod('CARD')}
+                        className="mt-0.5 text-[#236B45] focus:ring-[#236B45]"
+                      />
+                      <div className="min-w-0 flex-1">
+                        <div className="font-semibold text-slate-800 flex items-center gap-1">
+                          <CreditCard className="w-3.5 h-3.5 text-[#236B45]" />
+                          <span>Demo Card</span>
+                        </div>
+                        <div className="text-[10px] text-slate-500 truncate">Visa 4242 / Decline</div>
+                      </div>
+                    </div>
+
+                    {/* 2. Demo UPI */}
+                    <div
+                      onClick={() => setPaymentMethod('UPI')}
+                      className={`p-2.5 rounded-xl border text-xs cursor-pointer transition-all flex items-start gap-2 ${
+                        paymentMethod === 'UPI'
+                          ? 'border-[#236B45] bg-[#EEF3EE]/70 ring-1 ring-[#236B45]'
+                          : 'border-slate-200 hover:bg-slate-50'
+                      }`}
+                    >
+                      <input
+                        type="radio"
+                        name="paymentMethodRadio"
+                        checked={paymentMethod === 'UPI'}
+                        onChange={() => setPaymentMethod('UPI')}
+                        className="mt-0.5 text-[#236B45] focus:ring-[#236B45]"
+                      />
+                      <div className="min-w-0 flex-1">
+                        <div className="font-semibold text-slate-800 flex items-center gap-1">
+                          <QrCode className="w-3.5 h-3.5 text-blue-600" />
+                          <span>Demo UPI / QR</span>
+                        </div>
+                        <div className="text-[10px] text-slate-500 truncate">GPay, PhonePe, Paytm</div>
+                      </div>
+                    </div>
+
+                    {/* 3. Demo Net Banking */}
+                    <div
+                      onClick={() => setPaymentMethod('NETBANKING')}
+                      className={`p-2.5 rounded-xl border text-xs cursor-pointer transition-all flex items-start gap-2 ${
+                        paymentMethod === 'NETBANKING'
+                          ? 'border-[#236B45] bg-[#EEF3EE]/70 ring-1 ring-[#236B45]'
+                          : 'border-slate-200 hover:bg-slate-50'
+                      }`}
+                    >
+                      <input
+                        type="radio"
+                        name="paymentMethodRadio"
+                        checked={paymentMethod === 'NETBANKING'}
+                        onChange={() => setPaymentMethod('NETBANKING')}
+                        className="mt-0.5 text-[#236B45] focus:ring-[#236B45]"
+                      />
+                      <div className="min-w-0 flex-1">
+                        <div className="font-semibold text-slate-800 flex items-center gap-1">
+                          <Building2 className="w-3.5 h-3.5 text-purple-600" />
+                          <span>Net Banking</span>
+                        </div>
+                        <div className="text-[10px] text-slate-500 truncate">HDFC, SBI, ICICI</div>
+                      </div>
+                    </div>
+
+                    {/* 4. Pay on Handover */}
+                    <div
+                      onClick={() => setPaymentMethod('HANDOVER')}
+                      className={`p-2.5 rounded-xl border text-xs cursor-pointer transition-all flex items-start gap-2 ${
+                        paymentMethod === 'HANDOVER'
+                          ? 'border-[#236B45] bg-[#EEF3EE]/70 ring-1 ring-[#236B45]'
+                          : 'border-slate-200 hover:bg-slate-50'
+                      }`}
+                    >
+                      <input
+                        type="radio"
+                        name="paymentMethodRadio"
+                        checked={paymentMethod === 'HANDOVER'}
+                        onChange={() => setPaymentMethod('HANDOVER')}
+                        className="mt-0.5 text-[#236B45] focus:ring-[#236B45]"
+                      />
+                      <div className="min-w-0 flex-1">
+                        <div className="font-semibold text-slate-800 flex items-center gap-1">
+                          <HandCoins className="w-3.5 h-3.5 text-amber-600" />
+                          <span>On Pickup</span>
+                        </div>
+                        <div className="text-[10px] text-slate-500 truncate">Inspect then pay</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Method Mini-Config Preview */}
+                  {paymentMethod === 'CARD' && (
+                    <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-2 text-xs">
+                      <div className="flex items-center justify-between text-[11px] text-slate-600">
+                        <span className="font-medium">Active Test Card:</span>
+                        <span className="font-mono text-[#236B45] font-bold">{selectedTestCard}</span>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <button
+                          type="button"
+                          onClick={() => setSelectedTestCard('4242 4242 4242 4242')}
+                          className={`flex-1 py-1.5 px-2 rounded-lg text-[10px] font-semibold border cursor-pointer ${
+                            selectedTestCard === '4242 4242 4242 4242'
+                              ? 'bg-emerald-50 text-emerald-800 border-emerald-300 shadow-xs'
+                              : 'bg-white text-slate-600 border-slate-200'
+                          }`}
+                        >
+                          ✓ Visa 4242 (Approved)
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setSelectedTestCard('4000 0000 0000 0002')}
+                          className={`flex-1 py-1.5 px-2 rounded-lg text-[10px] font-semibold border cursor-pointer ${
+                            selectedTestCard === '4000 0000 0000 0002'
+                              ? 'bg-rose-50 text-rose-800 border-rose-300 shadow-xs'
+                              : 'bg-white text-slate-600 border-slate-200'
+                          }`}
+                        >
+                          ✗ Decline 0002
+                        </button>
+                      </div>
+                    </div>
                   )}
-                </button>
+
+                  {paymentMethod === 'UPI' && (
+                    <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-2 text-xs">
+                      <div className="flex items-center justify-between text-[11px]">
+                        <span className="text-slate-600 font-medium">Demo UPI Virtual Address:</span>
+                        <span className="font-mono text-slate-800 font-bold">{upiId}</span>
+                      </div>
+                      <div className="flex gap-1.5">
+                        {['gpay@instant', 'phonepe@instant', 'paytm@instant'].map((vpa) => (
+                          <button
+                            key={vpa}
+                            type="button"
+                            onClick={() => setUpiId(vpa)}
+                            className={`px-2 py-1 text-[10px] font-semibold rounded-md border cursor-pointer ${
+                              upiId === vpa
+                                ? 'bg-emerald-100 text-emerald-900 border-emerald-300'
+                                : 'bg-white text-slate-600 border-slate-200'
+                            }`}
+                          >
+                            {vpa}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {paymentMethod === 'NETBANKING' && (
+                    <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-1.5 text-xs">
+                      <label className="text-[11px] font-medium text-slate-600 block">Select Demo Bank:</label>
+                      <select
+                        value={selectedBank}
+                        onChange={(e) => setSelectedBank(e.target.value)}
+                        className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-xs text-slate-800 font-medium"
+                      >
+                        <option value="HDFC">HDFC Bank (Demo Simulation)</option>
+                        <option value="SBI">State Bank of India (Demo Simulation)</option>
+                        <option value="ICICI">ICICI Bank (Demo Simulation)</option>
+                        <option value="AXIS">Axis Bank (Demo Simulation)</option>
+                      </select>
+                    </div>
+                  )}
+
+                  {paymentMethod === 'HANDOVER' && (
+                    <div className="p-3 bg-amber-50/70 rounded-xl border border-amber-200/80 text-xs text-amber-900 space-y-1">
+                      <strong className="block font-semibold">Pay upon item pickup:</strong>
+                      <p className="text-[11px] text-amber-800/90 leading-relaxed">
+                        Rental request will be saved as PENDING. You can physically inspect the item during handover before paying.
+                      </p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Primary Action Button */}
+                {paymentMethod !== 'HANDOVER' ? (
+                  <button
+                    type="button"
+                    disabled={isSubmitting || !costCalculation.isValid}
+                    onClick={(e) => handleBookingSubmit(e, true)}
+                    className="w-full py-3 bg-[#236B45] hover:bg-[#1b5636] disabled:bg-slate-300 disabled:cursor-not-allowed text-white text-sm font-semibold rounded-xl shadow-xs transition-colors flex items-center justify-center gap-2 cursor-pointer"
+                  >
+                    {isSubmitting ? (
+                      <span>Initializing Demo Checkout...</span>
+                    ) : (
+                      <>
+                        <CreditCard className="w-4 h-4" />
+                        <span>
+                          Pay {formatCurrency(totalPayable)} via {paymentMethod === 'CARD' ? 'Demo Card' : paymentMethod === 'UPI' ? 'Demo UPI' : 'Net Banking'}
+                        </span>
+                      </>
+                    )}
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    disabled={isSubmitting || !costCalculation.isValid}
+                    onClick={(e) => handleBookingSubmit(e, false)}
+                    className="w-full py-3 bg-[#236B45] hover:bg-[#1b5636] disabled:bg-slate-300 disabled:cursor-not-allowed text-white text-sm font-semibold rounded-xl shadow-xs transition-colors flex items-center justify-center gap-2 cursor-pointer"
+                  >
+                    {isSubmitting ? (
+                      <span>Submitting Request...</span>
+                    ) : (
+                      <>
+                        <HandCoins className="w-4 h-4" />
+                        <span>Confirm Request (Pay on Pickup)</span>
+                      </>
+                    )}
+                  </button>
+                )}
+
+                {/* Secondary Button: Request Only (Pay Later) */}
+                {paymentMethod !== 'HANDOVER' && (
+                  <button
+                    type="button"
+                    disabled={isSubmitting || !costCalculation.isValid}
+                    onClick={(e) => handleBookingSubmit(e, false)}
+                    className="w-full py-2 bg-slate-100 hover:bg-slate-200 disabled:bg-slate-100 disabled:text-slate-400 text-slate-700 text-xs font-medium rounded-xl transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+                  >
+                    <ShieldCheck className="w-3.5 h-3.5" />
+                    <span>Send Request Only (Pay Later in My Bookings)</span>
+                  </button>
+                )}
 
                 <p className="text-[11px] text-center text-slate-400">
-                  No payment is processed now. Owner approval is required first.
+                  Demo Gateway simulates Spring Boot endpoint <code className="text-[#236B45]">/api/payments/demo-confirm</code>.
                 </p>
               </form>
             )}
@@ -551,6 +814,19 @@ export const ItemDetails = () => {
           </div>
         </div>
       </div>
+
+      {/* Demo Mode Payment Gateway Modal */}
+      <DemoPaymentModal
+        isOpen={Boolean(checkoutBooking)}
+        booking={checkoutBooking}
+        initialMethod={paymentMethod}
+        initialCard={selectedTestCard}
+        onClose={() => {
+          setCheckoutBooking(null);
+          navigate('/my-bookings');
+        }}
+        onPaymentSuccess={handlePaymentSuccess}
+      />
     </div>
   );
 };

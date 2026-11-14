@@ -34,9 +34,11 @@ export const MyBookings = () => {
   const [cancelTarget, setCancelTarget] = useState(null);
   const [isCancelling, setIsCancelling] = useState(false);
   const [paymentTarget, setPaymentTarget] = useState(null);
+  const [isReceiptOnly, setIsReceiptOnly] = useState(false);
   const [reviewTarget, setReviewTarget] = useState(null);
 
-  const handlePayNow = (booking) => {
+  const handlePayNow = (booking, receiptMode = false) => {
+    setIsReceiptOnly(Boolean(receiptMode));
     setPaymentTarget(booking);
   };
 
@@ -208,7 +210,8 @@ export const MyBookings = () => {
       <DemoPaymentModal
         isOpen={Boolean(paymentTarget)}
         booking={paymentTarget}
-        onClose={() => setPaymentTarget(null)}
+        isReceiptOnly={isReceiptOnly}
+        onClose={() => { setPaymentTarget(null); setIsReceiptOnly(false); }}
         onPaymentSuccess={handlePaymentSuccess}
       />
 

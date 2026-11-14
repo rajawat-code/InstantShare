@@ -823,6 +823,9 @@ export const apiService = {
         failureErr.data = res;
         throw failureErr;
       }
+      if (res) {
+        storageService.updateBookingPayment(paymentData.rentalId, res);
+      }
       return res;
     } catch (err) {
       if (err.paymentStatus === 'FAILED') throw err;
@@ -837,12 +840,19 @@ export const apiService = {
         failureErr.paymentStatus = 'FAILED';
         throw failureErr;
       }
-      return {
+      const fallbackResult = {
+        paymentId: Date.now(),
+        rentalId: paymentData.rentalId,
+        orderId: paymentData.orderId || `demo_ord_${Date.now()}`,
+        paymentIdRef: `demo_pay_${Date.now()}`,
         paymentStatus: 'SUCCESS',
+        paymentMode: 'DEMO',
         rentalStatus: 'CONFIRMED',
         message: 'Demo payment approved! Rental is now CONFIRMED.',
         paidAt: new Date().toISOString(),
       };
+      storageService.updateBookingPayment(paymentData.rentalId, fallbackResult);
+      return fallbackResult;
     }
   },
 

@@ -294,18 +294,18 @@ export const storageService = {
     const bookings = storageService.getBookings();
     const newBooking = {
       ...bookingData,
-      id: Date.now(),
-      status: 'PENDING',
-      createdAt: new Date().toISOString(),
+      id: bookingData.id || Date.now(),
+      status: bookingData.status || 'PENDING',
+      createdAt: bookingData.createdAt || new Date().toISOString(),
     };
-    const updated = [newBooking, ...bookings];
+    const updated = [newBooking, ...bookings.filter((b) => b.id !== newBooking.id)];
     localStorage.setItem(KEYS.BOOKINGS, JSON.stringify(updated));
     window.dispatchEvent(new Event('instantshare_data_changed'));
     return newBooking;
   },
 
   updateBookingStatus: (id, newStatus) => {
-    const validStatuses = ['PENDING', 'ACCEPTED', 'REJECTED', 'CANCELLED', 'ACTIVE', 'COMPLETED'];
+    const validStatuses = ['PENDING', 'ACCEPTED', 'CONFIRMED', 'REJECTED', 'CANCELLED', 'ACTIVE', 'COMPLETED'];
     if (!validStatuses.includes(newStatus)) {
       throw new Error(`Invalid booking status: ${newStatus}`);
     }
@@ -317,6 +317,31 @@ export const storageService = {
         updatedBooking = {
           ...b,
           status: newStatus,
+          updatedAt: new Date().toISOString(),
+        };
+        return updatedBooking;
+      }
+      return b;
+    });
+
+    localStorage.setItem(KEYS.BOOKINGS, JSON.stringify(updated));
+    window.dispatchEvent(new Event('instantshare_data_changed'));
+    return updatedBooking;
+  },
+
+  updateBookingPayment: (id, paymentDetails = {}) => {
+    const bookings = storageService.getBookings();
+    let updatedBooking = null;
+    const updated = bookings.map((b) => {
+      if (b.id === Number(id)) {
+        updatedBooking = {
+          ...b,
+          status: 'CONFIRMED',
+          paymentStatus: paymentDetails.paymentStatus || 'SUCCESS',
+          paymentMode: paymentDetails.paymentMode || 'DEMO',
+          paymentIdRef: paymentDetails.paymentIdRef || `demo_pay_${Date.now()}`,
+          orderId: paymentDetails.orderId || b.orderId || `demo_ord_${Date.now()}`,
+          paidAt: paymentDetails.paidAt || new Date().toISOString(),
           updatedAt: new Date().toISOString(),
         };
         return updatedBooking;
