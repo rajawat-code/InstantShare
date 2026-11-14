@@ -115,7 +115,8 @@ export const AuthPage = ({ initialMode = 'login' }) => {
     } catch (err) {
       console.error('Login error:', err);
       const isNet = Boolean(
-        err.isNetworkError ||
+        err.status === 404 ||
+          err.isNetworkError ||
           err.code === 'ERR_NETWORK' ||
           err.errorCode === 'ERR_CONNECTION_REFUSED' ||
           err.message?.includes('Network Error') ||
@@ -186,7 +187,8 @@ export const AuthPage = ({ initialMode = 'login' }) => {
     } catch (err) {
       console.error('Registration error:', err);
       const isNet = Boolean(
-        err.isNetworkError ||
+        err.status === 404 ||
+          err.isNetworkError ||
           err.code === 'ERR_NETWORK' ||
           err.errorCode === 'ERR_CONNECTION_REFUSED' ||
           err.message?.includes('Network Error') ||

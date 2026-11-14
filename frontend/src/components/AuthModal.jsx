@@ -41,7 +41,8 @@ export const AuthModal = ({ isOpen, initialTab = 'login', onClose }) => {
       onClose();
     } catch (err) {
       const isNet = Boolean(
-        err.isNetworkError ||
+        err.status === 404 ||
+          err.isNetworkError ||
           err.code === 'ERR_NETWORK' ||
           err.errorCode === 'ERR_CONNECTION_REFUSED' ||
           err.message?.includes('Network Error') ||
@@ -82,7 +83,8 @@ export const AuthModal = ({ isOpen, initialTab = 'login', onClose }) => {
       onClose();
     } catch (err) {
       const isNet = Boolean(
-        err.isNetworkError ||
+        err.status === 404 ||
+          err.isNetworkError ||
           err.code === 'ERR_NETWORK' ||
           err.errorCode === 'ERR_CONNECTION_REFUSED' ||
           err.message?.includes('Network Error') ||

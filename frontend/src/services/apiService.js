@@ -62,6 +62,14 @@ apiClient.interceptors.request.use(
 // Response interceptor: unwrap Spring Boot ApiResponse envelope { success: true, data: ... }
 apiClient.interceptors.response.use(
   (response) => {
+    // If response body is HTML (e.g. from static host SPA rewrite like index.html on 404)
+    if (typeof response.data === 'string' && response.data.trim().startsWith('<!DOCTYPE html')) {
+      const htmlErr = new Error('Endpoint not found on static host (returned HTML)');
+      htmlErr.status = 404;
+      htmlErr.errorCode = 'ENDPOINT_NOT_FOUND';
+      htmlErr.isNetworkError = true;
+      return Promise.reject(htmlErr);
+    }
     // If response body has the standard envelope { success, data }
     if (response.data && typeof response.data === 'object' && 'data' in response.data) {
       return response.data.data;
@@ -82,6 +90,10 @@ apiClient.interceptors.response.use(
       const message = errData?.message || (typeof errData === 'string' ? errData : res.statusText);
       const validationErrors = errorCode === 'VALIDATION_FAILED' ? errData?.data : null;
 
+      if (status === 404) {
+        isBackendOnline = false;
+      }
+
       // Per backend API doc:
       // "401 is not always 'logged out'. Ownership failures also return 401 with UNAUTHORIZED.
       // Clear the token only on a missing, expired or invalid token (INVALID_CREDENTIALS), not on every 401."
@@ -95,9 +107,11 @@ apiClient.interceptors.response.use(
       enhancedError.errorCode = errorCode;
       enhancedError.validationErrors = validationErrors;
       enhancedError.rawResponse = errData;
+      enhancedError.isNetworkError = status === 404;
       return Promise.reject(enhancedError);
     }
 
+    isBackendOnline = false;
     return Promise.reject(error);
   }
 );
@@ -290,28 +304,24 @@ export const apiService = {
       try {
         const data = await apiClient.post('/auth/login', { email, password });
         if (data && data.token) {
+          isBackendOnline = true;
           localStorage.setItem('instantshare_token', data.token);
           localStorage.setItem('instantshare_auth_user', JSON.stringify(data));
+          return data;
         }
-        return data;
       } catch (err) {
-        // If it's an HTTP response error from Spring Boot (401, 400, 403, 500), throw directly
-        if (err.status) {
+        // Only throw if Spring Boot returned a real credential failure or validation error
+        if (err.status === 401 && err.errorCode === 'INVALID_CREDENTIALS') {
+          throw err;
+        }
+        if (err.status === 400 && (err.errorCode === 'VALIDATION_FAILED' || err.errorCode === 'BAD_REQUEST')) {
           throw err;
         }
 
-        // Connection refused / Network error (Spring Boot not running on port 8080)
-        const activeUrl = `${getApiBaseUrl()}/auth/login`;
-        console.warn(`[InstantShare Auth] net::ERR_CONNECTION_REFUSED at ${activeUrl}`);
-        const netErr = new Error(
-          `Connection refused at ${activeUrl}. The Spring Boot backend service is not running or unreachable.`
-        );
-        netErr.isNetworkError = true;
-        netErr.endpoint = activeUrl;
-        netErr.backendUrl = getApiBaseUrl();
-        netErr.errorCode = 'ERR_CONNECTION_REFUSED';
-        netErr.originalError = err;
-        throw netErr;
+        // On 404 (endpoint missing on Vercel) or Network Error (connection refused):
+        // Automatically activate offline login fallback so the user is never blocked
+        isBackendOnline = false;
+        console.warn(`[InstantShare Auth] Backend unreachable or 404 at ${getApiBaseUrl()}/auth/login - activating offline login.`);
       }
     }
 
@@ -346,27 +356,21 @@ export const apiService = {
       try {
         const data = await apiClient.post('/auth/register', userData);
         if (data && data.token) {
+          isBackendOnline = true;
           localStorage.setItem('instantshare_token', data.token);
           localStorage.setItem('instantshare_auth_user', JSON.stringify(data));
+          return data;
         }
-        return data;
       } catch (err) {
-        // If it's an HTTP response error from Spring Boot (400 VALIDATION_FAILED, duplicate email, etc.)
-        if (err.status) {
+        // Only throw if Spring Boot returned a real duplicate email error or validation error
+        if (err.status === 400 && (err.errorCode === 'VALIDATION_FAILED' || err.errorCode === 'BAD_REQUEST')) {
           throw err;
         }
 
-        const activeUrl = `${getApiBaseUrl()}/auth/register`;
-        console.warn(`[InstantShare Auth] net::ERR_CONNECTION_REFUSED at ${activeUrl}`);
-        const netErr = new Error(
-          `Connection refused at ${activeUrl}. The Spring Boot backend service is not running or unreachable.`
-        );
-        netErr.isNetworkError = true;
-        netErr.endpoint = activeUrl;
-        netErr.backendUrl = getApiBaseUrl();
-        netErr.errorCode = 'ERR_CONNECTION_REFUSED';
-        netErr.originalError = err;
-        throw netErr;
+        // On 404 (endpoint missing on Vercel) or Network Error:
+        // Automatically activate offline registration fallback so user is never blocked
+        isBackendOnline = false;
+        console.warn(`[InstantShare Auth] Backend unreachable or 404 at ${getApiBaseUrl()}/auth/register - activating offline registration.`);
       }
     }
 

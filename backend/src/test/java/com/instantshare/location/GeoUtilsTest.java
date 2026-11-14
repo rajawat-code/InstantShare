@@ -39,16 +39,18 @@ class GeoUtilsTest {
     }
 
     @Test
-    @DisplayName("Should strictly validate micro-radii (100m, 200m, 300m)")
+    @DisplayName("Should validate supported radii (100m, 200m, 300m, 500m, 1000m, 2000m)")
     void testValidateRadius() {
         assertEquals(100, GeoUtils.validateRadius(100));
         assertEquals(200, GeoUtils.validateRadius(200));
         assertEquals(300, GeoUtils.validateRadius(300));
+        assertEquals(500, GeoUtils.validateRadius(500));
+        assertEquals(1000, GeoUtils.validateRadius(1000));
+        assertEquals(2000, GeoUtils.validateRadius(2000));
         assertEquals(200, GeoUtils.validateRadius(null)); // default
 
-        assertThrows(BadRequestException.class, () -> GeoUtils.validateRadius(500));
         assertThrows(BadRequestException.class, () -> GeoUtils.validateRadius(50));
-        assertThrows(BadRequestException.class, () -> GeoUtils.validateRadius(1000));
+        assertThrows(BadRequestException.class, () -> GeoUtils.validateRadius(2500));
     }
 
     @Test

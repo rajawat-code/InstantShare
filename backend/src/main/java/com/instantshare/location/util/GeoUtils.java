@@ -51,7 +51,7 @@ public final class GeoUtils {
     }
 
     /**
-     * Validates that requested radius strictly adheres to supported micro-radius values (100m, 200m, 300m).
+     * Validates that requested radius adheres to supported radius values (100m, 200m, 300m, 500m, 1000m, 2000m).
      */
     public static int validateRadius(Integer radius) {
         if (radius == null) {
@@ -59,7 +59,7 @@ public final class GeoUtils {
         }
         if (!AppConstants.SUPPORTED_RADII_METERS.contains(radius)) {
             throw new BadRequestException("Unsupported search radius: " + radius +
-                    "m. InstantShare micro-radius strictly supports 100m, 200m, or 300m.");
+                    "m. InstantShare supports radii up to 2km: " + AppConstants.SUPPORTED_RADII_METERS);
         }
         return radius;
     }
